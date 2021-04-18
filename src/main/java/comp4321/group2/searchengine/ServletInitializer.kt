@@ -1,13 +1,9 @@
-package comp4321.group2.searchengine;
+package comp4321.group2.searchengine
 
-import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import org.springframework.boot.builder.SpringApplicationBuilder
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 
-public class ServletInitializer extends SpringBootServletInitializer {
-
-	@Override
-	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-		return application.sources(TheSearchEngineApplication.class);
-	}
-
+class ServletInitializer : SpringBootServletInitializer() {
+    override fun configure(application: SpringApplicationBuilder): SpringApplicationBuilder =
+        application.sources(TheSearchEngineApplication::class.java)
 }
