@@ -15,9 +15,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @SpringBootApplication
 public class TheSearchEngineApplication extends SpringBootServletInitializer {
@@ -94,6 +92,39 @@ public class TheSearchEngineApplication extends SpringBootServletInitializer {
             writer.println("------------------------------------------------------------\n");
         }
         writer.close();
+    }
+
+    public void completed()
+        throws RocksDBException, InvalidWordIdConversionException, ClassNotFoundException, IOException {
+        String rootUrl = "https://www.cse.ust.hk/";
+        Crawler crawler = new Crawler(rootUrl);
+        crawler.indexToDB();
+
+        //iterate each word ID, compute idf, length
+        HashMap<String, Integer> wordToWordID = RocksDBApi.getAllWordToWordID();
+        HashMap<String, Integer> latestIndex = RocksDBApi.getAllMetadata();
+        int numDocs = latestIndex.get("page");
+        int df;
+        double idf;
+        ArrayList<Integer> concatenated = new ArrayList<Integer>();
+
+        for (Map.Entry<String, Integer> pair : wordToWordID.entrySet()) {
+            String word = pair.getKey();
+            int wordId = pair.getValue();
+            ArrayList<Integer> result = RocksDBApi.getPageIdsOfWord(word);
+            df = result.size();
+            idf = (Math.log(numDocs/(double)df) / Math.log(2));
+            //WordIdToIdf.addEntry(idf)
+
+            RocksDBApi.addIdf(wordId, idf);
+
+            concatenated.addAll(result);
+        }
+
+        Set<Integer> pageIds = new HashSet<Integer>(concatenated);
+
+        //from forward get k2 length
+
     }
 
 }

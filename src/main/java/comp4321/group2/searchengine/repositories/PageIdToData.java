@@ -36,17 +36,19 @@ public final class PageIdToData {
         }
     }
 
-    public static byte[] getValue(byte[] key) throws RocksDBException {
-        byte[] value = db.get(key);
-        return value;
+    public static Page getValue(int key) throws RocksDBException, IOException, ClassNotFoundException {
+        byte[] value = db.get(ByteIntUtilities.convertIntToByteArray(key));
+        if (value == null) return null;
+        Page pageData = Page.deserialize(value);
+        return pageData;
     }
 
-    public static void addEntry(byte[] key, byte[] value) throws RocksDBException {
-        db.put(key, value);
+    public static void addEntry(int key, Page value) throws RocksDBException, IOException {
+        db.put(ByteIntUtilities.convertIntToByteArray(key), Page.serialize(value));
     }
 
-    public static void delEntry(byte[] key) throws RocksDBException {
-        db.delete(key);
+    public static void delEntry(int key) throws RocksDBException {
+        db.delete(ByteIntUtilities.convertIntToByteArray(key));
     }
 
     /**

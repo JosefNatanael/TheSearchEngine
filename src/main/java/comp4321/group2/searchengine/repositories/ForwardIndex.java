@@ -16,7 +16,7 @@ import comp4321.group2.searchengine.utils.ByteIntUtilities;
 import comp4321.group2.searchengine.utils.WordUtilities;
 
 
-public class InvertedIndex {
+public class ForwardIndex {
 
     private static RocksDB db;
     private static Options options;
@@ -30,7 +30,7 @@ public class InvertedIndex {
 
         // create and open the database
         // create the DB if directory does not exist, then open the DB
-        File directory = new File("./src/main/java/tables/InvertedFile");
+        File directory = new File("./src/main/java/tables/ForwardFile");
         String dbPath = directory.getAbsolutePath();
         if (!directory.exists()) {
             directory.mkdir();
@@ -54,45 +54,10 @@ public class InvertedIndex {
         db.delete(word.getBytes());
     }
 
-    //prefix match
-    public static HashMap<String, ArrayList<Integer>> getValue(byte[] prefix) throws RocksDBException {
-        ReadOptions ro = new ReadOptions();
-        ro.setTotalOrderSeek(false);
-        ro.setPrefixSameAsStart(true);
+    public static HashMap<Integer, Integer> getValue(int key) throws RocksDBException {
+        byte[] value = db.get(ByteIntUtilities.convertIntToByteArray(key));
 
-        HashMap<String, ArrayList<Integer>> pageIdToWordLocs = new HashMap<String, ArrayList<Integer>>();
-        RocksIterator iter = db.newIterator(ro);
-        String key, value;
-
-        for (iter.seek(prefix); iter.isValid(); iter.next()) {
-            key = new String(iter.key());
-            value = new String(iter.value());
-            pageIdToWordLocs.put(
-                    WordUtilities.getPageIdFromKeyString(key),
-                    WordUtilities.stringToIntegerArrayList(value)
-            );
-        }
-
-        iter.close();
-        return pageIdToWordLocs;
-    }
-
-
-    public static ArrayList<Integer> getPageIds(byte[] prefix) throws RocksDBException {
-        ReadOptions ro = new ReadOptions();
-        ro.setTotalOrderSeek(false);
-        ro.setPrefixSameAsStart(true);
-
-        ArrayList<Integer> pageIds = new ArrayList<Integer>();
-        RocksIterator iter = db.newIterator(ro);
-
-        for (iter.seek(prefix); iter.isValid(); iter.next()) {
-            String key = new String(iter.key());
-            String pageId = WordUtilities.getPageIdFromKeyString(key);
-            pageIds.add(Integer.parseInt(pageId));
-        }
-
-        return pageIds;
+        return null;
     }
 
     /**
@@ -146,7 +111,7 @@ public class InvertedIndex {
      * @return
      */
     public static void createEntriesInBatch(Map<byte[], ArrayList<Integer>> table, int documentId)
-            throws RocksDBException {
+        throws RocksDBException {
         WriteBatch writeBatch = new WriteBatch();
         WriteOptions writeOptions = new WriteOptions();
         byte[] keyword;

@@ -170,7 +170,9 @@ public final class Crawler {
                 HashMap<String, ArrayList<Integer>> wordToWordLocations = extractCleanedWordLocationsMapFromDocument(
                     currentDoc
                 );
-                Page pageData = extractPageData(size, lastModified, currentDoc, links);
+
+                int tfmax = getTfmax(wordToWordLocations);
+                Page pageData = extractPageData(size, lastModified, currentDoc, links, tfmax);
                 int pageId = RocksDBApi.addPageData(pageData, currentLink.url);
                 RocksDBApi.addPageWords(wordToWordLocations, pageId);
             } catch (HttpStatusException e) {
@@ -180,6 +182,23 @@ public final class Crawler {
                 e.printStackTrace();
             } catch (RevisitException e) {}
         }
+    }
+
+    /**
+     *
+     * @param wordToWordLocations
+     * @return tfmax
+     */
+    public int getTfmax(HashMap<String, ArrayList<Integer>> wordToWordLocations){
+        int tfmax = 0;
+        int tf=0;
+
+        for (Entry<String, ArrayList<Integer>> pair : wordToWordLocations.entrySet()) {
+            ArrayList<Integer> locations = pair.getValue();
+            tf = locations.size();
+            if(tf > tfmax) tfmax = tf;
+        }
+        return tfmax;
     }
 
     /**
@@ -197,7 +216,8 @@ public final class Crawler {
         }
     }
 
-    public Page extractPageData(int size, String lastModified, Document doc, Vector<String> links) throws IOException {
+
+    public Page extractPageData(int size, String lastModified, Document doc, Vector<String> links, int tfmax) throws IOException {
         /* Get the metadata from the result */
         if (lastModified == null) {
             lastModified = "n/a";
@@ -205,7 +225,7 @@ public final class Crawler {
 
         String title = doc.title();
         String urls = WordUtilities.arrayListToString(new ArrayList<String>(links));
-        Page pageData = new Page(title, urls, size, lastModified);
+        Page pageData = new Page(title, urls, size, lastModified, tfmax);
         return pageData;
     }
 
