@@ -8,9 +8,10 @@ public final class Constants {
     public static final int prefixBytesLength = 8;
 
     // Crawler settings
-    public static final int crawlMaxDepth = 2;
+    public static final int crawlMaxDepth = 4;
     public static final boolean limitNumberOfPagesToScrape = true;
     public static final int numberOfPagesToScrape = 30;
+    public static final int numCrawlerThreads = 8;
 
     // Database names
     public static final String pageIdToDataName = "pageIdToDataDB";
@@ -21,5 +22,4 @@ public final class Constants {
 
     // Database folder root
     public static final String databaseRootDir = "./src/main/java/tables/";
-
 }

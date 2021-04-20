@@ -1,11 +1,11 @@
-package comp4321.group2.searchengine;
+package comp4321.group2.searchengine.crawler;
 
-import comp4321.group2.searchengine.common.Constants;
 import comp4321.group2.searchengine.exceptions.InvalidWordIdConversionException;
 import comp4321.group2.searchengine.models.Page;
 import comp4321.group2.searchengine.utils.StopStem;
 import comp4321.group2.searchengine.utils.WordUtilities;
 import org.jsoup.Connection;
+import org.jsoup.Connection.Response;
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -16,50 +16,7 @@ import org.rocksdb.RocksDBException;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.*;
-
-public class FastCrawler {
-
-    private String startingUrl;
-
-    public FastCrawler(String startingUrl) throws RocksDBException {
-        this.startingUrl = startingUrl;
-    }
-
-    public void indexToDB() {
-
-        BlockingQueue<Link> urlQueue = new LinkedBlockingQueue<Link>(); // the queue of URLs to be crawled
-        Set<String> urls = ConcurrentHashMap.newKeySet(); // the set of urls that have been visited before
-        urlQueue.add(new Link(startingUrl, 1));
-
-        ExecutorService pExecutor = Executors.newFixedThreadPool(4);
-        ExecutorService cExecutor = Executors.newFixedThreadPool(4);
-
-        CountDownLatch pLatch = new CountDownLatch(1);
-        CountDownLatch cLatch = new CountDownLatch(1);
-
-        System.out.println("Starting fast crawler");
-        long start = System.currentTimeMillis();
-
-        pExecutor.submit(new Producer(urlQueue, urls, pLatch));
-        cExecutor.submit(new Consumer(urlQueue, urls, cLatch));
-        pExecutor.shutdown();
-        cExecutor.shutdown();
-
-        try {
-            pLatch.await();
-            cLatch.await();
-        } catch (InterruptedException ex) {
-            System.out.println(ex.getMessage());
-        }
-        long end = System.currentTimeMillis();
-
-        System.out.println("Total time taken: " + (end - start));
-    }
-
-    public static void main(String args[]) {
-    }
-}
+import java.util.concurrent.BlockingQueue;
 
 abstract class CrawlerHelper {
     private static File stopwordsPath = new File("./src/main/resources/stopwords.txt");
@@ -73,7 +30,7 @@ abstract class CrawlerHelper {
      * @throws HttpStatusException
      * @throws IOException
      */
-    public static Connection.Response getResponse(String url, Set<String> visitedUrls) throws HttpStatusException, IOException {
+    public static Response getResponse(String url, Set<String> visitedUrls) throws HttpStatusException, IOException {
         if (visitedUrls.contains(url)) {
             throw new RevisitException(); // if the page has been visited, break the function
         }
@@ -81,7 +38,7 @@ abstract class CrawlerHelper {
         Connection conn = Jsoup.connect(url).followRedirects(false);
         // the default body size is 2Mb, to attain unlimited page, use the following
         // Connection conn = Jsoup.connect(this.url).maxBodySize(0).followRedirects(false);
-        Connection.Response res;
+        Response res;
         try {
             /* establish the connection and retrieve the response */
             res = conn.execute();
@@ -145,48 +102,6 @@ abstract class CrawlerHelper {
         }
         return result;
     }
-
-    /** Use a queue to manage crawl tasks.
-     * @throws RocksDBException
-     * @throws InvalidWordIdConversionException
-     */
-//    public static void indexToDB() throws RocksDBException, InvalidWordIdConversionException {
-//        int iterationNumber = 0;
-//        int numberOfPagesToScrape = Constants.numberOfPagesToScrape;
-//
-//        while (
-//            !this.urlQueue.isEmpty() && Constants.limitNumberOfPagesToScrape && iterationNumber < numberOfPagesToScrape
-//        ) {
-//            System.out.println("Iteration number: " + Integer.toString(iterationNumber++));
-//            Link currentLink = this.urlQueue.remove(0);
-//            if (currentLink.level > this.crawlMaxDepth) break; // stop criteria
-//            if (this.urls.contains(currentLink.url)) continue; // ignore pages that has been visited
-//
-//            /* start to crawl on the page */
-//            try {
-//                Connection.Response res = this.getResponse(currentLink.url);
-//                int size = res.bodyAsBytes().length;
-//                String lastModified = res.header("last-modified");
-//                Document currentDoc = res.parse();
-//                Vector<String> links = this.extractLinks(currentDoc);
-//
-//                extractAndPushChildLinksFromParentToUrlQueue(currentLink, links);
-//                HashMap<String, ArrayList<Integer>> wordToWordLocations = extractCleanedWordLocationsMapFromDocument(
-//                    currentDoc
-//                );
-//
-//                int tfmax = getTfmax(wordToWordLocations);
-//                Page pageData = extractPageData(size, lastModified, currentDoc, links, tfmax);
-//                int pageId = RocksDBApi.addPageData(pageData, currentLink.url);
-//                RocksDBApi.addPageWords(wordToWordLocations, pageId);
-//            } catch (HttpStatusException e) {
-//                e.printStackTrace();
-//                System.out.printf("\nLink Error: %s\n", currentLink.url);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            } catch (RevisitException e) {}
-//        }
-//    }
 
     /**
      *
@@ -261,65 +176,5 @@ abstract class CrawlerHelper {
         }
 
         return wordToWordLocationMap;
-    }
-}
-
-class Producer implements Runnable {
-
-    private BlockingQueue<Link> urlQueue;
-    private Set<String> urls;
-    private CountDownLatch pLatch;
-
-    public Producer(BlockingQueue<Link> urlQueue, Set<String> urls, CountDownLatch pLatch) {
-        this.urlQueue = urlQueue;
-        this.urls = urls;
-        this.pLatch = pLatch;
-    }
-
-    @Override
-    public void run() {
-        System.out.println("Producer started");
-        if (!urlQueue.isEmpty()) {
-            pLatch.countDown();
-            return;
-        }
-        try {
-            Link currentLink = urlQueue.take();
-            if (currentLink.level > Constants.crawlMaxDepth) {
-                pLatch.countDown();
-                return;
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-
-        pLatch.countDown();
-    }
-}
-
-class Consumer implements Runnable {
-
-    private BlockingQueue<Link> urlQueue;
-    private Set<String> urls;
-    private CountDownLatch cLatch;
-
-    public Consumer(BlockingQueue<Link> urlQueue, Set<String> urls, CountDownLatch cLatch) {
-        this.urlQueue = urlQueue;
-        this.urls = urls;
-        this.cLatch = cLatch;
-    }
-
-    @Override
-    public void run() {
-        while (true) {
-            try {
-//                int num = urlQueue.take();
-//                System.out.println("Consumed: " + num);
-            } catch (Exception err) {
-                err.printStackTrace();
-            }
-        }
-//        cLatch.countDown();
     }
 }

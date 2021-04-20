@@ -21,7 +21,7 @@ public class WordIdToIdf {
         options.setCreateIfMissing(true);
 
         // create the DB if directory does not exist, then open the DB
-        File directory = new File("./src/main/java/tables/URLToPageId");
+        File directory = new File("./src/main/java/tables/WordIdToIdf");
         String dbPath = directory.getAbsolutePath();
         if (!directory.exists()) {
             directory.mkdir();

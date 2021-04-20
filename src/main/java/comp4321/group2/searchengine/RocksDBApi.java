@@ -39,6 +39,7 @@ public final class RocksDBApi {
         PageIdToData.deleteAll();
         URLToPageId.deleteAll();
         WordToWordId.deleteAll();
+        WordIdToIdf.deleteAll();
     }
 
     /**

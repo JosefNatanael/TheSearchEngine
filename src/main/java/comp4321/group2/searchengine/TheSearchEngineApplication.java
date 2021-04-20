@@ -1,5 +1,6 @@
 package comp4321.group2.searchengine;
 
+import comp4321.group2.searchengine.crawler.FastCrawler;
 import comp4321.group2.searchengine.exceptions.InvalidWordIdConversionException;
 import comp4321.group2.searchengine.models.Page;
 import comp4321.group2.searchengine.repositories.InvertedIndex;
@@ -21,11 +22,18 @@ import java.util.*;
 public class TheSearchEngineApplication extends SpringBootServletInitializer {
 
     public static void main(String[] args) throws RocksDBException, InvalidWordIdConversionException, ClassNotFoundException, IOException {
+        RocksDBApi.closeAllDBConnections();
         RocksDBApi.connect();
         RocksDBApi.reset();
         phaseOne();
         RocksDBApi.closeAllDBConnections();
         SpringApplication.run(TheSearchEngineApplication.class, args);
+    }
+
+    public static void startIndexer() throws RocksDBException {
+        String rootUrl = "https://www.cse.ust.hk/";
+        FastCrawler crawler = new FastCrawler(rootUrl);
+        crawler.indexToDB();
     }
 
     public static void phaseOne()
