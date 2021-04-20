@@ -42,11 +42,17 @@ public class FastCrawler {
         Scanner sc = new Scanner(System.in);
         System.out.println("Return to stop indexing");
         sc.nextLine();
+        System.out.println("Notifying all crawler threads to stop now...");
 
         // Notifies all running threads to stop scraping
         spawnedThreads.forEach((pair) -> {
             pair.getValue().setStopScraping(true);
         });
+
+//        // Force to stop all threads, running or not
+//        spawnedThreads.forEach((pair) -> {
+//            pair.getKey().cancel(true);
+//        });
 
         try {
             latch.await();
@@ -59,6 +65,7 @@ public class FastCrawler {
         long end = System.currentTimeMillis();
 
         System.out.println("Total time taken: " + (end - start));
+        System.out.println("Number of unique pages seen (indexed): " + urls.size());
     }
 
     public static void main(String[] args) throws RocksDBException {

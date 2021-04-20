@@ -23,7 +23,6 @@ public class CrawlerRunnable implements Runnable {
     private BlockingQueue<Link> urlQueue;
     private Set<String> urls;
     private CountDownLatch latch;
-    private boolean condition = true;
     private volatile boolean stopScraping = false;
 
     public CrawlerRunnable(BlockingQueue<Link> urlQueue, Set<String> urls, CountDownLatch latch) {
@@ -49,7 +48,9 @@ public class CrawlerRunnable implements Runnable {
                 if (urls.contains(currentLink.url)) continue;
 
                 // Start to crawl from the currentLink
-                Response res = CrawlerHelper.getResponse(currentLink.url, urls);
+                Response res = null;
+                res = CrawlerHelper.getResponse(currentLink.url, urls);
+
                 int size = res.bodyAsBytes().length;
                 String lastModified = res.header("last-modified");
                 Document currentDoc = res.parse();
@@ -65,20 +66,21 @@ public class CrawlerRunnable implements Runnable {
                 int pageId = RocksDBApi.addPageData(pageData, currentLink.url);
                 RocksDBApi.addPageWords(wordToWordLocations, pageId);
 
-                System.out.println("Indexed a page");
+                System.out.println("Indexed: " + currentLink.url);
 
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (HttpStatusException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (RocksDBException e) {
-                e.printStackTrace();
-            } catch (InvalidWordIdConversionException e) {
-                e.printStackTrace();
+            } catch (InterruptedException ignore) {
+                System.out.println("InterruptedException caught");
+            } catch (HttpStatusException ignore) {
+                System.out.println("HttpStatusException caught");
+            } catch (IOException ignore) {
+                System.out.println("IOException caught");
+            } catch (RocksDBException ignore) {
+                System.out.println("RocksDBException caught");
+            } catch (InvalidWordIdConversionException ignore) {
+                System.out.println("InvalidWordIdConversionException caught");
             }
         }
+        System.out.println("Counting down the latch");
         latch.countDown();
     }
 }

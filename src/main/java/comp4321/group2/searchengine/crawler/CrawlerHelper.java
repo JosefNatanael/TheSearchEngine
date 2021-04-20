@@ -1,5 +1,6 @@
 package comp4321.group2.searchengine.crawler;
 
+import comp4321.group2.searchengine.common.Constants;
 import comp4321.group2.searchengine.exceptions.InvalidWordIdConversionException;
 import comp4321.group2.searchengine.models.Page;
 import comp4321.group2.searchengine.utils.StopStem;
@@ -21,9 +22,11 @@ import java.util.concurrent.BlockingQueue;
 abstract class CrawlerHelper {
     private static File stopwordsPath = new File("./src/main/resources/stopwords.txt");
     private static StopStem stopStem = new StopStem(stopwordsPath.getAbsolutePath());
+    private static String[] blackListLinkStartsWith = {"https://www.cse.ust.hk/Restricted", "https://www.cse.ust.hk/admin"};
 
     /**
      * Send an HTTP request and analyze the response.
+     *
      * @param url
      * @param visitedUrls
      * @return Response res
@@ -35,7 +38,7 @@ abstract class CrawlerHelper {
             throw new RevisitException(); // if the page has been visited, break the function
         }
 
-        Connection conn = Jsoup.connect(url).followRedirects(false);
+        Connection conn = Jsoup.connect(url).followRedirects(false).timeout(Constants.millisTimeout);
         // the default body size is 2Mb, to attain unlimited page, use the following
         // Connection conn = Jsoup.connect(this.url).maxBodySize(0).followRedirects(false);
         Response res;
@@ -59,8 +62,10 @@ abstract class CrawlerHelper {
         return res;
     }
 
-    /** Extract words in the web page content.
+    /**
+     * Extract words in the web page content.
      * note: use StringTokenizer to tokenize the result
+     *
      * @return Vector<String> a list of words in the web page body
      */
     public static Vector<String> extractWords(Document doc) {
@@ -76,8 +81,10 @@ abstract class CrawlerHelper {
         return result;
     }
 
-    /** Extract useful external urls on the web page.
+    /**
+     * Extract useful external urls on the web page.
      * note: filter out images, emails, etc.
+     *
      * @param doc
      * @return Vector<String> a list of external links on the web page
      */
@@ -104,26 +111,26 @@ abstract class CrawlerHelper {
     }
 
     /**
-     *
      * @param wordToWordLocations
      * @return tfmax
      */
-    public static int getTfmax(HashMap<String, ArrayList<Integer>> wordToWordLocations){
+    public static int getTfmax(HashMap<String, ArrayList<Integer>> wordToWordLocations) {
         int tfmax = 0;
-        int tf=0;
+        int tf = 0;
 
         for (Map.Entry<String, ArrayList<Integer>> pair : wordToWordLocations.entrySet()) {
             ArrayList<Integer> locations = pair.getValue();
             tf = locations.size();
-            if(tf > tfmax) tfmax = tf;
+            if (tf > tfmax) tfmax = tf;
         }
         return tfmax;
     }
 
     /**
      * Extract child links from current (parent) page link
+     *
      * @param parentLink Parent Link
-     * @param links Child Links
+     * @param links      Child Links
      * @throws HttpStatusException
      * @throws IOException
      */
@@ -131,7 +138,18 @@ abstract class CrawlerHelper {
         throws HttpStatusException, IOException {
         // Add child links to urlQueue vector
         for (String link : links) {
-            urlQueue.add(new Link(link, parentLink.level + 1)); // add links to urlQueue vector
+            if (link.startsWith("https://www.cse.ust.hk")) {
+                boolean skipFlag = false;
+                // Check if the current link is in the blacklist, skip it!
+                for (String blacklist : blackListLinkStartsWith) {
+                    if (link.startsWith(blacklist)) {
+                        skipFlag = true;
+                        break;
+                    }
+                }
+                if (skipFlag) continue;
+                urlQueue.add(new Link(link, parentLink.level + 1)); // add links to urlQueue vector
+            }
         }
     }
 
@@ -150,7 +168,8 @@ abstract class CrawlerHelper {
     /**
      * Clean: stopwords removed, stemmed with porter
      * Extracts the word locations for each word in current document page
-     * @return HashMap<String, ArrayList<Integer>> key: word string, value: array list of integer locations
+     *
+     * @return HashMap<String, ArrayList < Integer>> key: word string, value: array list of integer locations
      */
     public static HashMap<String, ArrayList<Integer>> extractCleanedWordLocationsMapFromDocument(Document document) {
         Vector<String> words = extractWords(document);
