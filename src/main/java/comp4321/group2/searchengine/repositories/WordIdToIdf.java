@@ -1,15 +1,15 @@
 package comp4321.group2.searchengine.repositories;
 
-import java.io.File;
-import java.util.HashMap;
+import comp4321.group2.searchengine.utils.ByteIntUtilities;
 import org.rocksdb.Options;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
 import org.rocksdb.RocksIterator;
 
-import comp4321.group2.searchengine.utils.ByteIntUtilities;
+import java.io.File;
+import java.util.HashMap;
 
-public final class WordToWordId {
+public class WordIdToIdf {
 
     private static RocksDB db;
     private static Options options;
@@ -21,7 +21,7 @@ public final class WordToWordId {
         options.setCreateIfMissing(true);
 
         // create the DB if directory does not exist, then open the DB
-        File directory = new File("./src/main/java/tables/WordToWordId");
+        File directory = new File("./src/main/java/tables/URLToPageId");
         String dbPath = directory.getAbsolutePath();
         if (!directory.exists()) {
             directory.mkdir();
@@ -35,30 +35,31 @@ public final class WordToWordId {
         }
     }
 
-    public static int getValue(String key) throws RocksDBException {
-        byte[] value = db.get(key.getBytes());
-        int intValue = value != null ? ByteIntUtilities.convertByteArrayToInt(value) : -1;
-        return intValue;
+    public static double getValue(int key) throws RocksDBException {
+        byte[] value = db.get(ByteIntUtilities.convertIntToByteArray(key));
+        double result = value != null ? ByteIntUtilities.convertByteArrayToDouble(value) : -1.0;
+        return result;
     }
 
-    public static void addEntry(String key, int value) throws RocksDBException {
-        db.put(key.getBytes(), ByteIntUtilities.convertIntToByteArray(value));
+    public static void addEntry(int key, double value) throws RocksDBException {
+        db.put(ByteIntUtilities.convertIntToByteArray(key), ByteIntUtilities.doubleToByteArray(value));
     }
 
-    public static void delEntry(String key) throws RocksDBException {
-        db.delete(key.getBytes());
+    public static void delEntry(int key) throws RocksDBException {
+        // Delete the word and its list from the hashtable
+        db.delete(ByteIntUtilities.convertIntToByteArray(key));
     }
 
     /**
      * Get all the result pairs
      * @throws RocksDBException
      */
-    public static HashMap<String, Integer> getAll() throws RocksDBException {
+    public static HashMap<String, Double> getAll() throws RocksDBException {
         RocksIterator iter = db.newIterator();
-        HashMap<String, Integer> result = new HashMap<String, Integer>();
+        HashMap<String, Double> result = new HashMap<String, Double>();
 
         for (iter.seekToFirst(); iter.isValid(); iter.next()) {
-            result.put(new String(iter.key()), ByteIntUtilities.convertByteArrayToInt(iter.value()));
+            result.put(new String(iter.key()), ByteIntUtilities.convertByteArrayToDouble(iter.value()));
         }
 
         iter.close();
@@ -73,7 +74,7 @@ public final class WordToWordId {
         RocksIterator iter = db.newIterator();
 
         for (iter.seekToFirst(); iter.isValid(); iter.next()) {
-            System.out.println(new String(iter.key()) + "\t=\t" + ByteIntUtilities.convertByteArrayToInt(iter.value()));
+            System.out.println(new String(iter.key()) + "\t=\t" + ByteIntUtilities.convertByteArrayToDouble(iter.value()));
         }
 
         iter.close();

@@ -19,6 +19,8 @@ public class Page implements Serializable {
     private String childUrls = "";
     private int size;
     private ZonedDateTime lastModified = null;
+    private int tfmax;
+    private int length;
 
     public Page() {}
 
@@ -29,10 +31,11 @@ public class Page implements Serializable {
      * @param lastModified
      * @param size
      */
-    public Page(String title, String url, int size, String lastModified) {
+    public Page(String title, String url, int size, String lastModified, int tfmax) {
         this.title = title;
         this.childUrls = url;
         this.size = size;
+        this.tfmax = tfmax;
         try {
             if (lastModified != null) {
                 this.lastModified = ZonedDateTime.parse(lastModified, DateTimeFormatter.RFC_1123_DATE_TIME);
@@ -60,11 +63,17 @@ public class Page implements Serializable {
         return size;
     }
 
+    public int getTfmax() {
+        return tfmax;
+    }
+
+
     public void print() {
         System.out.println("Title: " + this.title);
         System.out.println("Child Urls: " + this.childUrls);
         System.out.println("Size: " + this.size);
         System.out.println("Last Modified: " + this.lastModified);
+        System.out.println("Tfmax: " + this.tfmax);
     }
 
     /**

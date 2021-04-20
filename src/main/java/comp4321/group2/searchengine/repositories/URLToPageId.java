@@ -35,18 +35,19 @@ public final class URLToPageId {
         }
     }
 
-    public static byte[] getValue(byte[] key) throws RocksDBException {
-        byte[] value = db.get(key);
-        return value;
+    public static int getValue(String key) throws RocksDBException {
+        byte[] value = db.get(key.getBytes());
+        int intValue = value != null ? ByteIntUtilities.convertByteArrayToInt(value) : -1;
+        return intValue;
     }
 
-    public static void addEntry(byte[] key, byte[] value) throws RocksDBException {
-        db.put(key, value);
+    public static void addEntry(String key, int value) throws RocksDBException {
+        db.put(key.getBytes(), ByteIntUtilities.convertIntToByteArray(value));
     }
 
-    public static void delEntry(byte[] key) throws RocksDBException {
+    public static void delEntry(String key) throws RocksDBException {
         // Delete the word and its list from the hashtable
-        db.delete(key);
+        db.delete(key.getBytes());
     }
 
     /**
