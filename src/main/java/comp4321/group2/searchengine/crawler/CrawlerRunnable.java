@@ -63,8 +63,15 @@ public class CrawlerRunnable implements Runnable {
 
                 int tfmax = CrawlerHelper.getTfmax(wordToWordLocations);
                 Page pageData = CrawlerHelper.extractPageData(size, lastModified, currentDoc, links, tfmax);
+
+                //pageData
                 int pageId = RocksDBApi.addPageData(pageData, currentLink.url);
-                RocksDBApi.addPageWords(wordToWordLocations, pageId);
+
+                //inverted index
+                ArrayList<Integer> wordIds = RocksDBApi.addPageWords(wordToWordLocations, pageId);
+
+                //forward index
+                RocksDBApi.addForward(pageId, wordIds);
 
                 System.out.println("Indexed: " + currentLink.url);
 

@@ -11,7 +11,7 @@ public final class Constants {
     public static final int crawlMaxDepth = Integer.MAX_VALUE;
     public static final boolean limitNumberOfPagesToScrape = true;
     public static final int numberOfPagesToScrape = 30;
-    public static final int numCrawlerThreads = 1000;
+    public static final int numCrawlerThreads = 100;
     public static final int millisTimeout = 30000;
 
     // Database names

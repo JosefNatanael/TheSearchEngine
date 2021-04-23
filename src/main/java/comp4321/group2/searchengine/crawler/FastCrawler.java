@@ -2,7 +2,8 @@ package comp4321.group2.searchengine.crawler;
 
 import comp4321.group2.searchengine.RocksDBApi;
 import comp4321.group2.searchengine.common.Constants;
-import javafx.util.Pair;
+import comp4321.group2.searchengine.repositories.ForwardIndex;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.rocksdb.RocksDBException;
 
 import java.util.ArrayList;
@@ -10,8 +11,8 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.concurrent.*;
 
-public class FastCrawler {
 
+public class FastCrawler {
     private String startingUrl;
 
     public FastCrawler(String startingUrl) throws RocksDBException {
@@ -30,11 +31,11 @@ public class FastCrawler {
         System.out.println("Starting fast crawler");
         long start = System.currentTimeMillis();
 
-        ArrayList<Pair<Future, CrawlerRunnable>> spawnedThreads = new ArrayList<>();
+        ArrayList<ImmutablePair<Future, CrawlerRunnable>> spawnedThreads = new ArrayList<>();
         for (int i = 0; i < Constants.numCrawlerThreads; ++i) {
             CrawlerRunnable r = new CrawlerRunnable(urlQueue, urls, latch);
             Future f = executor.submit(r);
-            Pair<Future, CrawlerRunnable> pair = new Pair<>(f, r);
+            ImmutablePair<Future, CrawlerRunnable> pair = new ImmutablePair<>(f, r);
             spawnedThreads.add(pair);
         }
         executor.shutdown();
