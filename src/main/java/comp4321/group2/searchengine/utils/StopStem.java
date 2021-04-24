@@ -32,6 +32,6 @@ public final class StopStem {
     }
 
     public String stem(String str) {
-        return porter.stripAffixes(str);
+        return str.isEmpty() ? "" : porter.stripAffixes(str);
     }
 }

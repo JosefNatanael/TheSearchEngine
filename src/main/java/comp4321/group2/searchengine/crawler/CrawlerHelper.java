@@ -188,6 +188,7 @@ abstract class CrawlerHelper {
         HashMap<String, ArrayList<Integer>> wordToWordLocationMap = new HashMap<String, ArrayList<Integer>>();
         for (int i = 0; i < words.size(); ++i) {
             String currWord = words.get(i);
+            currWord =  currWord.replaceAll("\\d","");
             String stemmedWord = stopStem.stem(currWord);
             if (stopStem.isStopWord(currWord) || stemmedWord.equals("")) {
                 continue;

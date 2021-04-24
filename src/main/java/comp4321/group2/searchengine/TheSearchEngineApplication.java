@@ -4,6 +4,7 @@ import comp4321.group2.searchengine.crawler.FastCrawler;
 import comp4321.group2.searchengine.exceptions.InvalidWordIdConversionException;
 import comp4321.group2.searchengine.models.Page;
 import comp4321.group2.searchengine.repositories.InvertedIndex;
+import comp4321.group2.searchengine.repositories.Metadata;
 import comp4321.group2.searchengine.repositories.URLToPageId;
 import comp4321.group2.searchengine.repositories.WordToWordId;
 import comp4321.group2.searchengine.utils.WordUtilities;
@@ -22,11 +23,22 @@ import java.util.*;
 public class TheSearchEngineApplication extends SpringBootServletInitializer {
 
     public static void main(String[] args) throws RocksDBException, InvalidWordIdConversionException, ClassNotFoundException, IOException {
+//        RocksDBApi.closeAllDBConnections();
+//        RocksDBApi.connect();
+//        RocksDBApi.reset();
+//        phaseOne();
+//        RocksDBApi.closeAllDBConnections();
+
+
         RocksDBApi.closeAllDBConnections();
         RocksDBApi.connect();
         RocksDBApi.reset();
-        phaseOne();
-        RocksDBApi.closeAllDBConnections();
+        String rootUrl = "https://www.cse.ust.hk/";
+        FastCrawler crawler = new FastCrawler(rootUrl);
+        crawler.indexToDB();
+        Metadata.printAll();
+
+
         SpringApplication.run(TheSearchEngineApplication.class, args);
     }
 
@@ -39,7 +51,7 @@ public class TheSearchEngineApplication extends SpringBootServletInitializer {
     public static void phaseOne()
             throws RocksDBException, InvalidWordIdConversionException, ClassNotFoundException, IOException {
         String rootUrl = "https://www.cse.ust.hk/";
-        Crawler crawler = new Crawler(rootUrl);
+        FastCrawler crawler = new FastCrawler(rootUrl);
         crawler.indexToDB();
 
         PrintWriter writer = new PrintWriter("spider_result.txt");
@@ -105,7 +117,7 @@ public class TheSearchEngineApplication extends SpringBootServletInitializer {
     public void completed()
         throws RocksDBException, InvalidWordIdConversionException, ClassNotFoundException, IOException {
         String rootUrl = "https://www.cse.ust.hk/";
-        Crawler crawler = new Crawler(rootUrl);
+        FastCrawler crawler = new FastCrawler(rootUrl);
         crawler.indexToDB();
 
         //iterate each word ID, compute idf, length
@@ -132,7 +144,6 @@ public class TheSearchEngineApplication extends SpringBootServletInitializer {
         Set<Integer> pageIds = new HashSet<Integer>(concatenated);
 
         //from forward get k2 length
-
     }
 
 }

@@ -141,15 +141,15 @@ public class FastCrawler {
         }
     }
 
-    public static void main(String[] args) throws RocksDBException, InvalidWordIdConversionException {
-        RocksDBApi.closeAllDBConnections();
-        RocksDBApi.connect();
-        RocksDBApi.reset();
-        String rootUrl = "https://www.cse.ust.hk/";
-        FastCrawler crawler = new FastCrawler(rootUrl);
-        crawler.indexToDB();
-//        crawler.postIndexProcess();
-//        URLToPageId.printAll();
-        Metadata.printAll();
-    }
+//    public static void main(String[] args) throws RocksDBException, InvalidWordIdConversionException {
+//        RocksDBApi.closeAllDBConnections();
+//        RocksDBApi.connect();
+//        RocksDBApi.reset();
+//        String rootUrl = "https://www.cse.ust.hk/";
+//        FastCrawler crawler = new FastCrawler(rootUrl);
+//        crawler.indexToDB();
+////        crawler.postIndexProcess();
+////        URLToPageId.printAll();
+//        Metadata.printAll();
+//    }
 }
