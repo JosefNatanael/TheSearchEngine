@@ -68,7 +68,7 @@ public class CrawlerRunnable implements Runnable {
                 ArrayList<Integer> wordIds = RocksDBApi.addPageWords(wordToWordLocations, pageId);
 
                 //forward index
-                RocksDBApi.addForward(pageId, wordIds);
+                RocksDBApi.addForwardIndex(pageId, wordIds);
 
                 System.out.println("Indexed: " + currentLink.url);
 
