@@ -22,7 +22,7 @@ import java.util.concurrent.BlockingQueue;
 abstract class CrawlerHelper {
     private static File stopwordsPath = new File("./src/main/resources/stopwords.txt");
     private static StopStem stopStem = new StopStem(stopwordsPath.getAbsolutePath());
-    private static String[] blackListLinkStartsWith = {"https://www.cse.ust.hk/Restricted", "https://www.cse.ust.hk/admin"};
+    private static String[] blackListLinkStartsWith = {"https://www.cse.ust.hk/Restricted"};
 
     /**
      * Send an HTTP request and analyze the response.
@@ -38,7 +38,7 @@ abstract class CrawlerHelper {
             throw new RevisitException(); // if the page has been visited, break the function
         }
 
-        Connection conn = Jsoup.connect(url).followRedirects(false).timeout(Constants.millisTimeout);
+        Connection conn = Jsoup.connect(url).followRedirects(false).timeout(Constants.millisTimeout).maxBodySize(0);
         // the default body size is 2Mb, to attain unlimited page, use the following
         // Connection conn = Jsoup.connect(this.url).maxBodySize(0).followRedirects(false);
         Response res;
@@ -59,6 +59,8 @@ abstract class CrawlerHelper {
         } catch (HttpStatusException e) {
             visitedUrls.add(url);
             throw e;
+        } finally {
+            visitedUrls.add(url);
         }
         return res;
     }
@@ -93,20 +95,29 @@ abstract class CrawlerHelper {
         Vector<String> result = new Vector<String>();
         Elements links = doc.select("a[href]");
         for (Element link : links) {
-            String linkString = link.attr("href");
-            // filter out emails
-            if (linkString.contains("mailto:")) {
+//            String linkString = link.absUrl("href");
+//            System.out.println("Sini: " + linkString);
+//            // filter out emails
+//            if (linkString.contains("mailto:")) {
+//                continue;
+//            }
+//            String linkStr = link.attr("href");
+//            if (linkString.isEmpty() || linkString.startsWith("#") || linkString.startsWith("javascript")) {
+//                continue;
+//            }
+//            if (linkString.charAt(0) == '/') {
+//                System.out.println("Before: " + linkString);
+//                result.add(doc.location() + linkString.substring(1));
+//                System.out.println("After: " + doc.location() + linkString.substring(1));
+//            } else {
+//                result.add(link.attr("href"));
+//            }
+
+            String linkString = link.absUrl("href");
+            if (linkString.contains("mailto:") || linkString.isEmpty() || linkString.startsWith("#") || linkString.startsWith("javascript")) {
                 continue;
             }
-            String linkStr = link.attr("href");
-            if (linkStr.isEmpty() || linkStr.startsWith("#") || linkStr.startsWith("javascript")) {
-                continue;
-            }
-            if (linkStr.charAt(0) == '/') {
-                result.add(doc.location() + linkStr.substring(1));
-            } else {
-                result.add(link.attr("href"));
-            }
+            result.add(linkString);
         }
         return result;
     }
@@ -139,16 +150,16 @@ abstract class CrawlerHelper {
         throws HttpStatusException, IOException {
         // Add child links to urlQueue vector
         for (String link : links) {
-            if (link.startsWith("https://www.cse.ust.hk")) {
-//                boolean skipFlag = false;
-//                // Check if the current link is in the blacklist, skip it!
-//                for (String blacklist : blackListLinkStartsWith) {
-//                    if (link.startsWith(blacklist)) {
-//                        skipFlag = true;
-//                        break;
-//                    }
-//                }
-//                if (skipFlag) continue;
+            if (link.contains("cse.ust.hk")) {
+                boolean skipFlag = false;
+                // Check if the current link is in the blacklist, skip it!
+                for (String blacklist : blackListLinkStartsWith) {
+                    if (link.startsWith(blacklist)) {
+                        skipFlag = true;
+                        break;
+                    }
+                }
+                if (skipFlag) continue;
                 urlQueue.add(new Link(link, parentLink.level + 1)); // add links to urlQueue vector
             }
         }

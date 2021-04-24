@@ -3,8 +3,7 @@ package comp4321.group2.searchengine.crawler;
 import comp4321.group2.searchengine.RocksDBApi;
 import comp4321.group2.searchengine.common.Constants;
 import comp4321.group2.searchengine.exceptions.InvalidWordIdConversionException;
-import comp4321.group2.searchengine.repositories.ForwardIndex;
-import comp4321.group2.searchengine.repositories.WordIdToIdf;
+import comp4321.group2.searchengine.repositories.*;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.rocksdb.RocksDBException;
 
@@ -45,28 +44,42 @@ public class FastCrawler {
         sc.nextLine();
         System.out.println("Notifying all crawler threads to stop now...");
 
+        Set<Thread> threads = Thread.getAllStackTraces().keySet();
+
+        for (Thread t : threads) {
+            String name = t.getName();
+            Thread.State state = t.getState();
+            int priority = t.getPriority();
+            String type = t.isDaemon() ? "Daemon" : "Normal";
+            System.out.printf("%-20s \t %s \t %d \t %s\n", name, state, priority, type);
+        }
+
         // Notifies all running threads to stop scraping
         spawnedThreads.forEach((pair) -> {
             pair.getValue().setStopScraping(true);
         });
 
-//        // Force to stop all threads, running or not
-//        spawnedThreads.forEach((pair) -> {
-//            pair.getKey().cancel(true);
-//        });
+        // Force to stop all threads, running or not
+        spawnedThreads.forEach((pair) -> {
+            pair.getKey().cancel(true);
+        });
 
-        try {
-            latch.await();
-            spawnedThreads.forEach((pair) -> {
-                pair.getKey().cancel(true);
-            });
-        } catch (InterruptedException ex) {
-            System.out.println(ex.getMessage());
-        }
+//        try {
+//            latch.await();
+//            spawnedThreads.forEach((pair) -> {
+//                pair.getKey().cancel(true);
+//            });
+//        } catch (InterruptedException ex) {
+//            System.out.println(ex.getMessage());
+//        }
         long end = System.currentTimeMillis();
 
         System.out.println("Total time taken: " + (end - start));
-        System.out.println("Number of unique pages seen (indexed): " + urls.size());
+        System.out.println("Number of unique pages seen (indexed or not): " + urls.size());
+        System.out.println(urlQueue.size());
+        System.out.println("Done");
+
+
     }
 
     public void postIndexProcess() throws RocksDBException, InvalidWordIdConversionException {
@@ -98,8 +111,9 @@ public class FastCrawler {
     public void computeL2Length() throws RocksDBException, InvalidWordIdConversionException {
         HashMap<String, Integer> URLToPageID = RocksDBApi.getAllURLToPageID();
         int wordId, tf;
+
         double idf, accumulator = 0.0, length_result;
-        //from forward get k2 length
+        //from forward get l2 length
         for (Map.Entry<String, Integer> pair : URLToPageID.entrySet()) {
             int pageId = pair.getValue();
 
@@ -128,11 +142,14 @@ public class FastCrawler {
     }
 
     public static void main(String[] args) throws RocksDBException, InvalidWordIdConversionException {
+        RocksDBApi.closeAllDBConnections();
         RocksDBApi.connect();
         RocksDBApi.reset();
         String rootUrl = "https://www.cse.ust.hk/";
         FastCrawler crawler = new FastCrawler(rootUrl);
         crawler.indexToDB();
-        crawler.postIndexProcess();
+//        crawler.postIndexProcess();
+//        URLToPageId.printAll();
+        Metadata.printAll();
     }
 }
