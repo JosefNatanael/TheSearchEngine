@@ -11,6 +11,14 @@ import org.rocksdb.RocksDBException;
 
 public class QueryHandler {
 
+    /**
+     *
+     * @param query
+     * @throws RocksDBException
+     * @throws InvalidWordIdConversionException
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
     public static void handle(String query) throws RocksDBException, InvalidWordIdConversionException, IOException, ClassNotFoundException {
         String[] queryWords = query.split(" ");
         ArrayList<Integer> queryWordIds = new ArrayList<Integer>();

@@ -62,7 +62,11 @@ public final class WordUtilities {
      * @return array list of type integers
      */
     public static ArrayList<Integer> stringToIntegerArrayList(String tabDelimited) {
+
         ArrayList<Integer> arrList = new ArrayList<Integer>();
+        if (tabDelimited.equals("")) {
+            return arrList;
+        }
         String[] intStrArray = tabDelimited.split("\t");
         for (String str : intStrArray) {
             arrList.add(Integer.parseInt(str));
