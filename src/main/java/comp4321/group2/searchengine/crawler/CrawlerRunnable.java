@@ -12,10 +12,7 @@ import org.jsoup.nodes.Document;
 import org.rocksdb.RocksDBException;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.Vector;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 
@@ -90,4 +87,6 @@ public class CrawlerRunnable implements Runnable {
         System.out.println("Counting down the latch");
         latch.countDown();
     }
+
+
 }

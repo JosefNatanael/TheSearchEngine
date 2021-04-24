@@ -165,6 +165,19 @@ public final class RocksDBApi {
         return pageData;
     }
 
+    public static ArrayList<Integer> getWordIdListFromPageId(int pageId) throws RocksDBException{
+        return ForwardIndex.getValue(pageId);
+    }
+
+    public static double getIdfFromWordId(int wordId) throws RocksDBException {
+        return WordIdToIdf.getValue(wordId);
+    }
+
+    public static ArrayList<Integer> getInvertedValuesFromKey(int wordId, int pageId) throws InvalidWordIdConversionException, RocksDBException {
+        byte[] key = WordUtilities.wordIdAndPageIdToDBKey(wordId, pageId);
+        return InvertedIndex.getValueByKey(key);
+    }
+
     public static HashMap<String, Integer> getAllURLToPageID() throws RocksDBException{
         return URLToPageId.getAll();
     }

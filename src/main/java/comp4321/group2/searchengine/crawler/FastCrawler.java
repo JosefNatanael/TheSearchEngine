@@ -2,13 +2,13 @@ package comp4321.group2.searchengine.crawler;
 
 import comp4321.group2.searchengine.RocksDBApi;
 import comp4321.group2.searchengine.common.Constants;
+import comp4321.group2.searchengine.exceptions.InvalidWordIdConversionException;
 import comp4321.group2.searchengine.repositories.ForwardIndex;
+import comp4321.group2.searchengine.repositories.WordIdToIdf;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.rocksdb.RocksDBException;
 
-import java.util.ArrayList;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.*;
 
 
@@ -69,11 +69,72 @@ public class FastCrawler {
         System.out.println("Number of unique pages seen (indexed): " + urls.size());
     }
 
-    public static void main(String[] args) throws RocksDBException {
+    public void postIndexProcess() throws RocksDBException, InvalidWordIdConversionException {
+        //iterate each word ID, compute idf, length
+        HashMap<String, Integer> wordToWordID = RocksDBApi.getAllWordToWordID();
+        HashMap<String, Integer> latestIndex = RocksDBApi.getAllMetadata();
+        int numDocs = latestIndex.get("page");
+        int df;
+        double idf;
+//        ArrayList<Integer> concatenated = new ArrayList<Integer>();
+
+        for (Map.Entry<String, Integer> pair : wordToWordID.entrySet()) {
+            String word = pair.getKey();
+            int wordId = pair.getValue();
+            ArrayList<Integer> result = RocksDBApi.getPageIdsOfWord(word);
+            df = result.size();
+            idf = (Math.log(numDocs/(double)df) / Math.log(2));
+            //WordIdToIdf.addEntry(idf)
+
+            RocksDBApi.addIdf(wordId, idf);
+
+//            concatenated.addAll(result);
+        }
+
+//        Set<Integer> pageIds = new HashSet<Integer>(concatenated);
+        computeL2Length();
+    }
+
+    public void computeL2Length() throws RocksDBException, InvalidWordIdConversionException {
+        HashMap<String, Integer> URLToPageID = RocksDBApi.getAllURLToPageID();
+        int wordId, tf;
+        double idf, accumulator = 0.0, result;
+        //from forward get k2 length
+        for (Map.Entry<String, Integer> pair : URLToPageID.entrySet()) {
+            int pageId = pair.getValue();
+
+            //get wordIdList from forward index
+            ArrayList<Integer> wordIdList = RocksDBApi.getWordIdListFromPageId(pageId);
+
+            //for each word id
+            for(int i = 0; i < wordIdList.size(); ++i){
+                wordId = wordIdList.get(i);
+                //get idf of the word
+                idf = RocksDBApi.getIdfFromWordId(wordId);
+
+                //get tf of the word from getvaluebykey of index 'wordID@pageID'
+                tf = RocksDBApi.getInvertedValuesFromKey(wordId, pageId).size();
+
+                //get the square of tf x idf, then accumulate
+                accumulator += Math.pow(tf*idf, 2);
+            }
+
+            //square root the accumulated squared tf idf
+            result = Math.sqrt(accumulator);
+
+            //store in db?
+
+
+
+        }
+    }
+
+    public static void main(String[] args) throws RocksDBException, InvalidWordIdConversionException {
         RocksDBApi.connect();
         RocksDBApi.reset();
         String rootUrl = "https://www.cse.ust.hk/";
         FastCrawler crawler = new FastCrawler(rootUrl);
         crawler.indexToDB();
+        crawler.postIndexProcess();
     }
 }

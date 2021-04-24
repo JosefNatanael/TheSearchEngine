@@ -54,12 +54,12 @@ public class WordIdToIdf {
      * Get all the result pairs
      * @throws RocksDBException
      */
-    public static HashMap<String, Double> getAll() throws RocksDBException {
+    public static HashMap<Integer, Double> getAll() throws RocksDBException {
         RocksIterator iter = db.newIterator();
-        HashMap<String, Double> result = new HashMap<String, Double>();
+        HashMap<Integer, Double> result = new HashMap<Integer, Double>();
 
         for (iter.seekToFirst(); iter.isValid(); iter.next()) {
-            result.put(new String(iter.key()), ByteIntUtilities.convertByteArrayToDouble(iter.value()));
+            result.put(ByteIntUtilities.convertByteArrayToInt(iter.key()), ByteIntUtilities.convertByteArrayToDouble(iter.value()));
         }
 
         iter.close();
@@ -74,7 +74,7 @@ public class WordIdToIdf {
         RocksIterator iter = db.newIterator();
 
         for (iter.seekToFirst(); iter.isValid(); iter.next()) {
-            System.out.println(new String(iter.key()) + "\t=\t" + ByteIntUtilities.convertByteArrayToDouble(iter.value()));
+            System.out.println(ByteIntUtilities.convertByteArrayToInt(iter.key()) + "\t=\t" + ByteIntUtilities.convertByteArrayToDouble(iter.value()));
         }
 
         iter.close();
