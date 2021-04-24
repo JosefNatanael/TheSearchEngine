@@ -77,6 +77,11 @@ public class InvertedIndex {
         return pageIdToWordLocs;
     }
 
+    public static ArrayList<Integer> getValueByKey(byte[] key) throws RocksDBException {
+        byte[] value = db.get(key);
+        return WordUtilities.stringToIntegerArrayList(new String(value));
+    }
+
 
     public static ArrayList<Integer> getPageIds(byte[] prefix) throws RocksDBException {
         ReadOptions ro = new ReadOptions();

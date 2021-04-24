@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import org.rocksdb.Options;
 import org.rocksdb.ReadOptions;
 import org.rocksdb.RocksDB;
@@ -44,32 +45,38 @@ public class ForwardIndex {
         }
     }
 
-    public static void addEntry(byte[] key, byte[] values) throws RocksDBException {
+    public static void addEntry(int pageId, ArrayList<Integer> wordIds) throws RocksDBException {
+
+        byte[] key = ByteIntUtilities.convertIntToByteArray(pageId);
+        byte[] values = WordUtilities.arrayListToString(wordIds).getBytes();
+
         db.put(key, values);
     }
 
     //prefix match
-    public static void delEntry(String word) throws RocksDBException {
+    public static void delEntry(int pageId) throws RocksDBException {
         // Delete the word and its list from the hashtable
-        db.delete(word.getBytes());
+        db.delete(ByteIntUtilities.convertIntToByteArray(pageId));
     }
 
-    public static HashMap<Integer, Integer> getValue(int key) throws RocksDBException {
-        byte[] value = db.get(ByteIntUtilities.convertIntToByteArray(key));
+    public static ArrayList<Integer> getValue(int pageId) throws RocksDBException {
+        byte[] value = db.get(ByteIntUtilities.convertIntToByteArray(pageId));
 
-        return null;
+        ArrayList<Integer> result = WordUtilities.stringToIntegerArrayList(new String(value));
+
+        return result;
     }
 
     /**
      * Get all the result pairs
      * @throws RocksDBException
      */
-    public static HashMap<Integer, String> getAll() throws RocksDBException {
+    public static HashMap<Integer, ArrayList<Integer>> getAll() throws RocksDBException {
         RocksIterator iter = db.newIterator();
-        HashMap<Integer, String> result = new HashMap<Integer, String>();
+        HashMap<Integer, ArrayList<Integer>> result = new HashMap<Integer, ArrayList<Integer>>();
 
         for (iter.seekToFirst(); iter.isValid(); iter.next()) {
-            result.put(ByteIntUtilities.convertByteArrayToInt(iter.key()), new String(iter.value()));
+            result.put(ByteIntUtilities.convertByteArrayToInt(iter.key()), WordUtilities.stringToIntegerArrayList(new String(iter.value())) );
         }
 
         iter.close();
@@ -85,7 +92,7 @@ public class ForwardIndex {
         RocksIterator iter = db.newIterator();
 
         for (iter.seekToFirst(); iter.isValid(); iter.next()) {
-            System.out.println(new String(iter.key()) + "\t=\t" + new String(iter.value()));
+            System.out.println(ByteIntUtilities.convertByteArrayToInt(iter.key()) + "\t=\t" + WordUtilities.stringToIntegerArrayList(new String(iter.value())));
         }
 
         iter.close();
@@ -103,29 +110,6 @@ public class ForwardIndex {
         }
 
         iter.close();
-    }
-
-    /**
-     * Creates NEW entries in the database in batch.
-     * Table: <invertedIndexKey: byte array, locations: int array>
-     * @return
-     */
-    public static void createEntriesInBatch(Map<byte[], ArrayList<Integer>> table, int documentId)
-        throws RocksDBException {
-        WriteBatch writeBatch = new WriteBatch();
-        WriteOptions writeOptions = new WriteOptions();
-        byte[] keyword;
-        ArrayList<Integer> locations;
-
-        for (Entry<byte[], ArrayList<Integer>> it : table.entrySet()) {
-            keyword = it.getKey();
-            locations = it.getValue();
-
-            // Step 2: Put into write batch
-            writeBatch.put(keyword, WordUtilities.arrayListToString(locations).getBytes());
-        }
-
-        db.write(writeOptions, writeBatch);
     }
 }
 
