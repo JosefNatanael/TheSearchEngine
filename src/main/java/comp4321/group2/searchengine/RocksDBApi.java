@@ -32,6 +32,7 @@ public final class RocksDBApi {
         WordToWordId.connect();
         WordIdToIdf.connect();
         ForwardIndex.connect();
+        PageIdToLength.connect();
     }
 
     public static void reset() throws RocksDBException {
@@ -42,6 +43,7 @@ public final class RocksDBApi {
         WordToWordId.deleteAll();
         WordIdToIdf.deleteAll();
         ForwardIndex.deleteAll();
+        PageIdToLength.deleteAll();
     }
 
     /**
@@ -118,7 +120,7 @@ public final class RocksDBApi {
      * @param idf
      * @throws RocksDBException
      */
-    public static void addIdf(int wordId,  double idf)
+    public static void addWordIdf(int wordId,  double idf)
         throws RocksDBException{
         WordIdToIdf.addEntry(wordId, idf);
     }
@@ -129,9 +131,14 @@ public final class RocksDBApi {
      * @param wordIds
      * @throws RocksDBException
      */
-    public static void addForward(int pageId,  ArrayList<Integer> wordIds)
+    public static void addForwardIndex(int pageId,  ArrayList<Integer> wordIds)
         throws RocksDBException{
         ForwardIndex.addEntry(pageId, wordIds);
+    }
+
+    public static void addPageLength(int pageId,  double l2Length)
+        throws RocksDBException{
+        PageIdToLength.addEntry(pageId, l2Length);
     }
 
 
@@ -226,5 +233,6 @@ public final class RocksDBApi {
         WordToWordId.closeConnection();
         WordIdToIdf.closeConnection();
         ForwardIndex.closeConnection();
+        PageIdToLength.closeConnection();
     }
 }

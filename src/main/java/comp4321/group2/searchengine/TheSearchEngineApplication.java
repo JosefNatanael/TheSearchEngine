@@ -124,7 +124,7 @@ public class TheSearchEngineApplication extends SpringBootServletInitializer {
             idf = (Math.log(numDocs/(double)df) / Math.log(2));
             //WordIdToIdf.addEntry(idf)
 
-            RocksDBApi.addIdf(wordId, idf);
+            RocksDBApi.addWordIdf(wordId, idf);
 
             concatenated.addAll(result);
         }

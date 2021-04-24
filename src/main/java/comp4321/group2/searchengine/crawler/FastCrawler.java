@@ -99,7 +99,7 @@ public class FastCrawler {
             idf = (Math.log(numDocs/(double)df) / Math.log(2));
             //WordIdToIdf.addEntry(idf)
 
-            RocksDBApi.addIdf(wordId, idf);
+            RocksDBApi.addWordIdf(wordId, idf);
 
 //            concatenated.addAll(result);
         }
@@ -111,7 +111,8 @@ public class FastCrawler {
     public void computeL2Length() throws RocksDBException, InvalidWordIdConversionException {
         HashMap<String, Integer> URLToPageID = RocksDBApi.getAllURLToPageID();
         int wordId, tf;
-        double idf, accumulator = 0.0, result;
+
+        double idf, accumulator = 0.0, length_result;
         //from forward get l2 length
         for (Map.Entry<String, Integer> pair : URLToPageID.entrySet()) {
             int pageId = pair.getValue();
@@ -133,12 +134,10 @@ public class FastCrawler {
             }
 
             //square root the accumulated squared tf idf
-            result = Math.sqrt(accumulator);
+            length_result = Math.sqrt(accumulator);
 
-            //store in db?
-
-
-
+            //store in db
+            RocksDBApi.addPageLength(pageId, length_result);
         }
     }
 
