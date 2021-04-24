@@ -57,6 +57,7 @@ abstract class CrawlerHelper {
                 visitedUrls.add(url);
             }
         } catch (HttpStatusException e) {
+            visitedUrls.add(url);
             throw e;
         }
         return res;
@@ -139,15 +140,15 @@ abstract class CrawlerHelper {
         // Add child links to urlQueue vector
         for (String link : links) {
             if (link.startsWith("https://www.cse.ust.hk")) {
-                boolean skipFlag = false;
-                // Check if the current link is in the blacklist, skip it!
-                for (String blacklist : blackListLinkStartsWith) {
-                    if (link.startsWith(blacklist)) {
-                        skipFlag = true;
-                        break;
-                    }
-                }
-                if (skipFlag) continue;
+//                boolean skipFlag = false;
+//                // Check if the current link is in the blacklist, skip it!
+//                for (String blacklist : blackListLinkStartsWith) {
+//                    if (link.startsWith(blacklist)) {
+//                        skipFlag = true;
+//                        break;
+//                    }
+//                }
+//                if (skipFlag) continue;
                 urlQueue.add(new Link(link, parentLink.level + 1)); // add links to urlQueue vector
             }
         }

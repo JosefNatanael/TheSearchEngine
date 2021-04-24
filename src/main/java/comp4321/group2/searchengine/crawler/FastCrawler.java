@@ -2,6 +2,8 @@ package comp4321.group2.searchengine.crawler;
 
 import comp4321.group2.searchengine.RocksDBApi;
 import comp4321.group2.searchengine.common.Constants;
+import comp4321.group2.searchengine.repositories.URLToPageId;
+import comp4321.group2.searchengine.repositories.WordIdToIdf;
 import javafx.util.Pair;
 import org.rocksdb.RocksDBException;
 
@@ -49,23 +51,23 @@ public class FastCrawler {
             pair.getValue().setStopScraping(true);
         });
 
-//        // Force to stop all threads, running or not
-//        spawnedThreads.forEach((pair) -> {
-//            pair.getKey().cancel(true);
-//        });
+        // Force to stop all threads, running or not
+        spawnedThreads.forEach((pair) -> {
+            pair.getKey().cancel(true);
+        });
 
-        try {
-            latch.await();
-            spawnedThreads.forEach((pair) -> {
-                pair.getKey().cancel(true);
-            });
-        } catch (InterruptedException ex) {
-            System.out.println(ex.getMessage());
-        }
+//        try {
+//            latch.await();
+//            spawnedThreads.forEach((pair) -> {
+//                pair.getKey().cancel(true);
+//            });
+//        } catch (InterruptedException ex) {
+//            System.out.println(ex.getMessage());
+//        }
         long end = System.currentTimeMillis();
 
         System.out.println("Total time taken: " + (end - start));
-        System.out.println("Number of unique pages seen (indexed): " + urls.size());
+        System.out.println("Number of unique pages seen (indexed or not): " + urls.size());
     }
 
     public static void main(String[] args) throws RocksDBException {
@@ -74,5 +76,8 @@ public class FastCrawler {
         String rootUrl = "https://www.cse.ust.hk/";
         FastCrawler crawler = new FastCrawler(rootUrl);
         crawler.indexToDB();
+
+        WordIdToIdf.printAll();
+
     }
 }
