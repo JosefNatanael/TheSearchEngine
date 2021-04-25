@@ -3,10 +3,11 @@ package comp4321.group2.searchengine.crawler;
 import comp4321.group2.searchengine.RocksDBApi;
 import comp4321.group2.searchengine.common.Constants;
 import comp4321.group2.searchengine.exceptions.InvalidWordIdConversionException;
-import comp4321.group2.searchengine.repositories.*;
+import comp4321.group2.searchengine.models.Page;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.rocksdb.RocksDBException;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -82,7 +83,7 @@ public class FastCrawler {
 
     }
 
-    public void postIndexProcess() throws RocksDBException, InvalidWordIdConversionException {
+    public void postIndexProcess() throws RocksDBException, InvalidWordIdConversionException, ClassNotFoundException, IOException {
         //iterate each word ID, compute idf, length
         HashMap<String, Integer> wordToWordID = RocksDBApi.getAllWordToWordID();
         HashMap<String, Integer> latestIndex = RocksDBApi.getAllMetadata();
@@ -108,7 +109,7 @@ public class FastCrawler {
         computeL2Length();
     }
 
-    public void computeL2Length() throws RocksDBException, InvalidWordIdConversionException {
+    public void computeL2Length() throws RocksDBException, InvalidWordIdConversionException, ClassNotFoundException, IOException {
         HashMap<String, Integer> URLToPageID = RocksDBApi.getAllURLToPageID();
         int wordId, tf;
 
@@ -116,6 +117,10 @@ public class FastCrawler {
         //from forward get l2 length
         for (Map.Entry<String, Integer> pair : URLToPageID.entrySet()) {
             int pageId = pair.getValue();
+
+            //get tfMax from PageIdToPageData index
+            Page pageData = RocksDBApi.getPageData(pageId);
+            int tfMax = pageData.getTfmax();
 
             //get wordIdList from forward index
             ArrayList<Integer> wordIdList = RocksDBApi.getWordIdListFromPageId(pageId);
@@ -130,7 +135,7 @@ public class FastCrawler {
                 tf = RocksDBApi.getInvertedValuesFromKey(wordId, pageId).size();
 
                 //get the square of tf x idf, then accumulate
-                accumulator += Math.pow(tf*idf, 2);
+                accumulator += Math.pow(Double.valueOf(tf)/Double.valueOf(tfMax)*idf, 2);
             }
 
             //square root the accumulated squared tf idf
