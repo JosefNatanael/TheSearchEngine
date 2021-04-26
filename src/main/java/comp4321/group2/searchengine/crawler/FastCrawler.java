@@ -4,14 +4,14 @@ import comp4321.group2.searchengine.RocksDBApi;
 import comp4321.group2.searchengine.common.Constants;
 import comp4321.group2.searchengine.exceptions.InvalidWordIdConversionException;
 import comp4321.group2.searchengine.precompute.FastCompute;
+import comp4321.group2.searchengine.query.QueryHandler;
 import comp4321.group2.searchengine.repositories.Metadata;
-import comp4321.group2.searchengine.repositories.PageIdToLength;
-import comp4321.group2.searchengine.repositories.URLToPageId;
-import comp4321.group2.searchengine.repositories.WeightIndex;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.rocksdb.RocksDBException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Scanner;
+import java.util.Set;
 import java.util.concurrent.*;
 
 
@@ -94,8 +94,13 @@ public class FastCrawler {
         compute.processWordIdToIdfEntries();
         compute.processWeightsAndPageLength();
 
-        WeightIndex.printAll();
-        PageIdToLength.printAll();
+//        URLToPageId.printAll();
+//        WeightIndex.printAll();
+//        WordIdToIdf.printAll();
+//        PageIdToLength.printAll();
+
+        QueryHandler qh = new QueryHandler("a contract generator chatbot");
+        qh.handle();
 
         RocksDBApi.closeAllDBConnections();
     }

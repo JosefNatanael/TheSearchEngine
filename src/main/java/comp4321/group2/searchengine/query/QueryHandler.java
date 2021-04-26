@@ -10,7 +10,6 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.rocksdb.RocksDBException;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -28,7 +27,7 @@ public class QueryHandler {
     private static final File stopwordsPath = new File("./src/main/resources/stopwords.txt");
     private static final StopStem stopStem = new StopStem(stopwordsPath.getAbsolutePath());
 
-    QueryHandler(String query) {
+    public QueryHandler(String query) {
         this.rawQuery = query;
 
         String[] words = query.split(" ");
@@ -62,6 +61,18 @@ public class QueryHandler {
         ArrayList<Integer> pageIds = new ArrayList<>(pageIdsSet);
         calculateVSM(queryWordIds, pageIds);
         calculateAdjPoints(queryWordIds, pageIds);
+
+        extBoolSimMap.forEach((k, v) -> {
+            System.out.println("EXTBOOL " + k + " -> " + v);
+        });
+
+        cosSimMap.forEach((k, v) -> {
+            System.out.println("COSSIM " + k + " -> " + v);
+        });
+
+        adjPointsMap.forEach((k, v) -> {
+            System.out.println("ADJ " + k + " -> " + v);
+        });
     }
 
     private ArrayList<ImmutablePair<Integer, Integer>> initWordStreakLocsArray(ArrayList<Integer> wordLocs) {
@@ -100,10 +111,15 @@ public class QueryHandler {
         }
 
         // Implement AdjPoints
-        HashMap<Integer, ArrayList<ImmutablePair<Integer, Integer>>> currWordLocsMap = new HashMap<Integer, ArrayList<ImmutablePair<Integer, Integer>>>();
+        HashMap<Integer, ArrayList<ImmutablePair<Integer, Integer>>> currWordLocsMap = new HashMap<>();
 
         for (String word: stemmedQuery) {
             HashMap<Integer, ArrayList<Integer>> nextWordLocsMap = RocksDBApi.getWordValues(word);
+
+            if (nextWordLocsMap == null) {
+                System.out.println("NULL LOCS MAP");
+                continue;
+            }
 
             for (int pageId : pageIds) {
                 if (nextWordLocsMap.containsKey(pageId)) {
@@ -119,6 +135,7 @@ public class QueryHandler {
                         while (left < currWordStreakLocs.size() && right < nextWordLocs.size()) {
                             ImmutablePair<Integer, Integer> newPair;
                             if (currWordStreakLocs.get(left).left + 1 == nextWordLocs.get(right)) {
+                                System.out.println("ggwp");
                                 newPair = new ImmutablePair<>(nextWordLocs.get(right), currWordStreakLocs.get(left).right + 1);
                                 newWordStreakLocs.add(newPair);
                                 currMaxStreak = Math.max(currMaxStreak, currWordStreakLocs.get(left).right + 1);
@@ -138,13 +155,15 @@ public class QueryHandler {
                             ImmutablePair<Integer, Integer> newPair = new ImmutablePair<>(nextWordLocs.get(i), 0);
                             newWordStreakLocs.add(newPair);
                         }
+
+                        currWordLocsMap.put(pageId, newWordStreakLocs);
                     } else {
                         ArrayList<ImmutablePair<Integer, Integer>> wordStreakLocs = initWordStreakLocsArray(nextWordLocs);
                         currWordLocsMap.put(pageId, wordStreakLocs);
                     }
 
                     double currPoints = adjPointsMap.get(pageId);
-                    adjPointsMap.put(pageId, currPoints + Math.pow(currMaxStreak, 2));
+                    adjPointsMap.put(pageId, currPoints + Math.pow(currMaxStreak + 1, 2));
                 } else {
                     currWordLocsMap.put(pageId, new ArrayList<>());
                 }
