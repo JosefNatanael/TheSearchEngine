@@ -221,8 +221,8 @@ public final class RocksDBApi {
         return WordToWordId.getValue(word);
     }
 
-    public static double getPageLength(int pageId) {
-        return 0.0;
+    public static double getPageLength(int pageId) throws RocksDBException {
+        return PageIdToLength.getValue(pageId);
     }
 
     public static void closeAllDBConnections() {
