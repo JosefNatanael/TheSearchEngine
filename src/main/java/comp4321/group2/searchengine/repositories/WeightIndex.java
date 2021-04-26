@@ -100,7 +100,7 @@ public class WeightIndex {
         RocksIterator iter = db.newIterator();
 
         for (iter.seekToFirst(); iter.isValid(); iter.next()) {
-            System.out.println(new String(iter.key()) + "\t=\t" + new String(iter.value()));
+            System.out.println(new String(iter.key()) + "\t=\t" + ByteIntUtilities.convertByteArrayToDouble(iter.value()));
         }
 
         iter.close();
@@ -123,19 +123,17 @@ public class WeightIndex {
      * Creates NEW entries in the database in batch.
      * Table: <invertedIndexKey: byte array, locations: int array>
      */
-    public static void createEntriesInBatch(Map<byte[], ArrayList<Integer>> table, int documentId)
+    public static void createEntriesInBatch(Map<byte[], Double> table)
         throws RocksDBException {
         WriteBatch writeBatch = new WriteBatch();
         WriteOptions writeOptions = new WriteOptions();
         byte[] keyword;
-        ArrayList<Integer> locations;
+        double weight;
 
-        for (Entry<byte[], ArrayList<Integer>> it : table.entrySet()) {
+        for (Entry<byte[], Double> it : table.entrySet()) {
             keyword = it.getKey();
-            locations = it.getValue();
-
-            // Step 2: Put into write batch
-            writeBatch.put(keyword, WordUtilities.arrayListToString(locations).getBytes());
+            weight = it.getValue();
+            writeBatch.put(keyword, ByteIntUtilities.doubleToByteArray(weight));
         }
 
         db.write(writeOptions, writeBatch);

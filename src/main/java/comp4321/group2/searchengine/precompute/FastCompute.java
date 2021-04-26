@@ -2,7 +2,10 @@ package comp4321.group2.searchengine.precompute;
 
 import comp4321.group2.searchengine.RocksDBApi;
 import comp4321.group2.searchengine.exceptions.InvalidWordIdConversionException;
+import comp4321.group2.searchengine.models.Page;
 import comp4321.group2.searchengine.repositories.*;
+import comp4321.group2.searchengine.utils.WordUtilities;
+import org.apache.commons.collections.functors.ExceptionPredicate;
 import org.rocksdb.RocksDBException;
 
 import java.io.IOException;
@@ -15,61 +18,98 @@ public class FastCompute {
     public FastCompute() {
     }
 
-    public void processWordIdToIdfEntries() throws RocksDBException, InvalidWordIdConversionException {
+    public void processWordIdToIdfEntries() {
         //iterate each word ID, compute idf, length
         HashMap<String, Integer> wordToWordID = WordToWordId.getAll();
         HashMap<String, Integer> latestIndex = Metadata.getAll();
         int numDocs = latestIndex.get("page");
-        int df;
-        double idf;
 
-        for (Map.Entry<String, Integer> pair : wordToWordID.entrySet()) {
+        wordToWordID.entrySet().parallelStream().forEach(pair -> {
             String word = pair.getKey();
             int wordId = pair.getValue();
-            ArrayList<Integer> result = RocksDBApi.getPageIdsOfWord(word);
-            df = result.size();
-            idf = (Math.log(numDocs / (double) df) / Math.log(2));
+            ArrayList<Integer> result = null;
+            try {
+                result = RocksDBApi.getPageIdsOfWord(word);
+            } catch (Exception e) {
+                System.out.println(e + " caught");
+            }
+            assert result != null;
+            int df = result.size();
+            double idf = (Math.log(numDocs / (double) df) / Math.log(2));
 
-            WordIdToIdf.addEntry(wordId, idf);
-        }
+            try {
+                WordIdToIdf.addEntry(wordId, idf);
+            } catch (Exception e) {
+                System.out.println(e + " caught");
+            }
+        });
     }
 
-    public void processPageIdToL2Length() {
-        HashMap<String, Integer> URLToPageID = URLToPageId.getAll();
+    public void processWeightsAndPageLength() {
+        ForwardIndex.getAll().entrySet().parallelStream().forEach(pair -> {
+            int pageId = pair.getKey();
 
-        URLToPageID.entrySet().parallelStream().forEach(pair -> {
-            int pageId = pair.getValue();
             HashMap<Integer, Double> wordWeights = null;
             try {
-                wordWeights = RocksDBApi.getPageWordWeights(pageId);
+                wordWeights = getPageWordWeights(pageId);
             } catch (Exception e) {
-                e.printStackTrace();
+                System.out.println(e + " caught");
             }
 
+            // Compute L2 length here
             double sum = 0.0;
             for (Double value : wordWeights.values()) {
                 sum += value;
             }
             double length_result = Math.sqrt(sum);
 
-            //store in db
+            //store page length in db
             try {
                 PageIdToLength.addEntry(pageId, length_result);
             } catch (Exception e) {
                 e.printStackTrace();
             }
+
+            // Store weights to WeightIndex
+            HashMap<byte[], Double> wordWeightsProperKey = new HashMap<>();
+
+            assert wordWeights != null;
+            wordWeights.forEach((key, value) -> {
+                int wordId = key;
+                double weight = value;
+                byte[] properKey = null;
+                try {
+                    properKey = WordUtilities.pageIdAndWordIdToDBKey(pageId, wordId);
+                } catch (Exception e) {
+                    System.out.println(e + " caught");
+                }
+                wordWeightsProperKey.put(properKey, weight);
+            });
+
+            try {
+                WeightIndex.createEntriesInBatch(wordWeightsProperKey);
+            } catch (Exception e) {
+                System.out.println(e + " caught");
+            }
         });
     }
 
-    public static void main(String[] args) throws RocksDBException, InvalidWordIdConversionException, IOException, ClassNotFoundException {
-        RocksDBApi.closeAllDBConnections();
-        RocksDBApi.connect();
+    private HashMap<Integer, Double> getPageWordWeights(int pageId) throws RocksDBException, IOException, ClassNotFoundException, InvalidWordIdConversionException {
+        ArrayList<Integer> wordIds = ForwardIndex.getValue(pageId);
+        Page pageData = PageIdToData.getValue(pageId);
+        int tfMax = pageData.getTfmax();
 
-        FastCompute compute = new FastCompute();
+        HashMap<Integer, Double> wordIdToWeight = new HashMap<>();
 
-        compute.processWordIdToIdfEntries();
-        compute.processPageIdToL2Length();
+        for (int wordId : wordIds) {
+            byte[] key = WordUtilities.wordIdAndPageIdToDBKey(wordId, pageId);
+            int tf = InvertedIndex.getValueByKey(key).size();
 
-        RocksDBApi.closeAllDBConnections();
+            double idf = WordIdToIdf.getValue(wordId);
+            Double weight = (double) tf * idf / (double) tfMax;
+            wordIdToWeight.put(wordId, weight);
+        }
+
+        return wordIdToWeight;
     }
 }

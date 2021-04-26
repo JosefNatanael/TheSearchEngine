@@ -13,8 +13,8 @@ public final class WordUtilities {
      *
      * @return a string XXXXXXXX@YYY, where XXXXXXXX is a zero padded wordId, and YYY is pageId
      */
-    public static StringBuilder buildDBKeyPrefix(int wordId) throws InvalidWordIdConversionException {
-        String wordIdString = Integer.toString(wordId);
+    public static StringBuilder buildDBKeyPrefix(int prefixId) throws InvalidWordIdConversionException {
+        String wordIdString = Integer.toString(prefixId);
         if (wordIdString.length() >= Constants.prefixBytesLength) {
             throw new InvalidWordIdConversionException(wordIdString);
         }
@@ -36,6 +36,14 @@ public final class WordUtilities {
         String pageIdString = Integer.toString(pageId);
         StringBuilder sb = buildDBKeyPrefix(wordId);
         sb.append(pageIdString);
+
+        return sb.toString().getBytes();
+    }
+
+    public static byte[] pageIdAndWordIdToDBKey(int pageId, int wordId) throws InvalidWordIdConversionException {
+        String wordIdString = Integer.toString(wordId);
+        StringBuilder sb = buildDBKeyPrefix(pageId);
+        sb.append(wordIdString);
 
         return sb.toString().getBytes();
     }
