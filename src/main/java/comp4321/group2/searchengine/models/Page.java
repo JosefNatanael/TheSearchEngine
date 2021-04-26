@@ -26,10 +26,6 @@ public class Page implements Serializable {
 
     /**
      * Constructor for Page. If lastModified cannot be parsed, the instance variable this.lastModified will be null.
-     * @param title
-     * @param url
-     * @param lastModified
-     * @param size
      */
     public Page(String title, String url, int size, String lastModified, int tfmax) {
         this.title = title;
@@ -78,9 +74,7 @@ public class Page implements Serializable {
 
     /**
      * Serialize Page object to array of bytes
-     * @param page
      * @return array of bytes
-     * @throws IOException
      */
     public static byte[] serialize(Page page) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -92,10 +86,7 @@ public class Page implements Serializable {
 
     /**
      * Deserialize array of bytes to Page object
-     * @param buf
      * @return Page object
-     * @throws IOException
-     * @throws ClassNotFoundException
      */
     public static Page deserialize(byte[] buf) throws IOException, ClassNotFoundException {
         ByteArrayInputStream bis = new ByteArrayInputStream(buf);

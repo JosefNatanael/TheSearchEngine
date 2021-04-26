@@ -10,32 +10,26 @@ import org.rocksdb.RocksDBException;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.*;
 
 public class QueryHandler {
 
-    String rawQuery;
-    ArrayList<String> stemmedQuery = new ArrayList<String>();
+    final String rawQuery;
+    final ArrayList<String> stemmedQuery = new ArrayList<>();
 
-    HashMap<Integer, Double> extBoolSimMap = new HashMap<Integer, Double>();
-    HashMap<Integer, Double> cosSimMap = new HashMap<Integer, Double>();
-    HashMap<Integer, HashMap<Integer, Double>> pageWordWeights = new HashMap<Integer, HashMap<Integer, Double>>();
+    final Map<Integer, Double> extBoolSimMap = new ConcurrentHashMap<>();
+    final Map<Integer, Double> cosSimMap = new ConcurrentHashMap<>();
+    Map<Integer, HashMap<Integer, Double>> pageWordWeights = new HashMap<>();
 
-    private static File stopwordsPath = new File("./src/main/resources/stopwords.txt");
-    private static StopStem stopStem = new StopStem(stopwordsPath.getAbsolutePath());
+    private static final File stopwordsPath = new File("./src/main/resources/stopwords.txt");
+    private static final StopStem stopStem = new StopStem(stopwordsPath.getAbsolutePath());
 
     QueryHandler(String query) {
         this.rawQuery = query;
 
         String[] words = query.split(" ");
-        for (String word: words) {
+        for (String word : words) {
             word = word.replaceAll("\\d", "");
             String stemmedWord = stopStem.stem(word);
             if (stopStem.isStopWord(word) || stemmedWord.equals("")) {
@@ -46,15 +40,10 @@ public class QueryHandler {
     }
 
     /**
-     *
-     * @throws RocksDBException
-     * @throws InvalidWordIdConversionException
-     * @throws IOException
-     * @throws ClassNotFoundException
      */
     public void handle() throws RocksDBException, InvalidWordIdConversionException, IOException, ClassNotFoundException {
-        ArrayList<Integer> queryWordIds = new ArrayList<Integer>();
-        HashSet<Integer> pageIdsSet = new HashSet<Integer>();
+        ArrayList<Integer> queryWordIds = new ArrayList<>();
+        HashSet<Integer> pageIdsSet = new HashSet<>();
 
         // Find Query Word IDs and unique Page IDs
         for (String word : stemmedQuery) {
@@ -67,19 +56,18 @@ public class QueryHandler {
             pageIdsSet.addAll(pageIds);
         }
 
-        ArrayList<Integer> pageIds = new ArrayList<Integer>(pageIdsSet);
+        ArrayList<Integer> pageIds = new ArrayList<>(pageIdsSet);
         calculateRank(queryWordIds, pageIds);
     }
 
-    public void calculateRank(ArrayList<Integer> queryWordIds, ArrayList<Integer> pageIds) throws RocksDBException, IOException, ClassNotFoundException, InvalidWordIdConversionException {
+    public void calculateRank(List<Integer> queryWordIds, List<Integer> pageIds) {
 
         ExecutorService executor = Executors.newFixedThreadPool(Constants.numCrawlerThreads);
         ArrayList<ImmutablePair<Future, QueryRunnable>> spawnedThreads = new ArrayList<>();
-        Semaphore semaphore = new Semaphore(1);
 
         for (int i = 0; i < Constants.numCrawlerThreads; ++i) {
-            QueryRunnable r = new QueryRunnable(queryWordIds, pageIds, extBoolSimMap, cosSimMap, semaphore, i);
-            Future f = executor.submit(r);
+            QueryRunnable r = new QueryRunnable(queryWordIds, pageIds, extBoolSimMap, cosSimMap, i);
+            Future<?> f = executor.submit(r);
             ImmutablePair<Future, QueryRunnable> pair = new ImmutablePair<>(f, r);
             spawnedThreads.add(pair);
         }
@@ -90,7 +78,6 @@ public class QueryHandler {
         } catch (Exception e) {
             System.out.println("Failed to terminate threads");
         }
-
 
 
 //        for (int pageId : pageIds) {

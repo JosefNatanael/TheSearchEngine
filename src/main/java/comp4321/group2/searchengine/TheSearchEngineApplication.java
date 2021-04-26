@@ -19,7 +19,7 @@ import java.util.*;
 @SpringBootApplication
 public class TheSearchEngineApplication extends SpringBootServletInitializer {
 
-    public static void main(String[] args) throws RocksDBException, InvalidWordIdConversionException, ClassNotFoundException, IOException {
+    public static void main(String[] args) throws RocksDBException {
 //        RocksDBApi.closeAllDBConnections();
 //        RocksDBApi.connect();
 //        RocksDBApi.reset();
@@ -53,7 +53,7 @@ public class TheSearchEngineApplication extends SpringBootServletInitializer {
 
         PrintWriter writer = new PrintWriter("spider_result.txt");
 
-        HashMap<String, HashMap<String, ArrayList<Integer>>> godMap = new HashMap<String, HashMap<String, ArrayList<Integer>>>();
+        HashMap<String, HashMap<String, ArrayList<Integer>>> godMap = new HashMap<>();
         HashMap<String, Integer> wordToWordIdMap = WordToWordId.getAll();
         for (Map.Entry<String, Integer> pair : wordToWordIdMap.entrySet()) {
             String word = pair.getKey();
@@ -95,14 +95,14 @@ public class TheSearchEngineApplication extends SpringBootServletInitializer {
 
             writer.println("\nChild links: ");
             String[] childLinksArray = pageData.getChildUrls().split("\t");
-            for (int i = 0; i < childLinksArray.length; i++) {
-                if (childLinksArray[i].equals("")) {
+            for (String s : childLinksArray) {
+                if (s.equals("")) {
                     continue;
                 }
-                if (childLinksArray[i].charAt(0) == '/') {
-                    writer.println(rootUrl + childLinksArray[i].substring(1));
+                if (s.charAt(0) == '/') {
+                    writer.println(rootUrl + s.substring(1));
                 } else {
-                    writer.println(childLinksArray[i]);
+                    writer.println(s);
                 }
             }
 
@@ -112,7 +112,7 @@ public class TheSearchEngineApplication extends SpringBootServletInitializer {
     }
 
     public void completed()
-        throws RocksDBException, InvalidWordIdConversionException, ClassNotFoundException, IOException {
+        throws RocksDBException, InvalidWordIdConversionException {
         String rootUrl = "https://www.cse.ust.hk/";
         FastCrawler crawler = new FastCrawler(rootUrl);
         crawler.indexToDB();
@@ -123,7 +123,7 @@ public class TheSearchEngineApplication extends SpringBootServletInitializer {
         int numDocs = latestIndex.get("page");
         int df;
         double idf;
-        ArrayList<Integer> concatenated = new ArrayList<Integer>();
+        ArrayList<Integer> concatenated = new ArrayList<>();
 
         for (Map.Entry<String, Integer> pair : wordToWordID.entrySet()) {
             String word = pair.getKey();
@@ -137,7 +137,7 @@ public class TheSearchEngineApplication extends SpringBootServletInitializer {
             concatenated.addAll(result);
         }
 
-        Set<Integer> pageIds = new HashSet<Integer>(concatenated);
+        Set<Integer> pageIds = new HashSet<>(concatenated);
 
         //from forward get k2 length
     }

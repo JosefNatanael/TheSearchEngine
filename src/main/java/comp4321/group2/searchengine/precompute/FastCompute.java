@@ -14,7 +14,7 @@ public class FastCompute {
     public FastCompute() {
     }
 
-    public void postIndexProcess() throws RocksDBException, InvalidWordIdConversionException {
+    public void processWordIdToIdfEntries() throws RocksDBException, InvalidWordIdConversionException {
         //iterate each word ID, compute idf, length
         HashMap<String, Integer> wordToWordID = WordToWordId.getAll();
         HashMap<String, Integer> latestIndex = Metadata.getAll();
@@ -30,11 +30,10 @@ public class FastCompute {
             idf = (Math.log(numDocs / (double) df) / Math.log(2));
 
             WordIdToIdf.addEntry(wordId, idf);
-
         }
     }
 
-    public void computeL2Length() throws RocksDBException, InvalidWordIdConversionException {
+    public void processPageIdToL2Length() throws RocksDBException, InvalidWordIdConversionException {
         HashMap<String, Integer> URLToPageID = URLToPageId.getAll();
         int wordId, tf;
 
@@ -47,8 +46,8 @@ public class FastCompute {
             ArrayList<Integer> wordIdList = ForwardIndex.getValue(pageId);
 
             //for each word id
-            for (int i = 0; i < wordIdList.size(); ++i) {
-                wordId = wordIdList.get(i);
+            for (Integer integer : wordIdList) {
+                wordId = integer;
                 //get idf of the word
                 idf = WordIdToIdf.getValue(wordId);
 
@@ -73,8 +72,8 @@ public class FastCompute {
 
         FastCompute compute = new FastCompute();
 
-        compute.postIndexProcess();
-        compute.computeL2Length();
+        compute.processWordIdToIdfEntries();
+        compute.processPageIdToL2Length();
 
         RocksDBApi.closeAllDBConnections();
     }

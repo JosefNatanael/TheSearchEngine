@@ -3,7 +3,6 @@ package comp4321.group2.searchengine.repositories.pool;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -29,9 +28,9 @@ public class BlockingRocksDBConnectionPool {
     public static final String ROCKSDB_UNIVERSAL_COMPACTION = "rocksdb.compaction.universal";
     public static final String ROCKSDB_PREFIX_EXTRACTOR_MODE = "rocksdb.prefixExtractorMode";
 
-    private Map<String, BlockingQueue<RocksDBConnection>> dbNameToQueueMap;
-    private List<Options> optionsList;
-    private Set<String> dbSet;
+    private final Map<String, BlockingQueue<RocksDBConnection>> dbNameToQueueMap;
+    private final List<Options> optionsList;
+    private final Set<String> dbSet;
 
     /**
      * dbSet contains dbNames we want to have in our connection pool.
@@ -39,29 +38,25 @@ public class BlockingRocksDBConnectionPool {
      * since there are no mutator methods to add more dbNames.
      *
      * To initalize the dbNames with actual db connections, invoke the init() method once per dbName.
-     * @param dbSet
      */
     public BlockingRocksDBConnectionPool(Set<String> dbSet) {
         this.dbSet = dbSet;
-        this.dbNameToQueueMap = new HashMap<String, BlockingQueue<RocksDBConnection>>();
-        this.optionsList = new ArrayList<Options>();
+        this.dbNameToQueueMap = new HashMap<>();
+        this.optionsList = new ArrayList<>();
     }
 
     /**
      * Get a Connection for the dbName from the connection pool
      * @param dbName Name of the database instance
      * @return A live connection to the database
-     * @throws Exception
      */
     public RocksDBConnection getConnection(String dbName) throws Exception {
-        RocksDBConnection conn = dbNameToQueueMap.get(dbName).take();
-        return conn;
+        return dbNameToQueueMap.get(dbName).take();
     }
 
     /**
      * Release a previously acquired connection back to the connection pool
      * @param connection Previously acquired connection
-     * @throws Exception
      */
     public void releaseConnection(RocksDBConnection connection) throws Exception {
         dbNameToQueueMap.get(connection.getDbName()).put(connection);
@@ -69,12 +64,9 @@ public class BlockingRocksDBConnectionPool {
 
     /**
      * Closes all open connections
-     * @throws Exception
      */
     public void closeAllOpenConnections() throws Exception {
-        Iterator<String> iter = dbNameToQueueMap.keySet().iterator();
-        while (iter.hasNext()) {
-            String currentDb = iter.next();
+        for (String currentDb : dbNameToQueueMap.keySet()) {
             BlockingQueue<RocksDBConnection> queue = dbNameToQueueMap.get(currentDb);
             while (!queue.isEmpty()) {
                 RocksDBConnection connection = queue.take();
@@ -82,17 +74,14 @@ public class BlockingRocksDBConnectionPool {
             }
         }
 
-        for (int i = 0; i < optionsList.size(); ++i) {
-            optionsList.get(i).close();
+        for (Options options : optionsList) {
+            options.close();
         }
     }
 
     /**
      * Initialize a single db connection for dbName using the given properties.
-     * @param dbName
-     * @param prop
      * @return true if everything goes well, otherwise false.
-     * @throws Exception
      */
     public boolean init(String dbName, Properties prop) throws Exception {
         // Get full database absolute path
@@ -139,8 +128,8 @@ public class BlockingRocksDBConnectionPool {
             isUniversalCompaction = false;
         } else {
             temp = temp.toLowerCase();
-            if (temp.equals("1") || temp.equals("true") || temp.equals("yes")) isUniversalCompaction =
-                true; else isUniversalCompaction = false;
+            isUniversalCompaction =
+                temp.equals("1") || temp.equals("true") || temp.equals("yes");
         }
         System.out.println("Universal compaction: " + isUniversalCompaction);
 
@@ -162,7 +151,7 @@ public class BlockingRocksDBConnectionPool {
         opt.setTargetFileSizeBase(targetFileSize);
         optionsList.add(opt);
 
-        BlockingQueue<RocksDBConnection> que = new LinkedBlockingQueue<RocksDBConnection>();
+        BlockingQueue<RocksDBConnection> que = new LinkedBlockingQueue<>();
         RocksDBConnection conn = new RocksDBConnection(RocksDB.open(opt, fullDBPath), dbName);
         que.add(conn);
         dbNameToQueueMap.put(dbName, que);

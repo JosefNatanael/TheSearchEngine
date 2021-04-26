@@ -7,28 +7,25 @@ import comp4321.group2.searchengine.repositories.PageIdToLength;
 import org.rocksdb.RocksDBException;
 
 import java.io.IOException;
-import java.util.concurrent.Semaphore;
-import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.HashMap;
 
 public class QueryRunnable implements Runnable {
-    private ArrayList<Integer> queryWordIds;
-    private ArrayList<Integer> pageIds;
+    private final List<Integer> queryWordIds;
+    private final List<Integer> pageIds;
 
-    private HashMap<Integer, Double> extBoolSimMap;
-    private HashMap<Integer, Double> cosSimMap;
+    private final Map<Integer, Double> extBoolSimMap;
+    private final Map<Integer, Double> cosSimMap;
 
-    private Semaphore semaphore;
-    private int threadId;
+    private final int threadNo;
 
-    public QueryRunnable(ArrayList<Integer> queryWordIds, ArrayList<Integer> pageIds, HashMap<Integer, Double> extBoolSimMap, HashMap<Integer, Double> cosSimMap, Semaphore semaphore, int threadId) {
+    public QueryRunnable(List<Integer> queryWordIds, List<Integer> pageIds, Map<Integer, Double> extBoolSimMap, Map<Integer, Double> cosSimMap, int threadNo) {
         this.queryWordIds = queryWordIds;
         this.pageIds = pageIds;
         this.extBoolSimMap = extBoolSimMap;
         this.cosSimMap = cosSimMap;
-
-        this.semaphore = semaphore;
-        this.threadId = threadId;
+        this.threadNo = threadNo;
     }
 
     @Override
@@ -37,7 +34,7 @@ public class QueryRunnable implements Runnable {
 
         for (int i = 0; i < maxPagesPerThread; i++) {
             try {
-                int index = (i * Constants.numCrawlerThreads) + threadId;
+                int index = (i * Constants.numCrawlerThreads) + threadNo;
 
                 if (index >= pageIds.size()) {
                     continue;
@@ -62,16 +59,9 @@ public class QueryRunnable implements Runnable {
 
                 cosSim /= (Math.sqrt(queryWordIds.size()) * pageLen);
 
-                try {
-                    semaphore.acquire();
+                extBoolSimMap.put(pageId, extBoolSim);
+                cosSimMap.put(pageId, cosSim);
 
-                    extBoolSimMap.put(pageId, extBoolSim);
-                    cosSimMap.put(pageId, cosSim);
-                } catch (Exception e) {
-                    System.out.println("Exception from query thread: input to map");
-                } finally {
-                    semaphore.release();
-                }
             } catch (IOException e) {
                 System.out.println("IOException caught");
             } catch (RocksDBException e) {
@@ -80,6 +70,8 @@ public class QueryRunnable implements Runnable {
                 System.out.println("InvalidWordIdConversionException caught");
             } catch (ClassNotFoundException e) {
                 System.out.println("ClassNotFoundException caught");
+            } catch (Exception e) {
+                System.out.println(e + " caught");
             }
         }
     }

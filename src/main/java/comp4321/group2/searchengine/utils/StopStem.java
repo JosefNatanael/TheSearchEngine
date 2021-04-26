@@ -1,14 +1,11 @@
 package comp4321.group2.searchengine.utils;
 
 import java.io.*;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 
 public final class StopStem {
 
-    private Porter porter;
-    private java.util.HashSet<String> stopWords;
+    private final Porter porter;
+    private final java.util.HashSet<String> stopWords;
 
     public boolean isStopWord(String str) {
         return stopWords.contains(str);
@@ -17,7 +14,7 @@ public final class StopStem {
     public StopStem(String str) {
         super();
         porter = new Porter();
-        stopWords = new java.util.HashSet<String>();
+        stopWords = new java.util.HashSet<>();
 
         try {
             BufferedReader reader = new BufferedReader(new FileReader(str));

@@ -10,14 +10,12 @@ import comp4321.group2.searchengine.utils.ByteIntUtilities;
 
 public abstract class RocksDBRepo {
 
-    private RocksDBConnection connection;
-    private RocksDB db;
+    private final RocksDB db;
 
     private IGetValueStrategy getValueStrategy;
     private IGetAllEntriesStrategy getAllEntriesStrategy;
 
     public RocksDBRepo(RocksDBConnection connection) {
-        this.connection = connection;
         this.db = connection.getConnection();
     }
 
@@ -40,9 +38,8 @@ public abstract class RocksDBRepo {
     /**
      * Prints all the data in the DB hashtable to the console
      *
-     * @throws RocksDBException
      */
-    public void printAll() throws RocksDBException {
+    public void printAll() {
         RocksIterator iter = db.newIterator();
 
         for (iter.seekToFirst(); iter.isValid(); iter.next()) {
@@ -55,7 +52,6 @@ public abstract class RocksDBRepo {
     /**
      * Deletes all the data in the DB
      *
-     * @throws RocksDBException
      */
     public void deleteAll() throws RocksDBException {
         RocksIterator iter = db.newIterator();

@@ -7,7 +7,6 @@ public class ByteIntUtilities {
     /**
      * convert int to bytes
      *
-     * @param value
      * @return int conversion from byte[]
      */
     public static byte[] convertIntToByteArray(int value) {
@@ -17,7 +16,6 @@ public class ByteIntUtilities {
     /**
      * convert bytes to int
      *
-     * @param bytes
      * @return byte[] conversion from int
      */
     public static int convertByteArrayToInt(byte[] bytes) {

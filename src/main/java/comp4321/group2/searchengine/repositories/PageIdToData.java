@@ -14,12 +14,11 @@ import comp4321.group2.searchengine.utils.ByteIntUtilities;
 public final class PageIdToData {
 
     private static RocksDB db;
-    private static Options options;
 
     public static void connect() throws RocksDBException {
         // the Options class contains a set of configurable DB options
         // that determines the behaviour of the database.
-        options = new Options();
+        Options options = new Options();
         options.setCreateIfMissing(true);
 
         // create the DB if directory does not exist, then open the DB
@@ -40,8 +39,7 @@ public final class PageIdToData {
     public static Page getValue(int key) throws RocksDBException, IOException, ClassNotFoundException {
         byte[] value = db.get(ByteIntUtilities.convertIntToByteArray(key));
         if (value == null) return null;
-        Page pageData = Page.deserialize(value);
-        return pageData;
+        return Page.deserialize(value);
     }
 
     public static void addEntry(int key, Page value) throws RocksDBException, IOException {
@@ -55,13 +53,10 @@ public final class PageIdToData {
     /**
      * Get all the result pairs
      *
-     * @throws RocksDBException
-     * @throws IOException
-     * @throws ClassNotFoundException
      */
-    public static HashMap<Integer, Page> getAll() throws RocksDBException, ClassNotFoundException, IOException {
+    public static HashMap<Integer, Page> getAll() throws ClassNotFoundException, IOException {
         RocksIterator iter = db.newIterator();
-        HashMap<Integer, Page> result = new HashMap<Integer, Page>();
+        HashMap<Integer, Page> result = new HashMap<>();
 
         for (iter.seekToFirst(); iter.isValid(); iter.next()) {
             result.put(ByteIntUtilities.convertByteArrayToInt(iter.key()), Page.deserialize(iter.value()));
@@ -74,9 +69,8 @@ public final class PageIdToData {
     /**
      * Prints all the data in the DB hashtable to the console
      *
-     * @throws RocksDBException
      */
-    public static void printAll() throws RocksDBException {
+    public static void printAll() {
         RocksIterator iter = db.newIterator();
 
         for (iter.seekToFirst(); iter.isValid(); iter.next()) {
@@ -89,7 +83,6 @@ public final class PageIdToData {
     /**
      * Delete all the data in the DB
      *
-     * @throws RocksDBException
      */
     public static void deleteAll() throws RocksDBException {
         RocksIterator iter = db.newIterator();

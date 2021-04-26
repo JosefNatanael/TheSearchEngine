@@ -1,7 +1,6 @@
 package comp4321.group2.searchengine.crawler;
 
 import comp4321.group2.searchengine.common.Constants;
-import comp4321.group2.searchengine.exceptions.InvalidWordIdConversionException;
 import comp4321.group2.searchengine.models.Page;
 import comp4321.group2.searchengine.utils.StopStem;
 import comp4321.group2.searchengine.utils.WordUtilities;
@@ -12,26 +11,20 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.rocksdb.RocksDBException;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.BlockingQueue;
 
 abstract class CrawlerHelper {
-    private static File stopwordsPath = new File("./src/main/resources/stopwords.txt");
-    private static StopStem stopStem = new StopStem(stopwordsPath.getAbsolutePath());
-    private static String[] blackListLinkStartsWith = {"https://www.cse.ust.hk/Restricted"};
+    private static final File stopwordsPath = new File("./src/main/resources/stopwords.txt");
+    private static final StopStem stopStem = new StopStem(stopwordsPath.getAbsolutePath());
+    private static final String[] blackListLinkStartsWith = {"https://www.cse.ust.hk/Restricted"};
 
     /**
      * Send an HTTP request and analyze the response.
      *
-     * @param url
-     * @param visitedUrls
      * @return Response res
-     * @throws HttpStatusException
-     * @throws IOException
      */
     public static Response getResponse(String url, Set<String> visitedUrls) throws HttpStatusException, IOException {
         if (visitedUrls.contains(url)) {
@@ -72,7 +65,7 @@ abstract class CrawlerHelper {
      * @return Vector<String> a list of words in the web page body
      */
     public static Vector<String> extractWords(Document doc) {
-        Vector<String> result = new Vector<String>();
+        Vector<String> result = new Vector<>();
         if (doc == null || doc.body() == null || doc.body().text() == null) {
             return result;
         }
@@ -88,11 +81,10 @@ abstract class CrawlerHelper {
      * Extract useful external urls on the web page.
      * note: filter out images, emails, etc.
      *
-     * @param doc
      * @return Vector<String> a list of external links on the web page
      */
     public static Vector<String> extractLinks(Document doc) {
-        Vector<String> result = new Vector<String>();
+        Vector<String> result = new Vector<>();
         Elements links = doc.select("a[href]");
         for (Element link : links) {
             String linkString = link.absUrl("href");
@@ -105,15 +97,14 @@ abstract class CrawlerHelper {
     }
 
     /**
-     * @param wordToWordLocations
      * @return tfmax
      */
-    public static int getTfmax(HashMap<String, ArrayList<Integer>> wordToWordLocations) {
+    public static int getTfmax(Map<String, ArrayList<Integer>> wordToWordLocations) {
         int tfmax = 0;
         int tf = 0;
 
         for (Map.Entry<String, ArrayList<Integer>> pair : wordToWordLocations.entrySet()) {
-            ArrayList<Integer> locations = pair.getValue();
+            List<Integer> locations = pair.getValue();
             tf = locations.size();
             if (tf > tfmax) tfmax = tf;
         }
@@ -125,11 +116,8 @@ abstract class CrawlerHelper {
      *
      * @param parentLink Parent Link
      * @param links      Child Links
-     * @throws HttpStatusException
-     * @throws IOException
      */
-    public static void extractAndPushChildLinksFromParentToUrlQueue(Link parentLink, Vector<String> links, BlockingQueue<Link> urlQueue)
-        throws HttpStatusException, IOException {
+    public static void extractAndPushChildLinksFromParentToUrlQueue(Link parentLink, Vector<String> links, Queue<Link> urlQueue) {
         // Add child links to urlQueue vector
         for (String link : links) {
             if (link.contains("cse.ust.hk")) {
@@ -147,16 +135,15 @@ abstract class CrawlerHelper {
         }
     }
 
-    public static Page extractPageData(int size, String lastModified, Document doc, Vector<String> links, int tfmax) throws IOException {
+    public static Page extractPageData(int size, String lastModified, Document doc, Vector<String> links, int tfmax) {
         /* Get the metadata from the result */
         if (lastModified == null) {
             lastModified = "n/a";
         }
 
         String title = doc.title();
-        String urls = WordUtilities.arrayListToString(new ArrayList<String>(links));
-        Page pageData = new Page(title, urls, size, lastModified, tfmax);
-        return pageData;
+        String urls = WordUtilities.arrayListToString(new ArrayList<>(links));
+        return new Page(title, urls, size, lastModified, tfmax);
     }
 
     /**
@@ -167,7 +154,7 @@ abstract class CrawlerHelper {
      */
     public static HashMap<String, ArrayList<Integer>> extractCleanedWordLocationsMapFromDocument(Document document) {
         Vector<String> words = extractWords(document);
-        HashMap<String, ArrayList<Integer>> wordToWordLocationMap = new HashMap<String, ArrayList<Integer>>();
+        HashMap<String, ArrayList<Integer>> wordToWordLocationMap = new HashMap<>();
         for (int i = 0; i < words.size(); ++i) {
             String currWord = words.get(i);
             currWord = currWord.replaceAll("\\d", "");
@@ -178,7 +165,7 @@ abstract class CrawlerHelper {
             if (wordToWordLocationMap.containsKey(stemmedWord)) {
                 wordToWordLocationMap.get(stemmedWord).add(i);
             } else {
-                ArrayList<Integer> arrList = new ArrayList<Integer>();
+                ArrayList<Integer> arrList = new ArrayList<>();
                 arrList.add(i);
                 wordToWordLocationMap.put(stemmedWord, arrList);
             }

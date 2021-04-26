@@ -12,12 +12,11 @@ import java.util.HashMap;
 public class WordIdToIdf {
 
     private static RocksDB db;
-    private static Options options;
 
     public static void connect() throws RocksDBException {
         // the Options class contains a set of configurable DB options
         // that determines the behaviour of the database.
-        options = new Options();
+        Options options = new Options();
         options.setCreateIfMissing(true);
 
         // create the DB if directory does not exist, then open the DB
@@ -37,8 +36,7 @@ public class WordIdToIdf {
 
     public static double getValue(int key) throws RocksDBException {
         byte[] value = db.get(ByteIntUtilities.convertIntToByteArray(key));
-        double result = value != null ? ByteIntUtilities.convertByteArrayToDouble(value) : -1.0;
-        return result;
+        return value != null ? ByteIntUtilities.convertByteArrayToDouble(value) : -1.0;
     }
 
     public static void addEntry(int key, double value) throws RocksDBException {
@@ -53,11 +51,10 @@ public class WordIdToIdf {
     /**
      * Get all the result pairs
      *
-     * @throws RocksDBException
      */
-    public static HashMap<Integer, Double> getAll() throws RocksDBException {
+    public static HashMap<Integer, Double> getAll() {
         RocksIterator iter = db.newIterator();
-        HashMap<Integer, Double> result = new HashMap<Integer, Double>();
+        HashMap<Integer, Double> result = new HashMap<>();
 
         for (iter.seekToFirst(); iter.isValid(); iter.next()) {
             result.put(ByteIntUtilities.convertByteArrayToInt(iter.key()), ByteIntUtilities.convertByteArrayToDouble(iter.value()));
@@ -70,9 +67,8 @@ public class WordIdToIdf {
     /**
      * Prints all the data in the DB hashtable to the console
      *
-     * @throws RocksDBException
      */
-    public static void printAll() throws RocksDBException {
+    public static void printAll() {
         RocksIterator iter = db.newIterator();
 
         for (iter.seekToFirst(); iter.isValid(); iter.next()) {
@@ -85,7 +81,6 @@ public class WordIdToIdf {
     /**
      * Delete all the data in the DB
      *
-     * @throws RocksDBException
      */
     public static void deleteAll() throws RocksDBException {
         RocksIterator iter = db.newIterator();

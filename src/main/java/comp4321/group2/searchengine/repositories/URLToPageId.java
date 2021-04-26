@@ -13,12 +13,11 @@ import comp4321.group2.searchengine.utils.ByteIntUtilities;
 public final class URLToPageId {
 
     private static RocksDB db;
-    private static Options options;
 
     public static void connect() throws RocksDBException {
         // the Options class contains a set of configurable DB options
         // that determines the behaviour of the database.
-        options = new Options();
+        Options options = new Options();
         options.setCreateIfMissing(true);
 
         // create the DB if directory does not exist, then open the DB
@@ -38,8 +37,7 @@ public final class URLToPageId {
 
     public static int getValue(String key) throws RocksDBException {
         byte[] value = db.get(key.getBytes());
-        int intValue = value != null ? ByteIntUtilities.convertByteArrayToInt(value) : -1;
-        return intValue;
+        return value != null ? ByteIntUtilities.convertByteArrayToInt(value) : -1;
     }
 
     public static void addEntry(String key, int value) throws RocksDBException {
@@ -54,11 +52,10 @@ public final class URLToPageId {
     /**
      * Get all the result pairs
      *
-     * @throws RocksDBException
      */
-    public static HashMap<String, Integer> getAll() throws RocksDBException {
+    public static HashMap<String, Integer> getAll() {
         RocksIterator iter = db.newIterator();
-        HashMap<String, Integer> result = new HashMap<String, Integer>();
+        HashMap<String, Integer> result = new HashMap<>();
 
         for (iter.seekToFirst(); iter.isValid(); iter.next()) {
             result.put(new String(iter.key()), ByteIntUtilities.convertByteArrayToInt(iter.value()));
@@ -71,9 +68,8 @@ public final class URLToPageId {
     /**
      * Prints all the data in the DB hashtable to the console
      *
-     * @throws RocksDBException
      */
-    public static void printAll() throws RocksDBException {
+    public static void printAll() {
         RocksIterator iter = db.newIterator();
 
         for (iter.seekToFirst(); iter.isValid(); iter.next()) {
@@ -86,7 +82,6 @@ public final class URLToPageId {
     /**
      * Delete all the data in the DB
      *
-     * @throws RocksDBException
      */
     public static void deleteAll() throws RocksDBException {
         RocksIterator iter = db.newIterator();

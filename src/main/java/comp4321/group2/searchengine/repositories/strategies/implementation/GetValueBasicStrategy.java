@@ -7,7 +7,6 @@ public class GetValueBasicStrategy implements IGetValueStrategy {
 
     @Override
     public byte[] getValue(byte[] key, RocksDB db) throws Exception {
-        byte[] value = db.get(key);
-        return value;
+        return db.get(key);
     }
 }

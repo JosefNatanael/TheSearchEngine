@@ -12,10 +12,9 @@ import comp4321.group2.searchengine.utils.ByteIntUtilities;
 public final class Metadata {
 
     private static RocksDB db;
-    private static Options options;
 
     //enumerate
-    public static enum Key {
+    public enum Key {
         PAGE,
         WORD,
     }
@@ -23,7 +22,7 @@ public final class Metadata {
     public static void connect() throws RocksDBException {
         // the Options class contains a set of configurable DB options
         // that determines the behaviour of the database.
-        options = new Options();
+        Options options = new Options();
         options.setCreateIfMissing(true);
 
         // create the DB if directory does not exist, then open the DB
@@ -60,11 +59,10 @@ public final class Metadata {
     /**
      * Get all the result pairs
      *
-     * @throws RocksDBException
      */
-    public static HashMap<String, Integer> getAll() throws RocksDBException {
+    public static HashMap<String, Integer> getAll() {
         RocksIterator iter = db.newIterator();
-        HashMap<String, Integer> result = new HashMap<String, Integer>();
+        HashMap<String, Integer> result = new HashMap<>();
 
         for (iter.seekToFirst(); iter.isValid(); iter.next()) {
             result.put(new String(iter.key()), ByteIntUtilities.convertByteArrayToInt(iter.value()));
@@ -77,9 +75,8 @@ public final class Metadata {
     /**
      * Prints all the data in the DB hashtable to the console
      *
-     * @throws RocksDBException
      */
-    public static void printAll() throws RocksDBException {
+    public static void printAll() {
         RocksIterator iter = db.newIterator();
 
         for (iter.seekToFirst(); iter.isValid(); iter.next()) {
@@ -92,7 +89,6 @@ public final class Metadata {
     /**
      * Delete all the data in the DB
      *
-     * @throws RocksDBException
      */
     public static void deleteAll() throws RocksDBException {
         RocksIterator iter = db.newIterator();

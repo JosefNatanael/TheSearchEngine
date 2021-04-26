@@ -11,12 +11,12 @@ import comp4321.group2.searchengine.utils.WordUtilities;
 public class GetValuePrefixMatchStrategy implements IGetValueStrategy {
 
     @Override
-    public HashMap<String, ArrayList<Integer>> getValue(byte[] prefix, RocksDB db) throws Exception {
+    public HashMap<String, ArrayList<Integer>> getValue(byte[] prefix, RocksDB db) {
         ReadOptions ro = new ReadOptions();
         ro.setTotalOrderSeek(false);
         ro.setPrefixSameAsStart(true);
 
-        HashMap<String, ArrayList<Integer>> pageIdToWordLocs = new HashMap<String, ArrayList<Integer>>();
+        HashMap<String, ArrayList<Integer>> pageIdToWordLocs = new HashMap<>();
         RocksIterator iter = db.newIterator(ro);
         String keyStr, value;
 

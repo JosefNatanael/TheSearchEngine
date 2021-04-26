@@ -3,16 +3,11 @@ package comp4321.group2.searchengine.repositories;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import org.rocksdb.Options;
-import org.rocksdb.ReadOptions;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
 import org.rocksdb.RocksIterator;
-import org.rocksdb.WriteBatch;
-import org.rocksdb.WriteOptions;
 import comp4321.group2.searchengine.utils.ByteIntUtilities;
 import comp4321.group2.searchengine.utils.WordUtilities;
 
@@ -20,12 +15,11 @@ import comp4321.group2.searchengine.utils.WordUtilities;
 public class ForwardIndex {
 
     private static RocksDB db;
-    private static Options options;
 
     public static void connect() throws RocksDBException {
         // the Options class contains a set of configurable DB options
         // that determines the behaviour of the database.
-        options = new Options();
+        Options options = new Options();
         options.setCreateIfMissing(true);
         options.useFixedLengthPrefixExtractor(8);
 
@@ -62,19 +56,16 @@ public class ForwardIndex {
     public static ArrayList<Integer> getValue(int pageId) throws RocksDBException {
         byte[] value = db.get(ByteIntUtilities.convertIntToByteArray(pageId));
 
-        ArrayList<Integer> result = WordUtilities.stringToIntegerArrayList(new String(value));
-
-        return result;
+        return WordUtilities.stringToIntegerArrayList(new String(value));
     }
 
     /**
      * Get all the result pairs
      *
-     * @throws RocksDBException
      */
-    public static HashMap<Integer, ArrayList<Integer>> getAll() throws RocksDBException {
+    public static HashMap<Integer, ArrayList<Integer>> getAll() {
         RocksIterator iter = db.newIterator();
-        HashMap<Integer, ArrayList<Integer>> result = new HashMap<Integer, ArrayList<Integer>>();
+        HashMap<Integer, ArrayList<Integer>> result = new HashMap<>();
 
         for (iter.seekToFirst(); iter.isValid(); iter.next()) {
             result.put(ByteIntUtilities.convertByteArrayToInt(iter.key()), WordUtilities.stringToIntegerArrayList(new String(iter.value())));
@@ -87,9 +78,8 @@ public class ForwardIndex {
     /**
      * Print all the data in the DB to the console
      *
-     * @throws RocksDBException
      */
-    public static void printAll() throws RocksDBException {
+    public static void printAll() {
         // Print all the data in the hashtable
         RocksIterator iter = db.newIterator();
 
@@ -103,7 +93,6 @@ public class ForwardIndex {
     /**
      * Delete all the data in the DB
      *
-     * @throws RocksDBException
      */
     public static void deleteAll() throws RocksDBException {
         RocksIterator iter = db.newIterator();

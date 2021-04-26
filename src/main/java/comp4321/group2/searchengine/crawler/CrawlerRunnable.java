@@ -13,15 +13,14 @@ import org.jsoup.nodes.Document;
 import org.rocksdb.RocksDBException;
 
 import java.io.IOException;
-import java.net.SocketTimeoutException;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 
 public class CrawlerRunnable implements Runnable {
-    private BlockingQueue<Link> urlQueue;
-    private Set<String> urls;
-    private CountDownLatch latch;
+    private final BlockingQueue<Link> urlQueue;
+    private final Set<String> urls;
+    private final CountDownLatch latch;
     private volatile boolean stopScraping = false;
 
     public CrawlerRunnable(BlockingQueue<Link> urlQueue, Set<String> urls, CountDownLatch latch) {
@@ -78,8 +77,6 @@ public class CrawlerRunnable implements Runnable {
                 System.out.println("InterruptedException caught");
             } catch (HttpStatusException ignore) {
                 System.out.println("HttpStatusException caught");
-            } catch (SocketTimeoutException ignore) {
-                System.out.println("SocketTimeoutException caught");
             } catch (IOException ignore) {
                 System.out.println("IOException caught");
             } catch (RocksDBException ignore) {
@@ -91,7 +88,7 @@ public class CrawlerRunnable implements Runnable {
             } catch (UncheckedIOException ignore) {
                 System.out.println("UncheckedIOException caught");
             } catch (Exception e) {
-                System.out.println("Some exception: " + e.toString());
+                System.out.println("Some exception: " + e);
             }
         }
         System.out.println("Counting down the latch");

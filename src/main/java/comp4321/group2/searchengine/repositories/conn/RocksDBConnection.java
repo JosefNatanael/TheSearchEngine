@@ -4,10 +4,10 @@ import org.rocksdb.RocksDB;
 
 public class RocksDBConnection {
 
-    private RocksDB connection;
-    private String dbName;
+    private final RocksDB connection;
+    private final String dbName;
 
-    public RocksDBConnection(RocksDB connection, String dbName) throws Exception {
+    public RocksDBConnection(RocksDB connection, String dbName) {
         this.connection = connection;
         this.dbName = dbName;
     }
@@ -20,8 +20,7 @@ public class RocksDBConnection {
         return dbName;
     }
 
-    public void closeConnection() throws Exception {
-        RocksDB conn = (RocksDB) connection;
-        conn.close();
+    public void closeConnection() {
+        connection.close();
     }
 }

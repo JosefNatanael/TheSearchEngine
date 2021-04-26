@@ -5,8 +5,8 @@ package comp4321.group2.searchengine.crawler;
  */
 public class Link {
 
-    String url;
-    int level;
+    final String url;
+    final int level;
 
     Link(String url, int level) {
         this.url = url;

@@ -11,9 +11,7 @@ public final class WordUtilities {
     /**
      * Build DB Key prefix, with prefix of size Constants.prefixBytesLength bytes. Used for exact prefix indexing.
      *
-     * @param wordId
      * @return a string XXXXXXXX@YYY, where XXXXXXXX is a zero padded wordId, and YYY is pageId
-     * @throws InvalidWordIdConversionException
      */
     public static StringBuilder buildDBKeyPrefix(int wordId) throws InvalidWordIdConversionException {
         String wordIdString = Integer.toString(wordId);
@@ -32,8 +30,6 @@ public final class WordUtilities {
     /**
      * Create a key for DB, with prefix of size Constants.prefixBytesLength bytes. Used for exact prefix indexing.
      *
-     * @param wordId
-     * @param pageId
      * @return DBKey of size Constants.prefixBytesLength bytes followed by @{documentId}
      */
     public static byte[] wordIdAndPageIdToDBKey(int wordId, int pageId) throws InvalidWordIdConversionException {
@@ -63,7 +59,7 @@ public final class WordUtilities {
      */
     public static ArrayList<Integer> stringToIntegerArrayList(String tabDelimited) {
 
-        ArrayList<Integer> arrList = new ArrayList<Integer>();
+        ArrayList<Integer> arrList = new ArrayList<>();
         if (tabDelimited.equals("")) {
             return arrList;
         }
@@ -80,7 +76,7 @@ public final class WordUtilities {
      */
     public static ArrayList<String> stringToStringArrayList(String tabDelimited) {
         String[] intStrArray = tabDelimited.split("\t");
-        return new ArrayList<String>(Arrays.asList(intStrArray));
+        return new ArrayList<>(Arrays.asList(intStrArray));
     }
 
     public static String getPageIdFromKeyString(String key) {

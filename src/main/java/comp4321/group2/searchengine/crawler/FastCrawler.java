@@ -1,26 +1,22 @@
 package comp4321.group2.searchengine.crawler;
 
-import comp4321.group2.searchengine.RocksDBApi;
 import comp4321.group2.searchengine.common.Constants;
-import comp4321.group2.searchengine.exceptions.InvalidWordIdConversionException;
-import comp4321.group2.searchengine.repositories.*;
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.rocksdb.RocksDBException;
 
 import java.util.*;
 import java.util.concurrent.*;
 
 
 public class FastCrawler {
-    private String startingUrl;
+    private final String startingUrl;
 
-    public FastCrawler(String startingUrl) throws RocksDBException {
+    public FastCrawler(String startingUrl) {
         this.startingUrl = startingUrl;
     }
 
     public void indexToDB() {
 
-        BlockingQueue<Link> urlQueue = new LinkedBlockingQueue<Link>(); // the queue of URLs to be crawled
+        BlockingQueue<Link> urlQueue = new LinkedBlockingQueue<>(); // the queue of URLs to be crawled
         Set<String> urls = ConcurrentHashMap.newKeySet(); // the set of urls that have been visited before
         urlQueue.add(new Link(startingUrl, 1));
 
@@ -33,7 +29,7 @@ public class FastCrawler {
         ArrayList<ImmutablePair<Future, CrawlerRunnable>> spawnedThreads = new ArrayList<>();
         for (int i = 0; i < Constants.numCrawlerThreads; ++i) {
             CrawlerRunnable r = new CrawlerRunnable(urlQueue, urls, latch);
-            Future f = executor.submit(r);
+            Future<?> f = executor.submit(r);
             ImmutablePair<Future, CrawlerRunnable> pair = new ImmutablePair<>(f, r);
             spawnedThreads.add(pair);
         }
@@ -55,14 +51,10 @@ public class FastCrawler {
         }
 
         // Notifies all running threads to stop scraping
-        spawnedThreads.forEach((pair) -> {
-            pair.getValue().setStopScraping(true);
-        });
+        spawnedThreads.forEach((pair) -> pair.getValue().setStopScraping(true));
 
         // Force to stop all threads, running or not
-        spawnedThreads.forEach((pair) -> {
-            pair.getKey().cancel(true);
-        });
+        spawnedThreads.forEach((pair) -> pair.getKey().cancel(true));
 
 //        try {
 //            latch.await();

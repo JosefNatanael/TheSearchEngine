@@ -12,7 +12,7 @@ public class GetAllIntegerPageEntriesStrategy implements IGetAllEntriesStrategy 
     @Override
     public HashMap<Integer, Page> getAllEntries(RocksDB db) throws Exception {
         RocksIterator iter = db.newIterator();
-        HashMap<Integer, Page> result = new HashMap<Integer, Page>();
+        HashMap<Integer, Page> result = new HashMap<>();
 
         for (iter.seekToFirst(); iter.isValid(); iter.next()) {
             result.put(ByteIntUtilities.convertByteArrayToInt(iter.key()), Page.deserialize(iter.value()));

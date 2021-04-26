@@ -3,14 +3,12 @@
    address:  Psilovraxou 12, Agrinio, 30100
 
    comments: Compile it, import the Porter class into you program and create an instance.
-	     Then use the stripAffixes method of this method which takes a String as 
+	     Then use the stripAffixes method of this method which takes a String as
              input and returns the stem of this String again as a String.
 
 */
 
 package comp4321.group2.searchengine.utils;
-
-import java.io.*;
 
 class NewString {
 
@@ -230,10 +228,10 @@ public class Porter {
         };
         NewString stem = new NewString();
 
-        for (int index = 0; index < suffixes.length; index++) {
-            if (hasSuffix(str, suffixes[index][0], stem)) {
+        for (String[] suffix : suffixes) {
+            if (hasSuffix(str, suffix[0], stem)) {
                 if (measure(stem.str) > 0) {
-                    str = stem.str + suffixes[index][1];
+                    str = stem.str + suffix[1];
                     return str;
                 }
             }
@@ -255,9 +253,9 @@ public class Porter {
         };
         NewString stem = new NewString();
 
-        for (int index = 0; index < suffixes.length; index++) {
-            if (hasSuffix(str, suffixes[index][0], stem)) if (measure(stem.str) > 0) {
-                str = stem.str + suffixes[index][1];
+        for (String[] suffix : suffixes) {
+            if (hasSuffix(str, suffix[0], stem)) if (measure(stem.str) > 0) {
+                str = stem.str + suffix[1];
                 return str;
             }
         }
@@ -291,8 +289,8 @@ public class Porter {
 
         NewString stem = new NewString();
 
-        for (int index = 0; index < suffixes.length; index++) {
-            if (hasSuffix(str, suffixes[index], stem)) {
+        for (String suffix : suffixes) {
+            if (hasSuffix(str, suffix, stem)) {
                 if (measure(stem.str) > 1) {
                     str = stem.str;
                     return str;
@@ -331,11 +329,12 @@ public class Porter {
         String[] prefixes = { "kilo", "micro", "milli", "intra", "ultra", "mega", "nano", "pico", "pseudo" };
 
         int last = prefixes.length;
-        for (int i = 0; i < last; i++) {
-            if (str.startsWith(prefixes[i])) {
+        for (String prefix : prefixes) {
+            if (str.startsWith(prefix)) {
                 String temp = "";
-                for (int j = 0; j < str.length() - prefixes[i].length(); j++) temp +=
-                    str.charAt(j + prefixes[i].length());
+                for (int j = 0; j < str.length() - prefix.length(); j++)
+                    temp +=
+                        str.charAt(j + prefix.length());
                 return temp;
             }
         }

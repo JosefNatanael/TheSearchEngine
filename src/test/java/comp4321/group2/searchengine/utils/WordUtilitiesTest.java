@@ -21,7 +21,7 @@ class WordUtilitiesTest {
 
     @Test
     public void arrayListToString_ShouldSerializeCorrectly_NormativeCase() {
-        ArrayList<Integer> arrList = new ArrayList<Integer>();
+        ArrayList<Integer> arrList = new ArrayList<>();
         arrList.add(1);
         arrList.add(2);
         assertEquals("1\t2\t", WordUtilities.arrayListToString(arrList));
@@ -30,7 +30,7 @@ class WordUtilitiesTest {
     @Test
     public void stringToIntegerArrayList_ShouldGenerateArrayListCorrectly_NormativeCase() {
         String str = "1\t2\t";
-        ArrayList<Integer> actualArrList = new ArrayList<Integer>();
+        ArrayList<Integer> actualArrList = new ArrayList<>();
         actualArrList.add(1);
         actualArrList.add(2);
         assertEquals(actualArrList, WordUtilities.stringToIntegerArrayList(str));
@@ -39,7 +39,7 @@ class WordUtilitiesTest {
     @Test
     public void stringToStringArrayList_ShouldGenerateArrayListCorrectly_NormativeCase() {
         String str = "1\t2\t";
-        ArrayList<String> actualArrList = new ArrayList<String>();
+        ArrayList<String> actualArrList = new ArrayList<>();
         actualArrList.add("1");
         actualArrList.add("2");
         assertEquals(actualArrList, WordUtilities.stringToStringArrayList(str));

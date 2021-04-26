@@ -45,7 +45,6 @@ public final class RocksDBApi {
      * call this function in crawler to store page
      *
      * @return pageIndex integer
-     * @throws IOException
      */
     public static int addPageData(Page page, String url) throws RocksDBException, IOException {
         // 1. Using URL, check in URLToPageId for index
@@ -63,17 +62,14 @@ public final class RocksDBApi {
     }
 
     /**
-     * @param wordToLocsMap
-     * @param pageId
-     * @throws InvalidWordIdConversionException
      */
     public static ArrayList<Integer> addPageWords(Map<String, ArrayList<Integer>> wordToLocsMap, int pageId)
-        throws RocksDBException, IOException, InvalidWordIdConversionException {
+        throws RocksDBException, InvalidWordIdConversionException {
 
         byte[] key;
         String keyword;
         int wordId;
-        ArrayList<Integer> wordIds = new ArrayList<Integer>();
+        ArrayList<Integer> wordIds = new ArrayList<>();
 
         for (Entry<String, ArrayList<Integer>> iterator : wordToLocsMap.entrySet()) {
             keyword = iterator.getKey();
@@ -96,10 +92,7 @@ public final class RocksDBApi {
 
 
     /**
-     * @param word
      * @return key: pageId string, value: word locations array list
-     * @throws RocksDBException
-     * @throws InvalidWordIdConversionException
      */
     public static HashMap<String, ArrayList<Integer>> getWordValues(String word)
         throws RocksDBException, InvalidWordIdConversionException {
@@ -119,8 +112,7 @@ public final class RocksDBApi {
     public static Page getPageData(String url) throws RocksDBException, IOException, ClassNotFoundException {
         int index = URLToPageId.getValue(url);
         if (index == -1) return null;
-        Page pageData = PageIdToData.getValue(index);
-        return pageData;
+        return PageIdToData.getValue(index);
     }
 
     public static ArrayList<Integer> getInvertedValuesFromKey(int wordId, int pageId) throws InvalidWordIdConversionException, RocksDBException {
@@ -133,15 +125,14 @@ public final class RocksDBApi {
         Page pageData = PageIdToData.getValue(pageId);
         int tfMax = pageData.getTfmax();
 
-        HashMap<Integer, Double> wordIdToWeight = new HashMap<Integer, Double>();
+        HashMap<Integer, Double> wordIdToWeight = new HashMap<>();
 
-        for (int i = 0; i < wordIds.size(); ++i) {
-            int wordId = wordIds.get(i);
+        for (int wordId : wordIds) {
             byte[] key = WordUtilities.wordIdAndPageIdToDBKey(wordId, pageId);
             int tf = InvertedIndex.getValueByKey(key).size();
 
             double idf = WordIdToIdf.getValue(wordId);
-            Double weight = Double.valueOf(tf) * idf / Double.valueOf(tfMax);
+            Double weight = (double) tf * idf / (double) tfMax;
             wordIdToWeight.put(wordId, weight);
         }
 

@@ -9,9 +9,9 @@ import comp4321.group2.searchengine.utils.ByteIntUtilities;
 public class GetAllIntegerStringEntriesStrategy implements IGetAllEntriesStrategy {
 
     @Override
-    public HashMap<Integer, String> getAllEntries(RocksDB db) throws Exception {
+    public HashMap<Integer, String> getAllEntries(RocksDB db) {
         RocksIterator iter = db.newIterator();
-        HashMap<Integer, String> result = new HashMap<Integer, String>();
+        HashMap<Integer, String> result = new HashMap<>();
 
         for (iter.seekToFirst(); iter.isValid(); iter.next()) {
             result.put(ByteIntUtilities.convertByteArrayToInt(iter.key()), new String(iter.value()));

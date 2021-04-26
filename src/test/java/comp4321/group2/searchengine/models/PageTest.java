@@ -2,14 +2,9 @@ package comp4321.group2.searchengine.models;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import org.junit.jupiter.api.Test;
-import org.rocksdb.RocksDBException;
-import comp4321.group2.searchengine.RocksDBApi;
-import comp4321.group2.searchengine.repositories.PageIdToData;
-import comp4321.group2.searchengine.repositories.URLToPageId;
 
 class PageTest {
     @Test
@@ -34,7 +29,7 @@ class PageTest {
     }
 
     @Test
-    public void serializePage_NormativeCase() throws RocksDBException, IOException, ClassNotFoundException {
+    public void serializePage_NormativeCase() {
 //        Page newPage = new Page("title", "url", 10, "Fri, 20 Mar 2020 03:23:35 GMT", 100);
 //        RocksDBApi.connect();
 //        RocksDBApi.reset();

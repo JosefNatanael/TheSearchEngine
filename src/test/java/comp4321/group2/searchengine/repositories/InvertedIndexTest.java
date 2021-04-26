@@ -1,18 +1,11 @@
 package comp4321.group2.searchengine.repositories;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map.Entry;
 import org.junit.jupiter.api.Test;
-import org.rocksdb.RocksDBException;
-import comp4321.group2.searchengine.utils.WordUtilities;
 
 
 class InvertedIndexTest {
     @Test
-    public void getValueCorrectly_NormativeCase() throws RocksDBException {
+    public void getValueCorrectly_NormativeCase() {
 //        InvertedIndex.connect();
 //        InvertedIndex.deleteAll();
 //        ArrayList<Integer> locationsOne = new ArrayList<Integer>();

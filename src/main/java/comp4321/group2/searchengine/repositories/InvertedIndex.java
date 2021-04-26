@@ -20,12 +20,11 @@ import comp4321.group2.searchengine.utils.WordUtilities;
 public class InvertedIndex {
 
     private static RocksDB db;
-    private static Options options;
 
     public static void connect() throws RocksDBException {
         // the Options class contains a set of configurable DB options
         // that determines the behaviour of the database.
-        options = new Options();
+        Options options = new Options();
         options.setCreateIfMissing(true);
         options.useFixedLengthPrefixExtractor(8);
 
@@ -56,12 +55,12 @@ public class InvertedIndex {
     }
 
     //prefix match
-    public static HashMap<String, ArrayList<Integer>> getValue(byte[] prefix) throws RocksDBException {
+    public static HashMap<String, ArrayList<Integer>> getValue(byte[] prefix) {
         ReadOptions ro = new ReadOptions();
         ro.setTotalOrderSeek(false);
         ro.setPrefixSameAsStart(true);
 
-        HashMap<String, ArrayList<Integer>> pageIdToWordLocs = new HashMap<String, ArrayList<Integer>>();
+        HashMap<String, ArrayList<Integer>> pageIdToWordLocs = new HashMap<>();
         RocksIterator iter = db.newIterator(ro);
         String key, value;
 
@@ -84,12 +83,12 @@ public class InvertedIndex {
     }
 
 
-    public static ArrayList<Integer> getPageIds(byte[] prefix) throws RocksDBException {
+    public static ArrayList<Integer> getPageIds(byte[] prefix) {
         ReadOptions ro = new ReadOptions();
         ro.setTotalOrderSeek(false);
         ro.setPrefixSameAsStart(true);
 
-        ArrayList<Integer> pageIds = new ArrayList<Integer>();
+        ArrayList<Integer> pageIds = new ArrayList<>();
         RocksIterator iter = db.newIterator(ro);
 
         for (iter.seek(prefix); iter.isValid(); iter.next()) {
@@ -104,11 +103,10 @@ public class InvertedIndex {
     /**
      * Get all the result pairs
      *
-     * @throws RocksDBException
      */
-    public static HashMap<Integer, String> getAll() throws RocksDBException {
+    public static HashMap<Integer, String> getAll() {
         RocksIterator iter = db.newIterator();
-        HashMap<Integer, String> result = new HashMap<Integer, String>();
+        HashMap<Integer, String> result = new HashMap<>();
 
         for (iter.seekToFirst(); iter.isValid(); iter.next()) {
             result.put(ByteIntUtilities.convertByteArrayToInt(iter.key()), new String(iter.value()));
@@ -121,9 +119,8 @@ public class InvertedIndex {
     /**
      * Print all the data in the DB to the console
      *
-     * @throws RocksDBException
      */
-    public static void printAll() throws RocksDBException {
+    public static void printAll() {
         // Print all the data in the hashtable
         RocksIterator iter = db.newIterator();
 
@@ -137,7 +134,6 @@ public class InvertedIndex {
     /**
      * Delete all the data in the DB
      *
-     * @throws RocksDBException
      */
     public static void deleteAll() throws RocksDBException {
         RocksIterator iter = db.newIterator();
@@ -153,7 +149,6 @@ public class InvertedIndex {
      * Creates NEW entries in the database in batch.
      * Table: <invertedIndexKey: byte array, locations: int array>
      *
-     * @return
      */
     public static void createEntriesInBatch(Map<byte[], ArrayList<Integer>> table, int documentId)
         throws RocksDBException {
