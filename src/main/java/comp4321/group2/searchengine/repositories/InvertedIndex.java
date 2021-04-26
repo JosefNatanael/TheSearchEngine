@@ -1,20 +1,14 @@
 package comp4321.group2.searchengine.repositories;
 
+import comp4321.group2.searchengine.utils.ByteIntUtilities;
+import comp4321.group2.searchengine.utils.WordUtilities;
+import org.rocksdb.*;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import org.rocksdb.Options;
-import org.rocksdb.ReadOptions;
-import org.rocksdb.RocksDB;
-import org.rocksdb.RocksDBException;
-import org.rocksdb.RocksIterator;
-import org.rocksdb.WriteBatch;
-import org.rocksdb.WriteOptions;
-import comp4321.group2.searchengine.utils.ByteIntUtilities;
-import comp4321.group2.searchengine.utils.WordUtilities;
 
 
 public class InvertedIndex {
@@ -55,12 +49,12 @@ public class InvertedIndex {
     }
 
     //prefix match
-    public static HashMap<String, ArrayList<Integer>> getValue(byte[] prefix) {
+    public static HashMap<Integer, ArrayList<Integer>> getValue(byte[] prefix) {
         ReadOptions ro = new ReadOptions();
         ro.setTotalOrderSeek(false);
         ro.setPrefixSameAsStart(true);
 
-        HashMap<String, ArrayList<Integer>> pageIdToWordLocs = new HashMap<>();
+        HashMap<Integer, ArrayList<Integer>> pageIdToWordLocs = new HashMap<>();
         RocksIterator iter = db.newIterator(ro);
         String key, value;
 
@@ -68,7 +62,7 @@ public class InvertedIndex {
             key = new String(iter.key());
             value = new String(iter.value());
             pageIdToWordLocs.put(
-                WordUtilities.getSuffixFromKeyString(key),
+                Integer.parseInt(WordUtilities.getSuffixFromKeyString(key)),
                 WordUtilities.stringToIntegerArrayList(value)
             );
         }
