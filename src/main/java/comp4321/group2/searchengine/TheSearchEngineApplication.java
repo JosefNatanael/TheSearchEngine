@@ -39,7 +39,7 @@ public class TheSearchEngineApplication extends SpringBootServletInitializer {
         SpringApplication.run(TheSearchEngineApplication.class, args);
     }
 
-    public static void startIndexer() throws RocksDBException {
+    public static void startIndexer() {
         String rootUrl = "https://www.cse.ust.hk/";
         FastCrawler crawler = new FastCrawler(rootUrl);
         crawler.indexToDB();

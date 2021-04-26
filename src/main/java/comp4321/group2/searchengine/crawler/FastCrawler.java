@@ -1,7 +1,15 @@
 package comp4321.group2.searchengine.crawler;
 
+import comp4321.group2.searchengine.RocksDBApi;
 import comp4321.group2.searchengine.common.Constants;
+import comp4321.group2.searchengine.exceptions.InvalidWordIdConversionException;
+import comp4321.group2.searchengine.precompute.FastCompute;
+import comp4321.group2.searchengine.repositories.Metadata;
+import comp4321.group2.searchengine.repositories.PageIdToLength;
+import comp4321.group2.searchengine.repositories.URLToPageId;
+import comp4321.group2.searchengine.repositories.WeightIndex;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.rocksdb.RocksDBException;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -53,37 +61,42 @@ public class FastCrawler {
         // Notifies all running threads to stop scraping
         spawnedThreads.forEach((pair) -> pair.getValue().setStopScraping(true));
 
-        // Force to stop all threads, running or not
-        spawnedThreads.forEach((pair) -> pair.getKey().cancel(true));
+//        // Force to stop all threads, running or not
+//        spawnedThreads.forEach((pair) -> pair.getKey().cancel(true));
 
-//        try {
-//            latch.await();
-//            spawnedThreads.forEach((pair) -> {
-//                pair.getKey().cancel(true);
-//            });
-//        } catch (InterruptedException ex) {
-//            System.out.println(ex.getMessage());
-//        }
+        try {
+            latch.await();
+            spawnedThreads.forEach((pair) -> {
+                pair.getKey().cancel(true);
+            });
+        } catch (InterruptedException ex) {
+            System.out.println(ex.getMessage());
+        }
         long end = System.currentTimeMillis();
 
         System.out.println("Total time taken: " + (end - start));
         System.out.println("Number of unique pages seen (indexed or not): " + urls.size());
         System.out.println(urlQueue.size());
         System.out.println("Done");
-
-
     }
 
 
-//    public static void main(String[] args) throws RocksDBException, InvalidWordIdConversionException {
-//        RocksDBApi.closeAllDBConnections();
-//        RocksDBApi.connect();
-//        RocksDBApi.reset();
-//        String rootUrl = "https://www.cse.ust.hk/";
-//        FastCrawler crawler = new FastCrawler(rootUrl);
-//        crawler.indexToDB();
-////        crawler.postIndexProcess();
-////        URLToPageId.printAll();
-//        Metadata.printAll();
-//    }
+    public static void main(String[] args) throws RocksDBException, InvalidWordIdConversionException {
+        RocksDBApi.closeAllDBConnections();
+        RocksDBApi.connect();
+        RocksDBApi.reset();
+        String rootUrl = "https://www.cse.ust.hk/";
+        FastCrawler crawler = new FastCrawler(rootUrl);
+        crawler.indexToDB();
+        Metadata.printAll();
+
+        FastCompute compute = new FastCompute();
+        compute.processWordIdToIdfEntries();
+        compute.processWeightsAndPageLength();
+
+        WeightIndex.printAll();
+        PageIdToLength.printAll();
+
+        RocksDBApi.closeAllDBConnections();
+    }
 }

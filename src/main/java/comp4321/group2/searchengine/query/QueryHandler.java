@@ -44,7 +44,7 @@ public class QueryHandler {
 
     /**
      */
-    public void handle() throws RocksDBException, InvalidWordIdConversionException, IOException, ClassNotFoundException {
+    public void handle() throws RocksDBException, InvalidWordIdConversionException {
         ArrayList<Integer> queryWordIds = new ArrayList<>();
         HashSet<Integer> pageIdsSet = new HashSet<>();
 

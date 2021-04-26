@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 
-public class InvertedIndex {
+public class WeightIndex {
 
     private static RocksDB db;
 
@@ -24,7 +24,7 @@ public class InvertedIndex {
 
         // create and open the database
         // create the DB if directory does not exist, then open the DB
-        File directory = new File("./src/main/java/tables/InvertedFile");
+        File directory = new File("./src/main/java/tables/WeightIndex");
         String dbPath = directory.getAbsolutePath();
         if (!directory.exists()) {
             directory.mkdir();
@@ -48,55 +48,37 @@ public class InvertedIndex {
         db.delete(word.getBytes());
     }
 
-    //prefix match
-    public static HashMap<Integer, ArrayList<Integer>> getValue(byte[] prefix) {
+    // prefix match
+    public static HashMap<Integer, Double> getValue(byte[] prefix) {
         ReadOptions ro = new ReadOptions();
         ro.setTotalOrderSeek(false);
         ro.setPrefixSameAsStart(true);
 
-        HashMap<Integer, ArrayList<Integer>> pageIdToWordLocs = new HashMap<>();
+        HashMap<Integer, Double> wordIdToWeights = new HashMap<>();
         RocksIterator iter = db.newIterator(ro);
-        String key, value;
+        String keyStr;
+        double value;
 
         for (iter.seek(prefix); iter.isValid(); iter.next()) {
-            key = new String(iter.key());
-            value = new String(iter.value());
-            pageIdToWordLocs.put(
-                Integer.parseInt(WordUtilities.getSuffixFromKeyString(key)),
-                WordUtilities.stringToIntegerArrayList(value)
+            keyStr = new String(iter.key());
+            value = ByteIntUtilities.convertByteArrayToDouble(iter.value());
+            wordIdToWeights.put(
+                Integer.parseInt(WordUtilities.getSuffixFromKeyString(keyStr)),
+                value
             );
         }
 
         iter.close();
-        return pageIdToWordLocs;
+        return wordIdToWeights;
     }
 
-    public static ArrayList<Integer> getValueByKey(byte[] key) throws RocksDBException {
+    public static double getValueByKey(byte[] key) throws RocksDBException {
         byte[] value = db.get(key);
-        return WordUtilities.stringToIntegerArrayList(new String(value));
-    }
-
-
-    public static ArrayList<Integer> getPageIds(byte[] prefix) {
-        ReadOptions ro = new ReadOptions();
-        ro.setTotalOrderSeek(false);
-        ro.setPrefixSameAsStart(true);
-
-        ArrayList<Integer> pageIds = new ArrayList<>();
-        RocksIterator iter = db.newIterator(ro);
-
-        for (iter.seek(prefix); iter.isValid(); iter.next()) {
-            String key = new String(iter.key());
-            String pageId = WordUtilities.getSuffixFromKeyString(key);
-            pageIds.add(Integer.parseInt(pageId));
-        }
-
-        return pageIds;
+        return ByteIntUtilities.convertByteArrayToDouble(value);
     }
 
     /**
      * Get all the result pairs
-     *
      */
     public static HashMap<Integer, String> getAll() {
         RocksIterator iter = db.newIterator();
@@ -112,14 +94,13 @@ public class InvertedIndex {
 
     /**
      * Print all the data in the DB to the console
-     *
      */
     public static void printAll() {
         // Print all the data in the hashtable
         RocksIterator iter = db.newIterator();
 
         for (iter.seekToFirst(); iter.isValid(); iter.next()) {
-            System.out.println(new String(iter.key()) + "\t=\t" + new String(iter.value()));
+            System.out.println(new String(iter.key()) + "\t=\t" + ByteIntUtilities.convertByteArrayToDouble(iter.value()));
         }
 
         iter.close();
@@ -127,7 +108,6 @@ public class InvertedIndex {
 
     /**
      * Delete all the data in the DB
-     *
      */
     public static void deleteAll() throws RocksDBException {
         RocksIterator iter = db.newIterator();
@@ -142,21 +122,18 @@ public class InvertedIndex {
     /**
      * Creates NEW entries in the database in batch.
      * Table: <invertedIndexKey: byte array, locations: int array>
-     *
      */
-    public static void createEntriesInBatch(Map<byte[], ArrayList<Integer>> table, int documentId)
+    public static void createEntriesInBatch(Map<byte[], Double> table)
         throws RocksDBException {
         WriteBatch writeBatch = new WriteBatch();
         WriteOptions writeOptions = new WriteOptions();
         byte[] keyword;
-        ArrayList<Integer> locations;
+        double weight;
 
-        for (Entry<byte[], ArrayList<Integer>> it : table.entrySet()) {
+        for (Entry<byte[], Double> it : table.entrySet()) {
             keyword = it.getKey();
-            locations = it.getValue();
-
-            // Step 2: Put into write batch
-            writeBatch.put(keyword, WordUtilities.arrayListToString(locations).getBytes());
+            weight = it.getValue();
+            writeBatch.put(keyword, ByteIntUtilities.doubleToByteArray(weight));
         }
 
         db.write(writeOptions, writeBatch);
