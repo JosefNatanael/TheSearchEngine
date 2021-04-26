@@ -116,11 +116,6 @@ public class QueryHandler {
         for (String word: stemmedQuery) {
             HashMap<Integer, ArrayList<Integer>> nextWordLocsMap = RocksDBApi.getWordValues(word);
 
-            if (nextWordLocsMap == null) {
-                System.out.println("NULL LOCS MAP");
-                continue;
-            }
-
             for (int pageId : pageIds) {
                 if (nextWordLocsMap.containsKey(pageId)) {
                     ArrayList<Integer> nextWordLocs = nextWordLocsMap.get(pageId);
@@ -135,7 +130,6 @@ public class QueryHandler {
                         while (left < currWordStreakLocs.size() && right < nextWordLocs.size()) {
                             ImmutablePair<Integer, Integer> newPair;
                             if (currWordStreakLocs.get(left).left + 1 == nextWordLocs.get(right)) {
-                                System.out.println("ggwp");
                                 newPair = new ImmutablePair<>(nextWordLocs.get(right), currWordStreakLocs.get(left).right + 1);
                                 newWordStreakLocs.add(newPair);
                                 currMaxStreak = Math.max(currMaxStreak, currWordStreakLocs.get(left).right + 1);
