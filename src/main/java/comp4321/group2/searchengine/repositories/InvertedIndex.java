@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import org.rocksdb.Options;
 import org.rocksdb.ReadOptions;
 import org.rocksdb.RocksDB;
@@ -68,8 +69,8 @@ public class InvertedIndex {
             key = new String(iter.key());
             value = new String(iter.value());
             pageIdToWordLocs.put(
-                    WordUtilities.getPageIdFromKeyString(key),
-                    WordUtilities.stringToIntegerArrayList(value)
+                WordUtilities.getPageIdFromKeyString(key),
+                WordUtilities.stringToIntegerArrayList(value)
             );
         }
 
@@ -102,6 +103,7 @@ public class InvertedIndex {
 
     /**
      * Get all the result pairs
+     *
      * @throws RocksDBException
      */
     public static HashMap<Integer, String> getAll() throws RocksDBException {
@@ -118,6 +120,7 @@ public class InvertedIndex {
 
     /**
      * Print all the data in the DB to the console
+     *
      * @throws RocksDBException
      */
     public static void printAll() throws RocksDBException {
@@ -133,6 +136,7 @@ public class InvertedIndex {
 
     /**
      * Delete all the data in the DB
+     *
      * @throws RocksDBException
      */
     public static void deleteAll() throws RocksDBException {
@@ -148,10 +152,11 @@ public class InvertedIndex {
     /**
      * Creates NEW entries in the database in batch.
      * Table: <invertedIndexKey: byte array, locations: int array>
+     *
      * @return
      */
     public static void createEntriesInBatch(Map<byte[], ArrayList<Integer>> table, int documentId)
-            throws RocksDBException {
+        throws RocksDBException {
         WriteBatch writeBatch = new WriteBatch();
         WriteOptions writeOptions = new WriteOptions();
         byte[] keyword;

@@ -3,6 +3,7 @@ package comp4321.group2.searchengine.query;
 import comp4321.group2.searchengine.RocksDBApi;
 import comp4321.group2.searchengine.common.Constants;
 import comp4321.group2.searchengine.exceptions.InvalidWordIdConversionException;
+import comp4321.group2.searchengine.repositories.PageIdToLength;
 import org.rocksdb.RocksDBException;
 
 import java.io.IOException;
@@ -44,7 +45,7 @@ public class QueryRunnable implements Runnable {
                 int pageId = pageIds.get(index);
 
                 HashMap<Integer, Double> wordWeights = RocksDBApi.getPageWordWeights(pageId);
-                double pageLen = RocksDBApi.getPageLength(pageId);
+                double pageLen = PageIdToLength.getValue(pageId);
 
                 double extBoolSim = 0.0;
                 double cosSim = 0.0;

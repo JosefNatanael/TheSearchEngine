@@ -5,7 +5,7 @@ import comp4321.group2.searchengine.RocksDBApi;
 import comp4321.group2.searchengine.common.Constants;
 import comp4321.group2.searchengine.exceptions.InvalidWordIdConversionException;
 import comp4321.group2.searchengine.models.Page;
-import org.jsoup.Connection;
+import comp4321.group2.searchengine.repositories.ForwardIndex;
 import org.jsoup.Connection.Response;
 import org.jsoup.HttpStatusException;
 import org.jsoup.UncheckedIOException;
@@ -70,7 +70,7 @@ public class CrawlerRunnable implements Runnable {
                 ArrayList<Integer> wordIds = RocksDBApi.addPageWords(wordToWordLocations, pageId);
 
                 //forward index
-                RocksDBApi.addForwardIndex(pageId, wordIds);
+                ForwardIndex.addEntry(pageId, wordIds);
 
                 System.out.println("Indexed: " + currentLink.url);
 
@@ -78,7 +78,7 @@ public class CrawlerRunnable implements Runnable {
                 System.out.println("InterruptedException caught");
             } catch (HttpStatusException ignore) {
                 System.out.println("HttpStatusException caught");
-            } catch(SocketTimeoutException ignore) {
+            } catch (SocketTimeoutException ignore) {
                 System.out.println("SocketTimeoutException caught");
             } catch (IOException ignore) {
                 System.out.println("IOException caught");
@@ -90,8 +90,7 @@ public class CrawlerRunnable implements Runnable {
                 System.out.println("RevisitException caught");
             } catch (UncheckedIOException ignore) {
                 System.out.println("UncheckedIOException caught");
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 System.out.println("Some exception: " + e.toString());
             }
         }

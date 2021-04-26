@@ -10,6 +10,7 @@ public final class WordUtilities {
 
     /**
      * Build DB Key prefix, with prefix of size Constants.prefixBytesLength bytes. Used for exact prefix indexing.
+     *
      * @param wordId
      * @return a string XXXXXXXX@YYY, where XXXXXXXX is a zero padded wordId, and YYY is pageId
      * @throws InvalidWordIdConversionException
@@ -30,6 +31,7 @@ public final class WordUtilities {
 
     /**
      * Create a key for DB, with prefix of size Constants.prefixBytesLength bytes. Used for exact prefix indexing.
+     *
      * @param wordId
      * @param pageId
      * @return DBKey of size Constants.prefixBytesLength bytes followed by @{documentId}
@@ -43,7 +45,6 @@ public final class WordUtilities {
     }
 
     /**
-     *
      * @param arrList Array List of type T
      * @return tab separated string
      */
@@ -57,7 +58,6 @@ public final class WordUtilities {
     }
 
     /**
-     *
      * @param tabDelimited tab separated string of integers
      * @return array list of type integers
      */
@@ -75,7 +75,6 @@ public final class WordUtilities {
     }
 
     /**
-     *
      * @param tabDelimited tab separated string of string
      * @return array list of type string
      */

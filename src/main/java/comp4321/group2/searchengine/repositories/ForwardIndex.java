@@ -69,6 +69,7 @@ public class ForwardIndex {
 
     /**
      * Get all the result pairs
+     *
      * @throws RocksDBException
      */
     public static HashMap<Integer, ArrayList<Integer>> getAll() throws RocksDBException {
@@ -76,7 +77,7 @@ public class ForwardIndex {
         HashMap<Integer, ArrayList<Integer>> result = new HashMap<Integer, ArrayList<Integer>>();
 
         for (iter.seekToFirst(); iter.isValid(); iter.next()) {
-            result.put(ByteIntUtilities.convertByteArrayToInt(iter.key()), WordUtilities.stringToIntegerArrayList(new String(iter.value())) );
+            result.put(ByteIntUtilities.convertByteArrayToInt(iter.key()), WordUtilities.stringToIntegerArrayList(new String(iter.value())));
         }
 
         iter.close();
@@ -85,6 +86,7 @@ public class ForwardIndex {
 
     /**
      * Print all the data in the DB to the console
+     *
      * @throws RocksDBException
      */
     public static void printAll() throws RocksDBException {
@@ -100,6 +102,7 @@ public class ForwardIndex {
 
     /**
      * Delete all the data in the DB
+     *
      * @throws RocksDBException
      */
     public static void deleteAll() throws RocksDBException {

@@ -3,10 +3,7 @@ package comp4321.group2.searchengine;
 import comp4321.group2.searchengine.crawler.FastCrawler;
 import comp4321.group2.searchengine.exceptions.InvalidWordIdConversionException;
 import comp4321.group2.searchengine.models.Page;
-import comp4321.group2.searchengine.repositories.InvertedIndex;
-import comp4321.group2.searchengine.repositories.Metadata;
-import comp4321.group2.searchengine.repositories.URLToPageId;
-import comp4321.group2.searchengine.repositories.WordToWordId;
+import comp4321.group2.searchengine.repositories.*;
 import comp4321.group2.searchengine.utils.WordUtilities;
 import org.rocksdb.RocksDBException;
 import org.springframework.boot.SpringApplication;
@@ -121,8 +118,8 @@ public class TheSearchEngineApplication extends SpringBootServletInitializer {
         crawler.indexToDB();
 
         //iterate each word ID, compute idf, length
-        HashMap<String, Integer> wordToWordID = RocksDBApi.getAllWordToWordID();
-        HashMap<String, Integer> latestIndex = RocksDBApi.getAllMetadata();
+        HashMap<String, Integer> wordToWordID = WordToWordId.getAll();
+        HashMap<String, Integer> latestIndex = Metadata.getAll();
         int numDocs = latestIndex.get("page");
         int df;
         double idf;
@@ -134,9 +131,8 @@ public class TheSearchEngineApplication extends SpringBootServletInitializer {
             ArrayList<Integer> result = RocksDBApi.getPageIdsOfWord(word);
             df = result.size();
             idf = (Math.log(numDocs/(double)df) / Math.log(2));
-            //WordIdToIdf.addEntry(idf)
 
-            RocksDBApi.addWordIdf(wordId, idf);
+            WordIdToIdf.addEntry(wordId, idf);
 
             concatenated.addAll(result);
         }

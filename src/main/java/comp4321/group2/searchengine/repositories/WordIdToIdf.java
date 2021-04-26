@@ -52,6 +52,7 @@ public class WordIdToIdf {
 
     /**
      * Get all the result pairs
+     *
      * @throws RocksDBException
      */
     public static HashMap<Integer, Double> getAll() throws RocksDBException {
@@ -68,6 +69,7 @@ public class WordIdToIdf {
 
     /**
      * Prints all the data in the DB hashtable to the console
+     *
      * @throws RocksDBException
      */
     public static void printAll() throws RocksDBException {
@@ -82,6 +84,7 @@ public class WordIdToIdf {
 
     /**
      * Delete all the data in the DB
+     *
      * @throws RocksDBException
      */
     public static void deleteAll() throws RocksDBException {

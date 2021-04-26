@@ -95,24 +95,6 @@ abstract class CrawlerHelper {
         Vector<String> result = new Vector<String>();
         Elements links = doc.select("a[href]");
         for (Element link : links) {
-//            String linkString = link.absUrl("href");
-//            System.out.println("Sini: " + linkString);
-//            // filter out emails
-//            if (linkString.contains("mailto:")) {
-//                continue;
-//            }
-//            String linkStr = link.attr("href");
-//            if (linkString.isEmpty() || linkString.startsWith("#") || linkString.startsWith("javascript")) {
-//                continue;
-//            }
-//            if (linkString.charAt(0) == '/') {
-//                System.out.println("Before: " + linkString);
-//                result.add(doc.location() + linkString.substring(1));
-//                System.out.println("After: " + doc.location() + linkString.substring(1));
-//            } else {
-//                result.add(link.attr("href"));
-//            }
-
             String linkString = link.absUrl("href");
             if (linkString.contains("mailto:") || linkString.isEmpty() || linkString.startsWith("#") || linkString.startsWith("javascript")) {
                 continue;
@@ -188,7 +170,7 @@ abstract class CrawlerHelper {
         HashMap<String, ArrayList<Integer>> wordToWordLocationMap = new HashMap<String, ArrayList<Integer>>();
         for (int i = 0; i < words.size(); ++i) {
             String currWord = words.get(i);
-            currWord =  currWord.replaceAll("\\d","");
+            currWord = currWord.replaceAll("\\d", "");
             String stemmedWord = stopStem.stem(currWord);
             if (stopStem.isStopWord(currWord) || stemmedWord.equals("")) {
                 continue;

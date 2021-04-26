@@ -42,24 +42,14 @@ public final class RocksDBApi {
     }
 
     /**
-     * Get pageId for url. If does not exist, will return -1;
-     * @param url
-     * @return pageId integer
-     * @throws RocksDBException
-     */
-    public static int getPageIdFromUrl(String url) throws RocksDBException {
-        int index = URLToPageId.getValue(url);
-        return index;
-    }
-
-    /**
      * call this function in crawler to store page
+     *
      * @return pageIndex integer
      * @throws IOException
      */
     public static int addPageData(Page page, String url) throws RocksDBException, IOException {
         // 1. Using URL, check in URLToPageId for index
-        int index = getPageIdFromUrl(url);
+        int index = URLToPageId.getValue(url);
         if (index == -1) {
             int indexInt = Metadata.getLatestIndex(Metadata.Key.PAGE);
             URLToPageId.addEntry(url, indexInt);
@@ -73,7 +63,6 @@ public final class RocksDBApi {
     }
 
     /**
-     *
      * @param wordToLocsMap
      * @param pageId
      * @throws InvalidWordIdConversionException
@@ -82,10 +71,8 @@ public final class RocksDBApi {
         throws RocksDBException, IOException, InvalidWordIdConversionException {
 
         byte[] key;
-
         String keyword;
         int wordId;
-
         ArrayList<Integer> wordIds = new ArrayList<Integer>();
 
         for (Entry<String, ArrayList<Integer>> iterator : wordToLocsMap.entrySet()) {
@@ -96,7 +83,6 @@ public final class RocksDBApi {
                 wordId = Metadata.getLatestIndex(Metadata.Key.WORD);
                 WordToWordId.addEntry(keyword, wordId);
             }
-
             wordIds.add(wordId);
 
             ArrayList<Integer> locations = iterator.getValue();
@@ -105,41 +91,11 @@ public final class RocksDBApi {
             key = WordUtilities.wordIdAndPageIdToDBKey(wordId, pageId);
             InvertedIndex.addEntry(key, values);
         }
-
         return wordIds;
     }
 
-    /**
-     *
-     * @param wordId
-     * @param idf
-     * @throws RocksDBException
-     */
-    public static void addWordIdf(int wordId,  double idf)
-        throws RocksDBException{
-        WordIdToIdf.addEntry(wordId, idf);
-    }
 
     /**
-     *
-     * @param pageId
-     * @param wordIds
-     * @throws RocksDBException
-     */
-    public static void addForwardIndex(int pageId,  ArrayList<Integer> wordIds)
-        throws RocksDBException{
-        ForwardIndex.addEntry(pageId, wordIds);
-    }
-
-    public static void addPageLength(int pageId,  double l2Length)
-        throws RocksDBException{
-        PageIdToLength.addEntry(pageId, l2Length);
-    }
-
-
-
-    /**
-     *
      * @param word
      * @return key: pageId string, value: word locations array list
      * @throws RocksDBException
@@ -161,40 +117,15 @@ public final class RocksDBApi {
     }
 
     public static Page getPageData(String url) throws RocksDBException, IOException, ClassNotFoundException {
-        int index = getPageIdFromUrl(url);
+        int index = URLToPageId.getValue(url);
         if (index == -1) return null;
         Page pageData = PageIdToData.getValue(index);
         return pageData;
     }
 
-    public static Page getPageData(int pageId) throws RocksDBException, IOException, ClassNotFoundException {
-        Page pageData = PageIdToData.getValue(pageId);
-        return pageData;
-    }
-
-    public static ArrayList<Integer> getWordIdListFromPageId(int pageId) throws RocksDBException{
-        return ForwardIndex.getValue(pageId);
-    }
-
-    public static double getIdfFromWordId(int wordId) throws RocksDBException {
-        return WordIdToIdf.getValue(wordId);
-    }
-
     public static ArrayList<Integer> getInvertedValuesFromKey(int wordId, int pageId) throws InvalidWordIdConversionException, RocksDBException {
         byte[] key = WordUtilities.wordIdAndPageIdToDBKey(wordId, pageId);
         return InvertedIndex.getValueByKey(key);
-    }
-
-    public static HashMap<String, Integer> getAllURLToPageID() throws RocksDBException{
-        return URLToPageId.getAll();
-    }
-
-    public static HashMap<String, Integer> getAllWordToWordID() throws RocksDBException{
-        return WordToWordId.getAll();
-    }
-
-    public static HashMap<String, Integer> getAllMetadata() throws RocksDBException{
-        return Metadata.getAll();
     }
 
     public static HashMap<Integer, Double> getPageWordWeights(int pageId) throws RocksDBException, IOException, ClassNotFoundException, InvalidWordIdConversionException {
@@ -204,7 +135,7 @@ public final class RocksDBApi {
 
         HashMap<Integer, Double> wordIdToWeight = new HashMap<Integer, Double>();
 
-        for(int i = 0; i < wordIds.size(); ++i){
+        for (int i = 0; i < wordIds.size(); ++i) {
             int wordId = wordIds.get(i);
             byte[] key = WordUtilities.wordIdAndPageIdToDBKey(wordId, pageId);
             int tf = InvertedIndex.getValueByKey(key).size();
@@ -215,15 +146,6 @@ public final class RocksDBApi {
         }
 
         return wordIdToWeight;
-    }
-
-    public static int getWordIdOfWord(String word) throws RocksDBException {
-        return WordToWordId.getValue(word);
-    }
-
-    public static double getPageLength(int pageId) throws RocksDBException {
-        double length = PageIdToLength.getValue(pageId);
-        return length;
     }
 
     public static void closeAllDBConnections() {

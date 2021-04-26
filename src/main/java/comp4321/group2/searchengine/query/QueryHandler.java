@@ -3,6 +3,7 @@ package comp4321.group2.searchengine.query;
 import comp4321.group2.searchengine.RocksDBApi;
 import comp4321.group2.searchengine.common.Constants;
 import comp4321.group2.searchengine.exceptions.InvalidWordIdConversionException;
+import comp4321.group2.searchengine.repositories.WordToWordId;
 import comp4321.group2.searchengine.utils.StopStem;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.rocksdb.RocksDBException;
@@ -57,7 +58,7 @@ public class QueryHandler {
 
         // Find Query Word IDs and unique Page IDs
         for (String word : stemmedQuery) {
-            int wordId = RocksDBApi.getWordIdOfWord(word);
+            int wordId = WordToWordId.getValue(word);
             if (wordId == -1) {
                 continue;
             }

@@ -39,6 +39,7 @@ public abstract class RocksDBRepo {
 
     /**
      * Prints all the data in the DB hashtable to the console
+     *
      * @throws RocksDBException
      */
     public void printAll() throws RocksDBException {
@@ -53,6 +54,7 @@ public abstract class RocksDBRepo {
 
     /**
      * Deletes all the data in the DB
+     *
      * @throws RocksDBException
      */
     public void deleteAll() throws RocksDBException {

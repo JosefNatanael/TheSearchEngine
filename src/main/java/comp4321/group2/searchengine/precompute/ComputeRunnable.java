@@ -7,6 +7,7 @@ import comp4321.group2.searchengine.crawler.Link;
 import comp4321.group2.searchengine.crawler.RevisitException;
 import comp4321.group2.searchengine.exceptions.InvalidWordIdConversionException;
 import comp4321.group2.searchengine.models.Page;
+import comp4321.group2.searchengine.repositories.ForwardIndex;
 import org.jsoup.Connection;
 import org.jsoup.HttpStatusException;
 import org.jsoup.UncheckedIOException;
@@ -75,7 +76,7 @@ public class ComputeRunnable {
                 ArrayList<Integer> wordIds = RocksDBApi.addPageWords(wordToWordLocations, pageId);
 
                 //forward index
-                RocksDBApi.addForwardIndex(pageId, wordIds);
+                ForwardIndex.addEntry(pageId, wordIds);
 
                 System.out.println("Indexed: " + currentLink.url);
 

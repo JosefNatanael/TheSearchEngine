@@ -2,6 +2,7 @@ package comp4321.group2.searchengine.repositories;
 
 import java.io.File;
 import java.util.HashMap;
+
 import org.rocksdb.Options;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
@@ -52,6 +53,7 @@ public final class URLToPageId {
 
     /**
      * Get all the result pairs
+     *
      * @throws RocksDBException
      */
     public static HashMap<String, Integer> getAll() throws RocksDBException {
@@ -68,6 +70,7 @@ public final class URLToPageId {
 
     /**
      * Prints all the data in the DB hashtable to the console
+     *
      * @throws RocksDBException
      */
     public static void printAll() throws RocksDBException {
@@ -82,6 +85,7 @@ public final class URLToPageId {
 
     /**
      * Delete all the data in the DB
+     *
      * @throws RocksDBException
      */
     public static void deleteAll() throws RocksDBException {

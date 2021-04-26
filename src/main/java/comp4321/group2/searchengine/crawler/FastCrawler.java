@@ -83,7 +83,6 @@ public class FastCrawler {
     }
 
 
-
 //    public static void main(String[] args) throws RocksDBException, InvalidWordIdConversionException {
 //        RocksDBApi.closeAllDBConnections();
 //        RocksDBApi.connect();
