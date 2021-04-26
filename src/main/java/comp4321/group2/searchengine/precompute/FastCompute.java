@@ -5,13 +5,11 @@ import comp4321.group2.searchengine.exceptions.InvalidWordIdConversionException;
 import comp4321.group2.searchengine.models.Page;
 import comp4321.group2.searchengine.repositories.*;
 import comp4321.group2.searchengine.utils.WordUtilities;
-import org.apache.commons.collections.functors.ExceptionPredicate;
 import org.rocksdb.RocksDBException;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 public class FastCompute {
 

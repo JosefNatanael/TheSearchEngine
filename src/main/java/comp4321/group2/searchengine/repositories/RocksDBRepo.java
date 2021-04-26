@@ -3,20 +3,19 @@ package comp4321.group2.searchengine.repositories;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
 import org.rocksdb.RocksIterator;
-import comp4321.group2.searchengine.repositories.conn.RocksDBConnection;
 import comp4321.group2.searchengine.repositories.strategies.interfaces.IGetAllEntriesStrategy;
 import comp4321.group2.searchengine.repositories.strategies.interfaces.IGetValueStrategy;
 import comp4321.group2.searchengine.utils.ByteIntUtilities;
 
 public abstract class RocksDBRepo {
 
-    private final RocksDB db;
+    protected final RocksDB db;
 
-    private IGetValueStrategy getValueStrategy;
-    private IGetAllEntriesStrategy getAllEntriesStrategy;
+    protected IGetValueStrategy getValueStrategy;
+    protected IGetAllEntriesStrategy getAllEntriesStrategy;
 
-    public RocksDBRepo(RocksDBConnection connection) {
-        this.db = connection.getConnection();
+    public RocksDBRepo(RocksDB db) {
+        this.db = db;
     }
 
     public Object getValue(byte[] key) throws Exception {
@@ -37,7 +36,6 @@ public abstract class RocksDBRepo {
 
     /**
      * Prints all the data in the DB hashtable to the console
-     *
      */
     public void printAll() {
         RocksIterator iter = db.newIterator();
@@ -51,7 +49,6 @@ public abstract class RocksDBRepo {
 
     /**
      * Deletes all the data in the DB
-     *
      */
     public void deleteAll() throws RocksDBException {
         RocksIterator iter = db.newIterator();
