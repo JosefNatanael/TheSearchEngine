@@ -94,7 +94,7 @@ public final class RocksDBApi {
     /**
      * @return key: pageId string, value: word locations array list
      */
-    public static HashMap<String, ArrayList<Integer>> getWordValues(String word)
+    public static HashMap<Integer, ArrayList<Integer>> getWordValues(String word)
         throws RocksDBException, InvalidWordIdConversionException {
         int wordId = WordToWordId.getValue(word);
         if (wordId == -1) return null;
