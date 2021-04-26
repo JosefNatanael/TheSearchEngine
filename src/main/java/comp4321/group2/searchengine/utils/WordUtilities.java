@@ -79,7 +79,7 @@ public final class WordUtilities {
         return new ArrayList<>(Arrays.asList(intStrArray));
     }
 
-    public static String getPageIdFromKeyString(String key) {
-        return key.substring(9);
+    public static String getSuffixFromKeyString(String key) {
+        return key.substring(Constants.prefixBytesLength + 1);
     }
 }

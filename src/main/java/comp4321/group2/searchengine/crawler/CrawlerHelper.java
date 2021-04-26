@@ -26,7 +26,7 @@ abstract class CrawlerHelper {
      *
      * @return Response res
      */
-    public static Response getResponse(String url, Set<String> visitedUrls) throws HttpStatusException, IOException {
+    public static Response getResponse(String url, Set<String> visitedUrls) throws IOException {
         if (visitedUrls.contains(url)) {
             throw new RevisitException(); // if the page has been visited, break the function
         }

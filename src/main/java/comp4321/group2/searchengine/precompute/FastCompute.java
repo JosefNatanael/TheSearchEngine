@@ -5,6 +5,7 @@ import comp4321.group2.searchengine.exceptions.InvalidWordIdConversionException;
 import comp4321.group2.searchengine.repositories.*;
 import org.rocksdb.RocksDBException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,40 +34,34 @@ public class FastCompute {
         }
     }
 
-    public void processPageIdToL2Length() throws RocksDBException, InvalidWordIdConversionException {
+    public void processPageIdToL2Length() {
         HashMap<String, Integer> URLToPageID = URLToPageId.getAll();
-        int wordId, tf;
 
-        double idf, accumulator = 0.0, length_result;
-        //from forward get l2 length
-        for (Map.Entry<String, Integer> pair : URLToPageID.entrySet()) {
+        URLToPageID.entrySet().parallelStream().forEach(pair -> {
             int pageId = pair.getValue();
-
-            //get wordIdList from forward index
-            ArrayList<Integer> wordIdList = ForwardIndex.getValue(pageId);
-
-            //for each word id
-            for (Integer integer : wordIdList) {
-                wordId = integer;
-                //get idf of the word
-                idf = WordIdToIdf.getValue(wordId);
-
-                //get tf of the word from getvaluebykey of index 'wordID@pageID'
-                tf = RocksDBApi.getInvertedValuesFromKey(wordId, pageId).size();
-
-                //get the square of tf x idf, then accumulate
-                accumulator += Math.pow(tf * idf, 2);
+            HashMap<Integer, Double> wordWeights = null;
+            try {
+                wordWeights = RocksDBApi.getPageWordWeights(pageId);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
 
-            //square root the accumulated squared tf idf
-            length_result = Math.sqrt(accumulator);
+            double sum = 0.0;
+            for (Double value : wordWeights.values()) {
+                sum += value;
+            }
+            double length_result = Math.sqrt(sum);
 
             //store in db
-            PageIdToLength.addEntry(pageId, length_result);
-        }
+            try {
+                PageIdToLength.addEntry(pageId, length_result);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 
-    public static void main(String[] args) throws RocksDBException, InvalidWordIdConversionException {
+    public static void main(String[] args) throws RocksDBException, InvalidWordIdConversionException, IOException, ClassNotFoundException {
         RocksDBApi.closeAllDBConnections();
         RocksDBApi.connect();
 

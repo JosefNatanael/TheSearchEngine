@@ -24,7 +24,7 @@ public class GetValuePrefixMatchStrategy implements IGetValueStrategy {
             keyStr = new String(iter.key());
             value = new String(iter.value());
             pageIdToWordLocs.put(
-                WordUtilities.getPageIdFromKeyString(keyStr),
+                WordUtilities.getSuffixFromKeyString(keyStr),
                 WordUtilities.stringToIntegerArrayList(value)
             );
         }

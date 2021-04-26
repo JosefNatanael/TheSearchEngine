@@ -28,6 +28,7 @@ public final class RocksDBApi {
         WordIdToIdf.connect();
         ForwardIndex.connect();
         PageIdToLength.connect();
+        WeightIndex.connect();
     }
 
     public static void reset() throws RocksDBException {
@@ -39,6 +40,7 @@ public final class RocksDBApi {
         WordIdToIdf.deleteAll();
         ForwardIndex.deleteAll();
         PageIdToLength.deleteAll();
+        WeightIndex.deleteAll();
     }
 
     /**
@@ -148,5 +150,6 @@ public final class RocksDBApi {
         WordIdToIdf.closeConnection();
         ForwardIndex.closeConnection();
         PageIdToLength.closeConnection();
+        WeightIndex.closeConnection();
     }
 }
