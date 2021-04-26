@@ -1,22 +1,17 @@
 package comp4321.group2.searchengine;
 
+import comp4321.group2.searchengine.exceptions.InvalidWordIdConversionException;
+import comp4321.group2.searchengine.models.Page;
+import comp4321.group2.searchengine.repositories.*;
+import comp4321.group2.searchengine.utils.WordUtilities;
+import org.rocksdb.RocksDBException;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import org.rocksdb.RocksDBException;
-import comp4321.group2.searchengine.exceptions.InvalidWordIdConversionException;
-import comp4321.group2.searchengine.models.Page;
-import comp4321.group2.searchengine.repositories.*;
-import comp4321.group2.searchengine.repositories.InvertedIndex;
-import comp4321.group2.searchengine.repositories.Metadata;
-import comp4321.group2.searchengine.repositories.PageIdToData;
-import comp4321.group2.searchengine.repositories.URLToPageId;
-import comp4321.group2.searchengine.utils.ByteIntUtilities;
-import comp4321.group2.searchengine.utils.WordUtilities;
-import org.springframework.web.filter.ForwardedHeaderFilter;
 
 public final class RocksDBApi {
 
@@ -172,6 +167,11 @@ public final class RocksDBApi {
         return pageData;
     }
 
+    public static Page getPageData(int pageId) throws RocksDBException, IOException, ClassNotFoundException {
+        Page pageData = PageIdToData.getValue(pageId);
+        return pageData;
+    }
+
     public static ArrayList<Integer> getWordIdListFromPageId(int pageId) throws RocksDBException{
         return ForwardIndex.getValue(pageId);
     }
@@ -222,7 +222,8 @@ public final class RocksDBApi {
     }
 
     public static double getPageLength(int pageId) throws RocksDBException {
-        return PageIdToLength.getValue(pageId);
+        double length = PageIdToLength.getValue(pageId);
+        return length;
     }
 
     public static void closeAllDBConnections() {
