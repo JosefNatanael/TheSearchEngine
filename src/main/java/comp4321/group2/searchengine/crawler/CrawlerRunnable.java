@@ -3,17 +3,15 @@ package comp4321.group2.searchengine.crawler;
 
 import comp4321.group2.searchengine.RocksDBApi;
 import comp4321.group2.searchengine.common.Constants;
-import comp4321.group2.searchengine.exceptions.InvalidWordIdConversionException;
 import comp4321.group2.searchengine.models.Page;
 import comp4321.group2.searchengine.repositories.ForwardIndex;
 import org.jsoup.Connection.Response;
-import org.jsoup.HttpStatusException;
-import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
-import org.rocksdb.RocksDBException;
 
-import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.Vector;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 
@@ -73,22 +71,8 @@ public class CrawlerRunnable implements Runnable {
 
                 System.out.println("Indexed: " + currentLink.url);
 
-            } catch (InterruptedException ignore) {
-                System.out.println("InterruptedException caught");
-            } catch (HttpStatusException ignore) {
-                System.out.println("HttpStatusException caught");
-            } catch (IOException ignore) {
-                System.out.println("IOException caught");
-            } catch (RocksDBException ignore) {
-                System.out.println("RocksDBException caught");
-            } catch (InvalidWordIdConversionException ignore) {
-                System.out.println("InvalidWordIdConversionException caught");
-            } catch (RevisitException ignore) {
-                System.out.println("RevisitException caught");
-            } catch (UncheckedIOException ignore) {
-                System.out.println("UncheckedIOException caught");
             } catch (Exception e) {
-                System.out.println("Some exception: " + e);
+                System.out.println(e + " caught");
             }
         }
         System.out.println("Counting down the latch");
