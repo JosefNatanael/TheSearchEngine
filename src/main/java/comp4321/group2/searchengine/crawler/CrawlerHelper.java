@@ -147,9 +147,10 @@ abstract class CrawlerHelper {
                         break;
                     }
                 }
+
                 for (String blacklist : blackListLinkEndsWith) {
                     if (Pattern.matches("[\\w\\W]+" + blacklist, link)) {
-                        link.replaceAll("[\\w\\W]+" + blacklist, "/");
+                        link = link.replaceAll("([\\w\\W]+)" + blacklist, "$1/");
                     }
                 }
 
@@ -162,11 +163,11 @@ abstract class CrawlerHelper {
         }
     }
 
-    public static Page extractPageData(int size, String lastModified, Document doc, Vector<String> links, int tfmax) {
+    public static Page extractPageData(int size, String lastModified, Document doc, Vector<String> links, int tfmax, String url) {
         /* Get the metadata from the result */
         String title = doc.title();
         String urls = WordUtilities.arrayListToString(new ArrayList<>(links));
-        return new Page(title, urls, size, lastModified, tfmax);
+        return new Page(title, urls, size, lastModified, tfmax, url);
     }
 
     /**

@@ -144,6 +144,10 @@ public final class RocksDBApi {
         return PageIdToData.getValue(index);
     }
 
+    public static Page getPageData(int pageId) throws RocksDBException, IOException, ClassNotFoundException {
+        return PageIdToData.getValue(pageId);
+    }
+
     public static ArrayList<Integer> getInvertedValuesFromKey(int wordId, int pageId) throws
         InvalidWordIdConversionException, RocksDBException {
         byte[] key = WordUtilities.wordIdAndPageIdToDBKey(wordId, pageId);

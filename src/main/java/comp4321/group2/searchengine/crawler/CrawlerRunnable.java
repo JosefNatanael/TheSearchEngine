@@ -76,7 +76,7 @@ public class CrawlerRunnable implements Runnable {
                 );
 
                 int tfmax = CrawlerHelper.getTfmax(wordToWordLocations);
-                Page pageData = CrawlerHelper.extractPageData(size, lastModified, currentDoc, links, tfmax);
+                Page pageData = CrawlerHelper.extractPageData(size, lastModified, currentDoc, links, tfmax, currentLink.url);
 
                 // pageData
                 int pageId = RocksDBApi.addPageData(pageData, currentLink.url);
