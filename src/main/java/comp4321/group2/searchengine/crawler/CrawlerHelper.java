@@ -117,10 +117,10 @@ abstract class CrawlerHelper {
      * @param parentLink Parent Link
      * @param links      Child Links
      */
-    public static void extractAndPushChildLinksFromParentToUrlQueue(Link parentLink, Vector<String> links, Queue<Link> urlQueue) {
+    public static void extractAndPushChildLinksFromParentToUrlQueue(Link parentLink, Vector<String> links, Queue<Link> urlQueue, Set<String> visitedUrls) {
         // Add child links to urlQueue vector
         for (String link : links) {
-            if (link.contains("cse.ust.hk")) {
+            if (link.contains("cse.ust.hk") && !visitedUrls.contains(link)) {
                 boolean skipFlag = false;
                 // Check if the current link is in the blacklist, skip it!
                 for (String blacklist : blackListLinkStartsWith) {

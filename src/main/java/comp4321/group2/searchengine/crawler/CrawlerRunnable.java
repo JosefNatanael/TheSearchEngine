@@ -47,7 +47,7 @@ public class CrawlerRunnable implements Runnable {
             try {
                 Link currentLink = urlQueue.take();
                 if (currentLink.level > Constants.crawlMaxDepth) break;
-                if (urls.contains(currentLink.url)) continue;
+//                if (urls.contains(currentLink.url)) continue;
 
                 // Start to crawl from the currentLink
                 Response res = null;
@@ -67,7 +67,7 @@ public class CrawlerRunnable implements Runnable {
                     }
                 }
 
-                CrawlerHelper.extractAndPushChildLinksFromParentToUrlQueue(currentLink, links, urlQueue);
+                CrawlerHelper.extractAndPushChildLinksFromParentToUrlQueue(currentLink, links, urlQueue, urls);
                 HashMap<String, ArrayList<Integer>> wordToWordLocations = CrawlerHelper.extractCleanedWordLocationsMapFromDocument(
                     currentDoc
                 );
