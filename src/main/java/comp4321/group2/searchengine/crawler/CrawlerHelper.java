@@ -78,6 +78,24 @@ abstract class CrawlerHelper {
     }
 
     /**
+     * Extract title words from document
+     * @param doc
+     * @return
+     */
+    public static Vector<String> extractTitle(Document doc) {
+        Vector<String> result = new Vector<>();
+        if (doc == null || doc.title() == null || doc.title() == null) {
+            return result;
+        }
+        String contents = doc.title();
+        StringTokenizer st = new StringTokenizer(contents);
+        while (st.hasMoreTokens()) {
+            result.add(st.nextToken());
+        }
+        return result;
+    }
+
+    /**
      * Extract useful external urls on the web page.
      * note: filter out images, emails, etc.
      *
@@ -137,10 +155,6 @@ abstract class CrawlerHelper {
 
     public static Page extractPageData(int size, String lastModified, Document doc, Vector<String> links, int tfmax) {
         /* Get the metadata from the result */
-//        if (lastModified == null) {
-//            lastModified = "n/a";
-//        }
-
         String title = doc.title();
         String urls = WordUtilities.arrayListToString(new ArrayList<>(links));
         return new Page(title, urls, size, lastModified, tfmax);
@@ -152,7 +166,7 @@ abstract class CrawlerHelper {
      *
      * @return HashMap<String, ArrayList < Integer>> key: word string, value: array list of integer locations
      */
-    public static HashMap<String, ArrayList<Integer>> extractCleanedWordLocationsMapFromDocument(Document document) {
+    public static HashMap<String, ArrayList<Integer>> extractCleanedWordLocationsMap(Document document) {
         Vector<String> words = extractWords(document);
         HashMap<String, ArrayList<Integer>> wordToWordLocationMap = new HashMap<>();
         for (int i = 0; i < words.size(); ++i) {
@@ -170,12 +184,34 @@ abstract class CrawlerHelper {
                 wordToWordLocationMap.put(stemmedWord, arrList);
             }
         }
-        for (Map.Entry<String, ArrayList<Integer>> pair : wordToWordLocationMap.entrySet()) {
+        return sortWordLocationsHashMap(wordToWordLocationMap);
+    }
+
+    public static HashMap<String, ArrayList<Integer>> extractCleanedTitleWordLocationsMap(Document document) {
+        Vector<String> titleWords = extractTitle(document);
+        HashMap<String, ArrayList<Integer>> titleWordToLocationsMap = new HashMap<>();
+        for (int i = 0; i < titleWords.size(); ++i) {
+            String currWord = titleWords.get(i);
+            currWord = currWord.toLowerCase();
+
+            if (titleWordToLocationsMap.containsKey(currWord)) {
+                titleWordToLocationsMap.get(currWord).add(i);
+            } else {
+                ArrayList<Integer> arrList = new ArrayList<>();
+                arrList.add(i);
+                titleWordToLocationsMap.put(currWord, arrList);
+            }
+        }
+        return sortWordLocationsHashMap(titleWordToLocationsMap);
+    }
+
+    private static HashMap<String, ArrayList<Integer>> sortWordLocationsHashMap(HashMap<String, ArrayList<Integer>> wordToLocationsMap) {
+        for (Map.Entry<String, ArrayList<Integer>> pair : wordToLocationsMap.entrySet()) {
             ArrayList<Integer> locations = pair.getValue();
             Collections.sort(locations);
-            wordToWordLocationMap.put(pair.getKey(), locations);
+            wordToLocationsMap.put(pair.getKey(), locations);
         }
 
-        return wordToWordLocationMap;
+        return wordToLocationsMap;
     }
 }

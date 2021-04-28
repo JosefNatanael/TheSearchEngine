@@ -49,7 +49,7 @@ public class FastCompute {
 
             HashMap<Integer, Double> wordWeights = null;
             try {
-                wordWeights = getPageWordWeights(pageId);
+                wordWeights = computePageWordWeights(pageId);
             } catch (Exception e) {
                 System.out.println(e + " caught");
             }
@@ -71,7 +71,6 @@ public class FastCompute {
             // Store weights to WeightIndex
             HashMap<byte[], Double> wordWeightsProperKey = new HashMap<>();
 
-            assert wordWeights != null;
             wordWeights.forEach((key, value) -> {
                 int wordId = key;
                 double weight = value;
@@ -93,7 +92,7 @@ public class FastCompute {
         });
     }
 
-    private HashMap<Integer, Double> getPageWordWeights(int pageId) throws RocksDBException, IOException, ClassNotFoundException, InvalidWordIdConversionException {
+    private HashMap<Integer, Double> computePageWordWeights(int pageId) throws RocksDBException, IOException, ClassNotFoundException, InvalidWordIdConversionException {
         ArrayList<Integer> wordIds = ForwardIndex.getValue(pageId);
         Page pageData = PageIdToData.getValue(pageId);
         int tfMax = pageData.getTfmax();

@@ -47,7 +47,6 @@ public class CrawlerRunnable implements Runnable {
             try {
                 Link currentLink = urlQueue.take();
                 if (currentLink.level > Constants.crawlMaxDepth) break;
-//                if (urls.contains(currentLink.url)) continue;
 
                 // Start to crawl from the currentLink
                 Response res = null;
@@ -68,20 +67,27 @@ public class CrawlerRunnable implements Runnable {
                 }
 
                 CrawlerHelper.extractAndPushChildLinksFromParentToUrlQueue(currentLink, links, urlQueue, urls);
-                HashMap<String, ArrayList<Integer>> wordToWordLocations = CrawlerHelper.extractCleanedWordLocationsMapFromDocument(
+                HashMap<String, ArrayList<Integer>> wordToWordLocations = CrawlerHelper.extractCleanedWordLocationsMap(
+                    currentDoc
+                );
+
+                HashMap<String, ArrayList<Integer>> titleWordToWordLocations = CrawlerHelper.extractCleanedTitleWordLocationsMap(
                     currentDoc
                 );
 
                 int tfmax = CrawlerHelper.getTfmax(wordToWordLocations);
                 Page pageData = CrawlerHelper.extractPageData(size, lastModified, currentDoc, links, tfmax);
 
-                //pageData
+                // pageData
                 int pageId = RocksDBApi.addPageData(pageData, currentLink.url);
 
-                //inverted index
+                // inverted index
                 ArrayList<Integer> wordIds = RocksDBApi.addPageWords(wordToWordLocations, pageId);
 
-                //forward index
+                // title inverted index
+                RocksDBApi.addPageTitleToTitleInvertedIndex(titleWordToWordLocations, pageId);
+
+                // forward index
                 ForwardIndex.addEntry(pageId, wordIds);
 
                 System.out.println("Indexed: " + currentLink.url);
