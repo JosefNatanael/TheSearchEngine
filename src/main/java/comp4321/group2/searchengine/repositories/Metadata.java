@@ -58,7 +58,6 @@ public final class Metadata {
 
     /**
      * Get all the result pairs
-     *
      */
     public static HashMap<String, Integer> getAll() {
         RocksIterator iter = db.newIterator();
@@ -74,7 +73,6 @@ public final class Metadata {
 
     /**
      * Prints all the data in the DB hashtable to the console
-     *
      */
     public static void printAll() {
         RocksIterator iter = db.newIterator();
@@ -88,7 +86,6 @@ public final class Metadata {
 
     /**
      * Delete all the data in the DB
-     *
      */
     public static void deleteAll() throws RocksDBException {
         RocksIterator iter = db.newIterator();
