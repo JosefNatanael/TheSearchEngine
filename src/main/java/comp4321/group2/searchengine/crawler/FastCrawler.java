@@ -6,6 +6,7 @@ import comp4321.group2.searchengine.exceptions.InvalidWordIdConversionException;
 import comp4321.group2.searchengine.precompute.FastCompute;
 import comp4321.group2.searchengine.query.QueryHandler;
 import comp4321.group2.searchengine.repositories.Metadata;
+import comp4321.group2.searchengine.repositories.URLToPageId;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.rocksdb.RocksDBException;
 
@@ -92,7 +93,7 @@ public class FastCrawler {
         compute.processWordIdToIdfEntries();
         compute.processWeightsAndPageLength();
 
-//        URLToPageId.printAll();
+        URLToPageId.printAll();
 //        WeightIndex.printAll();
 //        WordIdToIdf.printAll();
 //        PageIdToLength.printAll();
