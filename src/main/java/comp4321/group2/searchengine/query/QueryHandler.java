@@ -21,9 +21,9 @@ public class QueryHandler {
 
     final Map<Integer, Double> extBoolSimMap = new ConcurrentHashMap<>();
     final Map<Integer, Double> cosSimMap = new ConcurrentHashMap<>();
-    final Map<Integer, Double> adjPointsMap = new HashMap<Integer, Double>();
+    final Map<Integer, Double> adjPointsMap = new HashMap<>();
+    
     HashMap<Integer, Double> prScoresMap = new HashMap<>();
-
     Map<Integer, HashMap<Integer, Double>> pageWordWeights = new HashMap<>();
 
     private static final File stopwordsPath = new File("./src/main/resources/stopwords.txt");
@@ -76,9 +76,9 @@ public class QueryHandler {
     }
 
     private ArrayList<ImmutablePair<Integer, Integer>> initWordStreakLocsArray(ArrayList<Integer> wordLocs) {
-        ArrayList<ImmutablePair<Integer, Integer>> wordStreakLocs = new ArrayList<ImmutablePair<Integer, Integer>>();
+        ArrayList<ImmutablePair<Integer, Integer>> wordStreakLocs = new ArrayList<>();
         wordLocs.forEach((loc) -> {
-            ImmutablePair<Integer, Integer> pair = new ImmutablePair<Integer, Integer>(loc, 0);
+            ImmutablePair<Integer, Integer> pair = new ImmutablePair<>(loc, 0);
             wordStreakLocs.add(pair);
         });
         return wordStreakLocs;
