@@ -66,9 +66,7 @@ public class FastCrawler {
 
         try {
             latch.await();
-            spawnedThreads.forEach((pair) -> {
-                pair.getKey().cancel(true);
-            });
+            spawnedThreads.forEach((pair) -> pair.getKey().cancel(true));
         } catch (InterruptedException ex) {
             System.out.println(ex.getMessage());
         }

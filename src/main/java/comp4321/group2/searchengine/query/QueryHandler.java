@@ -20,7 +20,7 @@ public class QueryHandler {
 
     final Map<Integer, Double> extBoolSimMap = new ConcurrentHashMap<>();
     final Map<Integer, Double> cosSimMap = new ConcurrentHashMap<>();
-    final Map<Integer, Double> adjPointsMap = new HashMap<Integer, Double>();
+    final Map<Integer, Double> adjPointsMap = new HashMap<>();
 
     Map<Integer, HashMap<Integer, Double>> pageWordWeights = new HashMap<>();
 
@@ -62,23 +62,17 @@ public class QueryHandler {
         calculateVSM(queryWordIds, pageIds);
         calculateAdjPoints(queryWordIds, pageIds);
 
-        extBoolSimMap.forEach((k, v) -> {
-            System.out.println("EXTBOOL " + k + " -> " + v);
-        });
+        extBoolSimMap.forEach((k, v) -> System.out.println("EXTBOOL " + k + " -> " + v));
 
-        cosSimMap.forEach((k, v) -> {
-            System.out.println("COSSIM " + k + " -> " + v);
-        });
+        cosSimMap.forEach((k, v) -> System.out.println("COSSIM " + k + " -> " + v));
 
-        adjPointsMap.forEach((k, v) -> {
-            System.out.println("ADJ " + k + " -> " + v);
-        });
+        adjPointsMap.forEach((k, v) -> System.out.println("ADJ " + k + " -> " + v));
     }
 
     private ArrayList<ImmutablePair<Integer, Integer>> initWordStreakLocsArray(ArrayList<Integer> wordLocs) {
-        ArrayList<ImmutablePair<Integer, Integer>> wordStreakLocs = new ArrayList<ImmutablePair<Integer, Integer>>();
+        ArrayList<ImmutablePair<Integer, Integer>> wordStreakLocs = new ArrayList<>();
         wordLocs.forEach((loc) -> {
-            ImmutablePair<Integer, Integer> pair = new ImmutablePair<Integer, Integer>(loc, 0);
+            ImmutablePair<Integer, Integer> pair = new ImmutablePair<>(loc, 0);
             wordStreakLocs.add(pair);
         });
         return wordStreakLocs;
