@@ -170,6 +170,10 @@ public final class RocksDBApi {
         return TitleInvertedIndex.getValue(prefix.getBytes());
     }
 
+    public static void addPageParents(int pageId, ArrayList<Integer> parentIds) throws RocksDBException {
+        PageIdToParentIds.addEntry(pageId, parentIds);
+    }
+
     public static void closeAllDBConnections() {
         InvertedIndex.closeConnection();
         Metadata.closeConnection();
