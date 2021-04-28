@@ -9,6 +9,8 @@ import org.rocksdb.RocksDBException;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 
@@ -23,16 +25,21 @@ public class TheSearchEngineApplication extends SpringBootServletInitializer {
 //        RocksDBApi.closeAllDBConnections();
 
 
-        RocksDBApi.closeAllDBConnections();
-        RocksDBApi.connect();
-        RocksDBApi.reset();
-        String rootUrl = "https://www.cse.ust.hk/";
-        FastCrawler crawler = new FastCrawler(rootUrl);
-        crawler.indexToDB(false);
-        Metadata.printAll();
+//        RocksDBApi.closeAllDBConnections();
+//        RocksDBApi.connect();
+//        RocksDBApi.reset();
+//        String rootUrl = "https://www.cse.ust.hk/";
+//        FastCrawler crawler = new FastCrawler(rootUrl);
+//        crawler.indexToDB(false);
+//        Metadata.printAll();
 
 
         SpringApplication.run(TheSearchEngineApplication.class, args);
+    }
+
+    @Bean
+    public RestTemplate getRestTemplate() {
+        return new RestTemplate();
     }
 
     public static void startIndexer() {

@@ -16,11 +16,11 @@ class CrawlerHelperTest {
 
     @Test
     void extractAndPushChildLinksFromParentToUrlQueue() {
-        String childLinkString1 = "some/link/#/";
-        String childLinkString2 = "another/link/#";
-        String childLinkString3 = "some/other/link///";
-        String childLinkString4 = "and/another/link";
-        String childLinkString5 = "and/another/link/";
+        String childLinkString1 = "cse.ust.hk/some/link/#/";
+        String childLinkString2 = "ancse.ust.hkother/link/#";
+        String childLinkString3 = "somcse.ust.hke/other/link///";
+        String childLinkString4 = "acse.ust.hknd/another/link";
+        String childLinkString5 = "ancse.ust.hkd/another/link/";
 
         Link parentLink = new Link("parent/url", 1);
         Vector<String> links = new Vector<>();
@@ -36,7 +36,6 @@ class CrawlerHelperTest {
         CrawlerHelper.extractAndPushChildLinksFromParentToUrlQueue(parentLink, links, urlQueue, visitedUrls);
 
         urlQueue.forEach(link -> System.out.println(link.url));
-//        assertTrue(urlQueue.size() > 0);
-        System.out.println("Hello");
+        assertTrue(urlQueue.size() > 0);
     }
 }

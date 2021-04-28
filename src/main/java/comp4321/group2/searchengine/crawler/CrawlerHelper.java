@@ -149,8 +149,8 @@ abstract class CrawlerHelper {
                 }
 
                 for (String blacklist : blackListLinkEndsWith) {
-                    if (Pattern.matches("[\\w\\W]+" + blacklist, link)) {
-                        link = link.replaceAll("([\\w\\W]+)" + blacklist, "$1/");
+                    if (Pattern.matches("[\\w\\W]+\\w" + blacklist, link)) {
+                        link = link.replaceAll("([\\w\\W]+\\w)" + blacklist, "$1/");
                     }
                 }
 
