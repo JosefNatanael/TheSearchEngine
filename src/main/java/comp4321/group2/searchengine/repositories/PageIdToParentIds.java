@@ -1,18 +1,18 @@
 package comp4321.group2.searchengine.repositories;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-
+import comp4321.group2.searchengine.utils.ByteIntUtilities;
+import comp4321.group2.searchengine.utils.WordUtilities;
 import org.rocksdb.Options;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
 import org.rocksdb.RocksIterator;
-import comp4321.group2.searchengine.utils.ByteIntUtilities;
-import comp4321.group2.searchengine.utils.WordUtilities;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 
-public class ForwardIndex {
+public class PageIdToParentIds {
 
     private static RocksDB db;
 
@@ -25,7 +25,7 @@ public class ForwardIndex {
 
         // create and open the database
         // create the DB if directory does not exist, then open the DB
-        File directory = new File("./src/main/java/tables/ForwardFile");
+        File directory = new File("./src/main/java/tables/PageIdToParentIds");
         String dbPath = directory.getAbsolutePath();
         if (!directory.exists()) {
             directory.mkdir();
@@ -39,10 +39,10 @@ public class ForwardIndex {
         }
     }
 
-    public static void addEntry(int pageId, ArrayList<Integer> wordIds) throws RocksDBException {
+    public static void addEntry(int pageId, ArrayList<Integer> parentIds) throws RocksDBException {
 
         byte[] key = ByteIntUtilities.convertIntToByteArray(pageId);
-        byte[] values = WordUtilities.arrayListToString(wordIds).getBytes();
+        byte[] values = WordUtilities.arrayListToString(parentIds).getBytes();
 
         db.put(key, values);
     }
@@ -100,4 +100,3 @@ public class ForwardIndex {
         iter.close();
     }
 }
-

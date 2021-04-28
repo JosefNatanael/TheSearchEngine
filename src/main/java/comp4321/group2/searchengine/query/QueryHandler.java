@@ -27,6 +27,7 @@ public class QueryHandler {
 
     final Map<Integer, Double> extBoolSimMap = new ConcurrentHashMap<>();
     final Map<Integer, Double> cosSimMap = new ConcurrentHashMap<>();
+
     final Map<Integer, Double> adjPointsMap = new HashMap<Integer, Double>();
     final Map<Integer, Double> titleAdjPointsMap = new HashMap<Integer, Double>();
 
