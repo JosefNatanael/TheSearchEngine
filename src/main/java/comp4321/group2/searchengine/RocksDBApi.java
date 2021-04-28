@@ -144,6 +144,10 @@ public final class RocksDBApi {
         return PageIdToData.getValue(index);
     }
 
+    public static Page getPageData(int pageId) throws RocksDBException, IOException, ClassNotFoundException {
+        return PageIdToData.getValue(pageId);
+    }
+
     public static ArrayList<Integer> getInvertedValuesFromKey(int wordId, int pageId) throws
         InvalidWordIdConversionException, RocksDBException {
         byte[] key = WordUtilities.wordIdAndPageIdToDBKey(wordId, pageId);
@@ -156,6 +160,14 @@ public final class RocksDBApi {
 
     public static Integer getPageIdFromURL(String url) throws RocksDBException {
         return URLToPageId.getValue(url);
+    }
+
+    public static HashMap<Integer, ArrayList<Integer>> getTitleWordValues(String word)
+        throws RocksDBException, InvalidWordIdConversionException {
+        int wordId = WordToWordId.getValue(word);
+        if (wordId == -1) return null;
+        String prefix = WordUtilities.buildDBKeyPrefix(wordId).toString();
+        return TitleInvertedIndex.getValue(prefix.getBytes());
     }
 
     public static void closeAllDBConnections() {

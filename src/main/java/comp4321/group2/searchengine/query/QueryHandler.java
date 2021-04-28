@@ -3,6 +3,7 @@ package comp4321.group2.searchengine.query;
 import comp4321.group2.searchengine.RocksDBApi;
 import comp4321.group2.searchengine.common.Constants;
 import comp4321.group2.searchengine.exceptions.InvalidWordIdConversionException;
+import comp4321.group2.searchengine.models.Page;
 import comp4321.group2.searchengine.precompute.PageRankCompute;
 import comp4321.group2.searchengine.repositories.WordToWordId;
 import comp4321.group2.searchengine.utils.MapUtilities;
@@ -16,12 +17,20 @@ import java.util.concurrent.*;
 
 public class QueryHandler {
 
+    private enum Key {
+        TITLE,
+        CONTENT,
+    }
+
     final String rawQuery;
     final ArrayList<String> stemmedQuery = new ArrayList<>();
+    final ArrayList<String> unstemmedQuery = new ArrayList<>();
 
     final Map<Integer, Double> extBoolSimMap = new ConcurrentHashMap<>();
     final Map<Integer, Double> cosSimMap = new ConcurrentHashMap<>();
-    final Map<Integer, Double> adjPointsMap = new HashMap<>();
+
+    final Map<Integer, Double> adjPointsMap = new HashMap<Integer, Double>();
+    final Map<Integer, Double> titleAdjPointsMap = new HashMap<Integer, Double>();
 
     HashMap<Integer, Double> prScoresMap = new HashMap<>();
     Map<Integer, HashMap<Integer, Double>> pageWordWeights = new HashMap<>();
@@ -34,6 +43,7 @@ public class QueryHandler {
 
         String[] words = query.split(" ");
         for (String word : words) {
+            unstemmedQuery.add(word);
             word = word.replaceAll("\\d", "");
             String stemmedWord = stopStem.stem(word);
             if (stopStem.isStopWord(word) || stemmedWord.equals("")) {
@@ -61,9 +71,18 @@ public class QueryHandler {
             pageIdsSet.addAll(pageIds);
         }
 
+        // Init maps
+        for (int pageId : pageIdsSet) {
+            extBoolSimMap.put(pageId, 0.0);
+            cosSimMap.put(pageId, 0.0);
+            adjPointsMap.put(pageId, 0.0);
+            titleAdjPointsMap.put(pageId, 0.0);
+        }
+
         ArrayList<Integer> pageIds = new ArrayList<>(pageIdsSet);
         calculateVSM(queryWordIds, pageIds);
-        calculateAdjPoints(queryWordIds, pageIds);
+        calculateAdjPoints(adjPointsMap, stemmedQuery, pageIds, Key.CONTENT);
+        calculateAdjPoints(titleAdjPointsMap, unstemmedQuery, pageIds, Key.TITLE);
 
         PageRankCompute pr = new PageRankCompute(0.85);
         pr.compute();
@@ -72,7 +91,16 @@ public class QueryHandler {
         double maxPrScore = MapUtilities.maxUsingStreamAndMethodReference(prScoresMap);
         prScoresMap.replaceAll((k, v) -> v / maxPrScore);
 
-        printRanks();
+
+        Map<Integer, Double> totalScores = new HashMap<>();
+        // Calculate total
+        for (int pageId : pageIds) {
+            totalScores.put(pageId, 0.2 * extBoolSimMap.get(pageId) + 0.2 * cosSimMap.get(pageId) + 0.2 * adjPointsMap.get(pageId) + 0.2 * titleAdjPointsMap.get(pageId) + 0.2 * prScoresMap.get(pageId));
+        }
+
+        totalScores = MapUtilities.sortByValue(totalScores, false);
+
+        printTotalScores(totalScores);
     }
 
     private ArrayList<ImmutablePair<Integer, Integer>> initWordStreakLocsArray(ArrayList<Integer> wordLocs) {
@@ -104,17 +132,19 @@ public class QueryHandler {
         }
     }
 
-    private void calculateAdjPoints(List<Integer> queryWordIds, List<Integer> pageIds) throws InvalidWordIdConversionException, RocksDBException {
+    private void calculateAdjPoints(Map<Integer, Double> map, ArrayList<String> query, List<Integer> pageIds, Key key) throws InvalidWordIdConversionException, RocksDBException {
         // Init adjacency points map
         for (int pageId : pageIds) {
-            adjPointsMap.put(pageId, 0.0);
+            map.put(pageId, 0.0);
         }
 
         // Implement AdjPoints
         HashMap<Integer, ArrayList<ImmutablePair<Integer, Integer>>> currWordLocsMap = new HashMap<>();
 
-        for (String word : stemmedQuery) {
-            HashMap<Integer, ArrayList<Integer>> nextWordLocsMap = RocksDBApi.getWordValues(word);
+        for (String word : query) {
+            HashMap<Integer, ArrayList<Integer>> nextWordLocsMap = (key == Key.TITLE) ? RocksDBApi.getTitleWordValues(word) : RocksDBApi.getWordValues(word);
+
+            if (nextWordLocsMap == null) continue;
 
             for (int pageId : pageIds) {
                 if (nextWordLocsMap.containsKey(pageId)) {
@@ -156,16 +186,16 @@ public class QueryHandler {
                         currWordLocsMap.put(pageId, wordStreakLocs);
                     }
 
-                    double currPoints = adjPointsMap.get(pageId);
-                    adjPointsMap.put(pageId, currPoints + Math.pow(currMaxStreak + 1, 2));
+                    double currPoints = map.get(pageId);
+                    map.put(pageId, currPoints + Math.pow(currMaxStreak + 1, 2));
                 } else {
                     currWordLocsMap.put(pageId, new ArrayList<>());
                 }
             }
         }
 
-        double maxAdjPoints = MapUtilities.maxUsingStreamAndMethodReference(adjPointsMap);
-        adjPointsMap.replaceAll((k, v) -> v / maxAdjPoints);
+        double maxAdjPoints = MapUtilities.maxUsingStreamAndMethodReference(map);
+        map.replaceAll((k, v) -> v / maxAdjPoints);
     }
 
     private void printRanks() {
@@ -183,6 +213,21 @@ public class QueryHandler {
 
         adjPointsMap.forEach((k, v) -> {
             System.out.println("ADJ " + k + " -> " + v);
+        });
+
+        titleAdjPointsMap.forEach((k, v) -> {
+            System.out.println("ADJ TITLE " + k + " -> " + v);
+        });
+    }
+
+    private void printTotalScores(Map<Integer, Double> map) {
+        map.forEach((k, v) -> {
+            try {
+                Page pageData = RocksDBApi.getPageData(k);
+                System.out.println(pageData.getUrl() + "\t" + v);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         });
     }
 }
