@@ -10,6 +10,8 @@ import org.rocksdb.RocksDBException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 
 public class FastCompute {
 
@@ -109,5 +111,45 @@ public class FastCompute {
         }
 
         return wordIdToWeight;
+    }
+
+    public void computePageParents() throws IOException, ClassNotFoundException {
+        HashMap<Integer, Page> pageDataMap = RocksDBApi.getAllPageData();
+        HashSet<Integer> pageIds = new HashSet<>(pageDataMap.keySet());
+
+        HashMap<Integer, HashSet<Integer>> pageIdToParentsMap = new HashMap<>();
+
+        for (Map.Entry<Integer, Page> entry : pageDataMap.entrySet()) {
+            int pageId = entry.getKey();
+            Page pageData = entry.getValue();
+
+            String[] childUrls = pageData.getChildUrls().split("\t");
+            for (String url : childUrls) {
+                try {
+                    int childPageId = RocksDBApi.getPageIdFromURL(url);
+
+                    if (!pageIds.contains(childPageId) || pageId == childPageId) continue;
+
+                    if (pageIdToParentsMap.containsKey(childPageId)) {
+                        pageIdToParentsMap.get(childPageId).add(pageId);
+                    } else {
+                        HashSet<Integer> newSet = new HashSet<>();
+                        newSet.add(pageId);
+                        pageIdToParentsMap.put(childPageId, newSet);
+                    }
+                } catch (Exception e) {
+                    System.out.println("Exception caught when getting page id");
+                    continue;
+                }
+            }
+        }
+
+        for (Map.Entry<Integer, HashSet<Integer>> entry : pageIdToParentsMap.entrySet()) {
+            try {
+                RocksDBApi.addPageParents(entry.getKey(), new ArrayList<>(entry.getValue()));
+            } catch (Exception e) {
+                System.out.println("Exception caught when inserting parent ids");
+            }
+        }
     }
 }

@@ -6,10 +6,11 @@ import comp4321.group2.searchengine.exceptions.InvalidWordIdConversionException;
 import comp4321.group2.searchengine.precompute.FastCompute;
 import comp4321.group2.searchengine.query.QueryHandler;
 import comp4321.group2.searchengine.repositories.Metadata;
-import comp4321.group2.searchengine.repositories.URLToPageId;
+import comp4321.group2.searchengine.repositories.PageIdToParentIds;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.rocksdb.RocksDBException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.Set;
@@ -80,7 +81,7 @@ public class FastCrawler {
     }
 
 
-    public static void main(String[] args) throws RocksDBException, InvalidWordIdConversionException {
+    public static void main(String[] args) throws RocksDBException, InvalidWordIdConversionException, IOException, ClassNotFoundException {
         RocksDBApi.closeAllDBConnections();
         RocksDBApi.connect();
         RocksDBApi.reset();
@@ -92,8 +93,10 @@ public class FastCrawler {
         FastCompute compute = new FastCompute();
         compute.processWordIdToIdfEntries();
         compute.processWeightsAndPageLength();
+        compute.computePageParents();
 
-        URLToPageId.printAll();
+        PageIdToParentIds.printAll();
+//        URLToPageId.printAll();
 //        WeightIndex.printAll();
 //        WordIdToIdf.printAll();
 //        PageIdToLength.printAll();
