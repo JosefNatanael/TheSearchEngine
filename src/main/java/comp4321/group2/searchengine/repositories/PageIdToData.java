@@ -52,7 +52,6 @@ public final class PageIdToData {
 
     /**
      * Get all the result pairs
-     *
      */
     public static HashMap<Integer, Page> getAll() throws ClassNotFoundException, IOException {
         RocksIterator iter = db.newIterator();
@@ -68,7 +67,6 @@ public final class PageIdToData {
 
     /**
      * Prints all the data in the DB hashtable to the console
-     *
      */
     public static void printAll() {
         RocksIterator iter = db.newIterator();
@@ -82,7 +80,6 @@ public final class PageIdToData {
 
     /**
      * Delete all the data in the DB
-     *
      */
     public static void deleteAll() throws RocksDBException {
         RocksIterator iter = db.newIterator();

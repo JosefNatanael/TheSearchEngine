@@ -59,9 +59,9 @@ public class CrawlerRunnable implements Runnable {
 
                 if (checkLastModified) {
                     int pageId = URLToPageId.getValue(currentLink.url);
-                    ZonedDateTime converted_lastModified =  ZonedDateTime.parse(lastModified, DateTimeFormatter.RFC_1123_DATE_TIME);
+                    ZonedDateTime converted_lastModified = ZonedDateTime.parse(lastModified, DateTimeFormatter.RFC_1123_DATE_TIME);
 
-                    if(pageId >= 0 && converted_lastModified == PageIdToData.getValue(pageId).getLastModified()){
+                    if (pageId >= 0 && converted_lastModified == PageIdToData.getValue(pageId).getLastModified()) {
                         continue;
                     }
                 }

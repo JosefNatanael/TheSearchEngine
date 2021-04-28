@@ -95,7 +95,6 @@ public class InvertedIndex {
 
     /**
      * Get all the result pairs
-     *
      */
     public static HashMap<Integer, String> getAll() {
         RocksIterator iter = db.newIterator();
@@ -111,7 +110,6 @@ public class InvertedIndex {
 
     /**
      * Print all the data in the DB to the console
-     *
      */
     public static void printAll() {
         // Print all the data in the hashtable
@@ -126,7 +124,6 @@ public class InvertedIndex {
 
     /**
      * Delete all the data in the DB
-     *
      */
     public static void deleteAll() throws RocksDBException {
         RocksIterator iter = db.newIterator();
@@ -141,7 +138,6 @@ public class InvertedIndex {
     /**
      * Creates NEW entries in the database in batch.
      * Table: <invertedIndexKey: byte array, locations: int array>
-     *
      */
     public static void createEntriesInBatch(Map<byte[], ArrayList<Integer>> table)
         throws RocksDBException {
