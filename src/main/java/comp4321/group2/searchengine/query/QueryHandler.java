@@ -22,7 +22,7 @@ public class QueryHandler {
     final Map<Integer, Double> extBoolSimMap = new ConcurrentHashMap<>();
     final Map<Integer, Double> cosSimMap = new ConcurrentHashMap<>();
     final Map<Integer, Double> adjPointsMap = new HashMap<>();
-    
+
     HashMap<Integer, Double> prScoresMap = new HashMap<>();
     Map<Integer, HashMap<Integer, Double>> pageWordWeights = new HashMap<>();
 
