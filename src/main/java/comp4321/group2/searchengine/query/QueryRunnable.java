@@ -4,6 +4,8 @@ import comp4321.group2.searchengine.RocksDBApi;
 import comp4321.group2.searchengine.common.Constants;
 import comp4321.group2.searchengine.exceptions.InvalidWordIdConversionException;
 import comp4321.group2.searchengine.repositories.PageIdToLength;
+import comp4321.group2.searchengine.repositories.WeightIndex;
+import comp4321.group2.searchengine.utils.WordUtilities;
 import org.rocksdb.RocksDBException;
 
 import java.io.IOException;
@@ -62,14 +64,10 @@ public class QueryRunnable implements Runnable {
                 extBoolSimMap.put(pageId, extBoolSim);
                 cosSimMap.put(pageId, cosSim);
 
-            } catch (IOException e) {
-                System.out.println("IOException caught");
             } catch (RocksDBException e) {
                 System.out.println("RocksDBException caught");
             } catch (InvalidWordIdConversionException e) {
                 System.out.println("InvalidWordIdConversionException caught");
-            } catch (ClassNotFoundException e) {
-                System.out.println("ClassNotFoundException caught");
             } catch (Exception e) {
                 System.out.println(e + " caught");
             }

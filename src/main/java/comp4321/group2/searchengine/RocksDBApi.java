@@ -64,14 +64,31 @@ public final class RocksDBApi {
     }
 
     /**
+     *
      */
     public synchronized static ArrayList<Integer> addPageWords(Map<String, ArrayList<Integer>> wordToLocsMap, int pageId)
+        throws RocksDBException, InvalidWordIdConversionException {
+
+        ArrayList<Integer> wordIds = new ArrayList<>();
+        InvertedIndex.createEntriesInBatch(createHashMapForInvertedFileBatchEntry(wordToLocsMap, pageId, wordIds));
+
+        return wordIds;
+    }
+
+    public synchronized static void addPageTitleToTitleInvertedIndex(Map<String, ArrayList<Integer>> titleWordToLocsMap, int pageId)
+        throws RocksDBException, InvalidWordIdConversionException {
+
+        TitleInvertedIndex.createEntriesInBatch(createHashMapForInvertedFileBatchEntry(titleWordToLocsMap, pageId, null));
+    }
+
+    private synchronized static HashMap<byte[], ArrayList<Integer>> createHashMapForInvertedFileBatchEntry(Map<String, ArrayList<Integer>> wordToLocsMap, int pageId, ArrayList<Integer> wordIds)
         throws RocksDBException, InvalidWordIdConversionException {
 
         byte[] key;
         String keyword;
         int wordId;
-        ArrayList<Integer> wordIds = new ArrayList<>();
+
+        HashMap<byte[], ArrayList<Integer>> invertedIndexBatchEntries = new HashMap<>();
 
         for (Entry<String, ArrayList<Integer>> iterator : wordToLocsMap.entrySet()) {
             keyword = iterator.getKey();
@@ -81,15 +98,15 @@ public final class RocksDBApi {
                 wordId = Metadata.getLatestIndex(Metadata.Key.WORD);
                 WordToWordId.addEntry(keyword, wordId);
             }
-            wordIds.add(wordId);
-
-            ArrayList<Integer> locations = iterator.getValue();
-            byte[] values = WordUtilities.arrayListToString(locations).getBytes();
 
             key = WordUtilities.wordIdAndPageIdToDBKey(wordId, pageId);
-            InvertedIndex.addEntry(key, values);
+            ArrayList<Integer> locations = iterator.getValue();
+
+            invertedIndexBatchEntries.put(key, locations);
+
+            if (wordIds != null) wordIds.add(wordId);
         }
-        return wordIds;
+        return invertedIndexBatchEntries;
     }
 
 
@@ -104,7 +121,13 @@ public final class RocksDBApi {
         return InvertedIndex.getValue(prefix.getBytes());
     }
 
-    public static ArrayList<Integer> getPageIdsOfWord(String word) throws RocksDBException, InvalidWordIdConversionException {
+    public static HashMap<Integer, Double> getPageWordWeights(int pageId) throws InvalidWordIdConversionException {
+        String prefix = WordUtilities.buildDBKeyPrefix(pageId).toString();
+        return WeightIndex.getValue(prefix.getBytes());
+    }
+
+    public static ArrayList<Integer> getPageIdsOfWord(String word) throws
+        RocksDBException, InvalidWordIdConversionException {
         int wordId = WordToWordId.getValue(word);
         if (wordId == -1) return null;
         String prefix = WordUtilities.buildDBKeyPrefix(wordId).toString();
@@ -117,28 +140,10 @@ public final class RocksDBApi {
         return PageIdToData.getValue(index);
     }
 
-    public static ArrayList<Integer> getInvertedValuesFromKey(int wordId, int pageId) throws InvalidWordIdConversionException, RocksDBException {
+    public static ArrayList<Integer> getInvertedValuesFromKey(int wordId, int pageId) throws
+        InvalidWordIdConversionException, RocksDBException {
         byte[] key = WordUtilities.wordIdAndPageIdToDBKey(wordId, pageId);
         return InvertedIndex.getValueByKey(key);
-    }
-
-    public static HashMap<Integer, Double> getPageWordWeights(int pageId) throws RocksDBException, IOException, ClassNotFoundException, InvalidWordIdConversionException {
-        ArrayList<Integer> wordIds = ForwardIndex.getValue(pageId);
-        Page pageData = PageIdToData.getValue(pageId);
-        int tfMax = pageData.getTfmax();
-
-        HashMap<Integer, Double> wordIdToWeight = new HashMap<>();
-
-        for (int wordId : wordIds) {
-            byte[] key = WordUtilities.wordIdAndPageIdToDBKey(wordId, pageId);
-            int tf = InvertedIndex.getValueByKey(key).size();
-
-            double idf = WordIdToIdf.getValue(wordId);
-            Double weight = (double) tf * idf / (double) tfMax;
-            wordIdToWeight.put(wordId, weight);
-        }
-
-        return wordIdToWeight;
     }
 
     public static void closeAllDBConnections() {
