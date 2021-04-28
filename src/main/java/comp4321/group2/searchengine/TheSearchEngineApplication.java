@@ -28,7 +28,7 @@ public class TheSearchEngineApplication extends SpringBootServletInitializer {
         RocksDBApi.reset();
         String rootUrl = "https://www.cse.ust.hk/";
         FastCrawler crawler = new FastCrawler(rootUrl);
-        crawler.indexToDB();
+        crawler.indexToDB(false);
         Metadata.printAll();
 
 
@@ -38,7 +38,7 @@ public class TheSearchEngineApplication extends SpringBootServletInitializer {
     public static void startIndexer() {
         String rootUrl = "https://www.cse.ust.hk/";
         FastCrawler crawler = new FastCrawler(rootUrl);
-        crawler.indexToDB();
+        crawler.indexToDB(false);
     }
 
 //    public static void phaseOne()
@@ -111,7 +111,7 @@ public class TheSearchEngineApplication extends SpringBootServletInitializer {
         throws RocksDBException, InvalidWordIdConversionException {
         String rootUrl = "https://www.cse.ust.hk/";
         FastCrawler crawler = new FastCrawler(rootUrl);
-        crawler.indexToDB();
+        crawler.indexToDB(false);
 
         //iterate each word ID, compute idf, length
         HashMap<String, Integer> wordToWordID = WordToWordId.getAll();

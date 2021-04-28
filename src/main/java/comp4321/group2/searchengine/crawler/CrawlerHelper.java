@@ -137,9 +137,9 @@ abstract class CrawlerHelper {
 
     public static Page extractPageData(int size, String lastModified, Document doc, Vector<String> links, int tfmax) {
         /* Get the metadata from the result */
-        if (lastModified == null) {
-            lastModified = "n/a";
-        }
+//        if (lastModified == null) {
+//            lastModified = "n/a";
+//        }
 
         String title = doc.title();
         String urls = WordUtilities.arrayListToString(new ArrayList<>(links));

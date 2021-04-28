@@ -5,9 +5,13 @@ import comp4321.group2.searchengine.RocksDBApi;
 import comp4321.group2.searchengine.common.Constants;
 import comp4321.group2.searchengine.models.Page;
 import comp4321.group2.searchengine.repositories.ForwardIndex;
+import comp4321.group2.searchengine.repositories.PageIdToData;
+import comp4321.group2.searchengine.repositories.URLToPageId;
 import org.jsoup.Connection.Response;
 import org.jsoup.nodes.Document;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
@@ -19,12 +23,14 @@ public class CrawlerRunnable implements Runnable {
     private final BlockingQueue<Link> urlQueue;
     private final Set<String> urls;
     private final CountDownLatch latch;
+    private final boolean checkLastModified;
     private volatile boolean stopScraping = false;
 
-    public CrawlerRunnable(BlockingQueue<Link> urlQueue, Set<String> urls, CountDownLatch latch) {
+    public CrawlerRunnable(BlockingQueue<Link> urlQueue, Set<String> urls, CountDownLatch latch, boolean checkLastModified) {
         this.urlQueue = urlQueue;
         this.urls = urls;
         this.latch = latch;
+        this.checkLastModified = checkLastModified;
     }
 
     public boolean getStopScraping() {
@@ -51,6 +57,15 @@ public class CrawlerRunnable implements Runnable {
                 String lastModified = res.header("last-modified");
                 Document currentDoc = res.parse();
                 Vector<String> links = CrawlerHelper.extractLinks(currentDoc);
+
+                if (checkLastModified) {
+                    int pageId = URLToPageId.getValue(currentLink.url);
+                    ZonedDateTime converted_lastModified =  ZonedDateTime.parse(lastModified, DateTimeFormatter.RFC_1123_DATE_TIME);
+
+                    if(pageId >= 0 && converted_lastModified == PageIdToData.getValue(pageId).getLastModified()){
+                        continue;
+                    }
+                }
 
                 CrawlerHelper.extractAndPushChildLinksFromParentToUrlQueue(currentLink, links, urlQueue);
                 HashMap<String, ArrayList<Integer>> wordToWordLocations = CrawlerHelper.extractCleanedWordLocationsMapFromDocument(
