@@ -154,6 +154,14 @@ public final class RocksDBApi {
         return URLToPageId.getValue(url);
     }
 
+    public static HashMap<Integer, ArrayList<Integer>> getTitleWordValues(String word)
+        throws RocksDBException, InvalidWordIdConversionException {
+        int wordId = WordToWordId.getValue(word);
+        if (wordId == -1) return null;
+        String prefix = WordUtilities.buildDBKeyPrefix(wordId).toString();
+        return TitleInvertedIndex.getValue(prefix.getBytes());
+    }
+
     public static void closeAllDBConnections() {
         InvertedIndex.closeConnection();
         Metadata.closeConnection();
