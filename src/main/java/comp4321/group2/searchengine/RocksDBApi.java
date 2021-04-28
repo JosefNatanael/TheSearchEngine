@@ -30,6 +30,7 @@ public final class RocksDBApi {
         PageIdToLength.connect();
         WeightIndex.connect();
         TitleInvertedIndex.connect();
+        PageIdToParentIds.connect();
     }
 
     public static void reset() throws RocksDBException {
@@ -43,6 +44,7 @@ public final class RocksDBApi {
         PageIdToLength.deleteAll();
         WeightIndex.deleteAll();
         TitleInvertedIndex.deleteAll();
+        PageIdToParentIds.deleteAll();
     }
 
     /**
@@ -167,5 +169,6 @@ public final class RocksDBApi {
         PageIdToLength.closeConnection();
         WeightIndex.closeConnection();
         TitleInvertedIndex.closeConnection();
+        PageIdToParentIds.closeConnection();
     }
 }
