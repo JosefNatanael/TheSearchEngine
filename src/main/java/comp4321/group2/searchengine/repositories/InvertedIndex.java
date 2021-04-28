@@ -42,7 +42,6 @@ public class InvertedIndex {
         db.put(key, values);
     }
 
-    //prefix match
     public static void delEntry(String word) throws RocksDBException {
         // Delete the word and its list from the hashtable
         db.delete(word.getBytes());
@@ -144,7 +143,7 @@ public class InvertedIndex {
      * Table: <invertedIndexKey: byte array, locations: int array>
      *
      */
-    public static void createEntriesInBatch(Map<byte[], ArrayList<Integer>> table, int documentId)
+    public static void createEntriesInBatch(Map<byte[], ArrayList<Integer>> table)
         throws RocksDBException {
         WriteBatch writeBatch = new WriteBatch();
         WriteOptions writeOptions = new WriteOptions();
