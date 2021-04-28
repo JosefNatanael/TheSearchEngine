@@ -65,7 +65,7 @@ public final class RocksDBApi {
 
     /**
      */
-    public static ArrayList<Integer> addPageWords(Map<String, ArrayList<Integer>> wordToLocsMap, int pageId)
+    public synchronized static ArrayList<Integer> addPageWords(Map<String, ArrayList<Integer>> wordToLocsMap, int pageId)
         throws RocksDBException, InvalidWordIdConversionException {
 
         byte[] key;

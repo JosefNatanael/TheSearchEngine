@@ -117,10 +117,10 @@ abstract class CrawlerHelper {
      * @param parentLink Parent Link
      * @param links      Child Links
      */
-    public static void extractAndPushChildLinksFromParentToUrlQueue(Link parentLink, Vector<String> links, Queue<Link> urlQueue) {
+    public static void extractAndPushChildLinksFromParentToUrlQueue(Link parentLink, Vector<String> links, Queue<Link> urlQueue, Set<String> visitedUrls) {
         // Add child links to urlQueue vector
         for (String link : links) {
-            if (link.contains("cse.ust.hk")) {
+            if (link.contains("cse.ust.hk") && !visitedUrls.contains(link)) {
                 boolean skipFlag = false;
                 // Check if the current link is in the blacklist, skip it!
                 for (String blacklist : blackListLinkStartsWith) {
@@ -137,9 +137,9 @@ abstract class CrawlerHelper {
 
     public static Page extractPageData(int size, String lastModified, Document doc, Vector<String> links, int tfmax) {
         /* Get the metadata from the result */
-        if (lastModified == null) {
-            lastModified = "n/a";
-        }
+//        if (lastModified == null) {
+//            lastModified = "n/a";
+//        }
 
         String title = doc.title();
         String urls = WordUtilities.arrayListToString(new ArrayList<>(links));

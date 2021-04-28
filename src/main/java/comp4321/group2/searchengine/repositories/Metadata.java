@@ -1,13 +1,13 @@
 package comp4321.group2.searchengine.repositories;
 
-import java.io.File;
-import java.util.HashMap;
-
+import comp4321.group2.searchengine.utils.ByteIntUtilities;
 import org.rocksdb.Options;
 import org.rocksdb.RocksDB;
 import org.rocksdb.RocksDBException;
 import org.rocksdb.RocksIterator;
-import comp4321.group2.searchengine.utils.ByteIntUtilities;
+
+import java.io.File;
+import java.util.HashMap;
 
 public final class Metadata {
 
@@ -40,7 +40,7 @@ public final class Metadata {
         }
     }
 
-    public static int getLatestIndex(Key inputKey) throws RocksDBException {
+    public synchronized static int getLatestIndex(Key inputKey) throws RocksDBException {
         String key = inputKey == Key.PAGE ? "page" : "word";
         byte[] keyBytes = key.getBytes();
         byte[] content = db.get(keyBytes);

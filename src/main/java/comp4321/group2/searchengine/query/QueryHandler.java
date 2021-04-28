@@ -27,7 +27,7 @@ public class QueryHandler {
     private static final File stopwordsPath = new File("./src/main/resources/stopwords.txt");
     private static final StopStem stopStem = new StopStem(stopwordsPath.getAbsolutePath());
 
-    QueryHandler(String query) {
+    public QueryHandler(String query) {
         this.rawQuery = query;
 
         String[] words = query.split(" ");
@@ -61,6 +61,18 @@ public class QueryHandler {
         ArrayList<Integer> pageIds = new ArrayList<>(pageIdsSet);
         calculateVSM(queryWordIds, pageIds);
         calculateAdjPoints(queryWordIds, pageIds);
+
+        extBoolSimMap.forEach((k, v) -> {
+            System.out.println("EXTBOOL " + k + " -> " + v);
+        });
+
+        cosSimMap.forEach((k, v) -> {
+            System.out.println("COSSIM " + k + " -> " + v);
+        });
+
+        adjPointsMap.forEach((k, v) -> {
+            System.out.println("ADJ " + k + " -> " + v);
+        });
     }
 
     private ArrayList<ImmutablePair<Integer, Integer>> initWordStreakLocsArray(ArrayList<Integer> wordLocs) {
@@ -99,7 +111,7 @@ public class QueryHandler {
         }
 
         // Implement AdjPoints
-        HashMap<Integer, ArrayList<ImmutablePair<Integer, Integer>>> currWordLocsMap = new HashMap<Integer, ArrayList<ImmutablePair<Integer, Integer>>>();
+        HashMap<Integer, ArrayList<ImmutablePair<Integer, Integer>>> currWordLocsMap = new HashMap<>();
 
         for (String word: stemmedQuery) {
             HashMap<Integer, ArrayList<Integer>> nextWordLocsMap = RocksDBApi.getWordValues(word);
@@ -137,13 +149,15 @@ public class QueryHandler {
                             ImmutablePair<Integer, Integer> newPair = new ImmutablePair<>(nextWordLocs.get(i), 0);
                             newWordStreakLocs.add(newPair);
                         }
+
+                        currWordLocsMap.put(pageId, newWordStreakLocs);
                     } else {
                         ArrayList<ImmutablePair<Integer, Integer>> wordStreakLocs = initWordStreakLocsArray(nextWordLocs);
                         currWordLocsMap.put(pageId, wordStreakLocs);
                     }
 
                     double currPoints = adjPointsMap.get(pageId);
-                    adjPointsMap.put(pageId, currPoints + Math.pow(currMaxStreak, 2));
+                    adjPointsMap.put(pageId, currPoints + Math.pow(currMaxStreak + 1, 2));
                 } else {
                     currWordLocsMap.put(pageId, new ArrayList<>());
                 }

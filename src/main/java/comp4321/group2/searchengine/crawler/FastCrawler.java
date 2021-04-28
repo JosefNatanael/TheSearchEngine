@@ -4,13 +4,14 @@ import comp4321.group2.searchengine.RocksDBApi;
 import comp4321.group2.searchengine.common.Constants;
 import comp4321.group2.searchengine.exceptions.InvalidWordIdConversionException;
 import comp4321.group2.searchengine.precompute.FastCompute;
+import comp4321.group2.searchengine.query.QueryHandler;
 import comp4321.group2.searchengine.repositories.Metadata;
-import comp4321.group2.searchengine.repositories.PageIdToLength;
-import comp4321.group2.searchengine.repositories.WeightIndex;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.rocksdb.RocksDBException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Scanner;
+import java.util.Set;
 import java.util.concurrent.*;
 
 
@@ -21,7 +22,7 @@ public class FastCrawler {
         this.startingUrl = startingUrl;
     }
 
-    public void indexToDB() {
+    public void indexToDB(boolean checkLastModified) {
 
         BlockingQueue<Link> urlQueue = new LinkedBlockingQueue<>(); // the queue of URLs to be crawled
         Set<String> urls = ConcurrentHashMap.newKeySet(); // the set of urls that have been visited before
@@ -35,7 +36,7 @@ public class FastCrawler {
 
         ArrayList<ImmutablePair<Future, CrawlerRunnable>> spawnedThreads = new ArrayList<>();
         for (int i = 0; i < Constants.numCrawlerThreads; ++i) {
-            CrawlerRunnable r = new CrawlerRunnable(urlQueue, urls, latch);
+            CrawlerRunnable r = new CrawlerRunnable(urlQueue, urls, latch, checkLastModified);
             Future<?> f = executor.submit(r);
             ImmutablePair<Future, CrawlerRunnable> pair = new ImmutablePair<>(f, r);
             spawnedThreads.add(pair);
@@ -86,15 +87,20 @@ public class FastCrawler {
         RocksDBApi.reset();
         String rootUrl = "https://www.cse.ust.hk/";
         FastCrawler crawler = new FastCrawler(rootUrl);
-        crawler.indexToDB();
+        crawler.indexToDB(false);
         Metadata.printAll();
 
         FastCompute compute = new FastCompute();
         compute.processWordIdToIdfEntries();
         compute.processWeightsAndPageLength();
 
-        WeightIndex.printAll();
-        PageIdToLength.printAll();
+//        URLToPageId.printAll();
+//        WeightIndex.printAll();
+//        WordIdToIdf.printAll();
+//        PageIdToLength.printAll();
+
+        QueryHandler qh = new QueryHandler("a contract generator chatbot");
+        qh.handle();
 
         RocksDBApi.closeAllDBConnections();
     }

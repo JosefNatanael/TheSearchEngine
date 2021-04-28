@@ -75,6 +75,7 @@ public class FastCompute {
             wordWeights.forEach((key, value) -> {
                 int wordId = key;
                 double weight = value;
+
                 byte[] properKey = null;
                 try {
                     properKey = WordUtilities.pageIdAndWordIdToDBKey(pageId, wordId);
