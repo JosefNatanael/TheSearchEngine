@@ -141,6 +141,14 @@ public final class RocksDBApi {
         return wordIdToWeight;
     }
 
+    public static HashMap<Integer, Page> getAllPageData() throws ClassNotFoundException, IOException {
+        return PageIdToData.getAll();
+    }
+
+    public static Integer getPageIdFromURL(String url) throws RocksDBException {
+        return URLToPageId.getValue(url);
+    }
+
     public static void closeAllDBConnections() {
         InvertedIndex.closeConnection();
         Metadata.closeConnection();
