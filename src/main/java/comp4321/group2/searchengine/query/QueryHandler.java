@@ -3,6 +3,7 @@ package comp4321.group2.searchengine.query;
 import comp4321.group2.searchengine.RocksDBApi;
 import comp4321.group2.searchengine.common.Constants;
 import comp4321.group2.searchengine.exceptions.InvalidWordIdConversionException;
+import comp4321.group2.searchengine.precompute.PageRankCompute;
 import comp4321.group2.searchengine.repositories.WordToWordId;
 import comp4321.group2.searchengine.utils.MapUtilities;
 import comp4321.group2.searchengine.utils.StopStem;
@@ -21,7 +22,8 @@ public class QueryHandler {
     final Map<Integer, Double> extBoolSimMap = new ConcurrentHashMap<>();
     final Map<Integer, Double> cosSimMap = new ConcurrentHashMap<>();
     final Map<Integer, Double> adjPointsMap = new HashMap<>();
-
+    
+    HashMap<Integer, Double> prScoresMap = new HashMap<>();
     Map<Integer, HashMap<Integer, Double>> pageWordWeights = new HashMap<>();
 
     private static final File stopwordsPath = new File("./src/main/resources/stopwords.txt");
@@ -42,6 +44,7 @@ public class QueryHandler {
     }
 
     /**
+     *
      */
     public void handle() throws RocksDBException, InvalidWordIdConversionException {
         ArrayList<Integer> queryWordIds = new ArrayList<>();
@@ -62,11 +65,14 @@ public class QueryHandler {
         calculateVSM(queryWordIds, pageIds);
         calculateAdjPoints(queryWordIds, pageIds);
 
-        extBoolSimMap.forEach((k, v) -> System.out.println("EXTBOOL " + k + " -> " + v));
+        PageRankCompute pr = new PageRankCompute(0.85);
+        pr.compute();
+        prScoresMap = pr.getRankMap();
 
-        cosSimMap.forEach((k, v) -> System.out.println("COSSIM " + k + " -> " + v));
+        double maxPrScore = MapUtilities.maxUsingStreamAndMethodReference(prScoresMap);
+        prScoresMap.replaceAll((k, v) -> v / maxPrScore);
 
-        adjPointsMap.forEach((k, v) -> System.out.println("ADJ " + k + " -> " + v));
+        printRanks();
     }
 
     private ArrayList<ImmutablePair<Integer, Integer>> initWordStreakLocsArray(ArrayList<Integer> wordLocs) {
@@ -100,14 +106,14 @@ public class QueryHandler {
 
     private void calculateAdjPoints(List<Integer> queryWordIds, List<Integer> pageIds) throws InvalidWordIdConversionException, RocksDBException {
         // Init adjacency points map
-        for (int pageId: pageIds) {
+        for (int pageId : pageIds) {
             adjPointsMap.put(pageId, 0.0);
         }
 
         // Implement AdjPoints
         HashMap<Integer, ArrayList<ImmutablePair<Integer, Integer>>> currWordLocsMap = new HashMap<>();
 
-        for (String word: stemmedQuery) {
+        for (String word : stemmedQuery) {
             HashMap<Integer, ArrayList<Integer>> nextWordLocsMap = RocksDBApi.getWordValues(word);
 
             for (int pageId : pageIds) {
@@ -160,5 +166,23 @@ public class QueryHandler {
 
         double maxAdjPoints = MapUtilities.maxUsingStreamAndMethodReference(adjPointsMap);
         adjPointsMap.replaceAll((k, v) -> v / maxAdjPoints);
+    }
+
+    private void printRanks() {
+        prScoresMap.forEach((k, v) -> {
+            System.out.println("PR " + k + " -> " + v);
+        });
+
+        extBoolSimMap.forEach((k, v) -> {
+            System.out.println("EXTBOOL " + k + " -> " + v);
+        });
+
+        cosSimMap.forEach((k, v) -> {
+            System.out.println("COSSIM " + k + " -> " + v);
+        });
+
+        adjPointsMap.forEach((k, v) -> {
+            System.out.println("ADJ " + k + " -> " + v);
+        });
     }
 }
