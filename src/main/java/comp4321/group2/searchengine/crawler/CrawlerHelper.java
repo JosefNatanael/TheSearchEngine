@@ -21,7 +21,8 @@ abstract class CrawlerHelper {
     private static final File stopwordsPath = new File("./src/main/resources/stopwords.txt");
     private static final StopStem stopStem = new StopStem(stopwordsPath.getAbsolutePath());
     private static final String[] blackListLinkStartsWith = {"https://www.cse.ust.hk/Restricted"};
-    private static final String[] blackListLinkEndsWith = {"\\/#$", "\\/#\\/$", "[\\/]+$"};
+    private static final String[] blackListLinkEndsWith = {".jpg", ".pdf", ".JPG", ".png"};
+    private static final String[] blackListLinkRegex = {"\\/#$", "\\/#\\/$", "[\\/]+$"};
 
     /**
      * Send an HTTP request and analyze the response.
@@ -147,7 +148,13 @@ abstract class CrawlerHelper {
                         break;
                     }
                 }
-                for (String blacklist: blackListLinkEndsWith){
+                for (String blacklist : blackListLinkEndsWith) {
+                    if (link.endsWith(blacklist)) {
+                        skipFlag = true;
+                        break;
+                    }
+                }
+                for (String blacklist: blackListLinkRegex){
                     if (Pattern.matches("[\\w\\W]+\\w"+blacklist, link)) {
                         link = link.replaceAll("([\\w\\W]+\\w)"+blacklist, "$1/");
                     }
