@@ -79,8 +79,6 @@ abstract class CrawlerHelper {
 
     /**
      * Extract title words from document
-     * @param doc
-     * @return
      */
     public static Vector<String> extractTitle(Document doc) {
         Vector<String> result = new Vector<>();
