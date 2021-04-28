@@ -21,17 +21,19 @@ public class Page implements Serializable {
     private ZonedDateTime lastModified = null;
     private int tfmax;
     private int length;
+    private String url;
 
     public Page() {}
 
     /**
      * Constructor for Page. If lastModified cannot be parsed, the instance variable this.lastModified will be null.
      */
-    public Page(String title, String url, int size, String lastModified, int tfmax) {
+    public Page(String title, String childUrls, int size, String lastModified, int tfmax, String url) {
         this.title = title;
-        this.childUrls = url;
+        this.childUrls = childUrls;
         this.size = size;
         this.tfmax = tfmax;
+        this.url = url;
         try {
             if (lastModified != null) {
                 this.lastModified = ZonedDateTime.parse(lastModified, DateTimeFormatter.RFC_1123_DATE_TIME);
@@ -62,6 +64,8 @@ public class Page implements Serializable {
     public int getTfmax() {
         return tfmax;
     }
+
+    public String getUrl() { return url; }
 
 
     public void print() {
