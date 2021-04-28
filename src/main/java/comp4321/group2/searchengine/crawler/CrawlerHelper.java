@@ -15,11 +15,13 @@ import org.jsoup.select.Elements;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.regex.Pattern;
 
 abstract class CrawlerHelper {
     private static final File stopwordsPath = new File("./src/main/resources/stopwords.txt");
     private static final StopStem stopStem = new StopStem(stopwordsPath.getAbsolutePath());
     private static final String[] blackListLinkStartsWith = {"https://www.cse.ust.hk/Restricted"};
+    private static final String[] blackListLinkEndsWith = {"\\/#$", "\\/#\\/$", "[\\/]+$"};
 
     /**
      * Send an HTTP request and analyze the response.
@@ -79,6 +81,7 @@ abstract class CrawlerHelper {
 
     /**
      * Extract title words from document
+     *
      * @param doc
      * @return
      */
@@ -138,7 +141,7 @@ abstract class CrawlerHelper {
     public static void extractAndPushChildLinksFromParentToUrlQueue(Link parentLink, Vector<String> links, Queue<Link> urlQueue, Set<String> visitedUrls) {
         // Add child links to urlQueue vector
         for (String link : links) {
-            if (link.contains("cse.ust.hk") && !visitedUrls.contains(link)) {
+            if (link.contains("cse.ust.hk")) {
                 boolean skipFlag = false;
                 // Check if the current link is in the blacklist, skip it!
                 for (String blacklist : blackListLinkStartsWith) {
@@ -147,7 +150,16 @@ abstract class CrawlerHelper {
                         break;
                     }
                 }
-                if (skipFlag) continue;
+                for (String blacklist: blackListLinkEndsWith){
+                    if (Pattern.matches("[\\w\\W]+"+blacklist, link)) {
+                        link.replaceAll("[\\w\\W]+"+blacklist, "/");
+                    }
+                }
+
+                if (!link.endsWith("/")) {
+                    link += "/";
+                }
+                if (skipFlag || visitedUrls.contains(link)) continue;
                 urlQueue.add(new Link(link, parentLink.level + 1)); // add links to urlQueue vector
             }
         }
