@@ -195,7 +195,7 @@ public class QueryHandler {
         });
 
         titleAdjPointsMap.forEach((k, v) -> {
-            System.out.println("ADJ " + k + " -> " + v);
+            System.out.println("ADJ TITLE " + k + " -> " + v);
         });
     }
 }

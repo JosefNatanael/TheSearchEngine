@@ -35,3 +35,4 @@ build/
 ### Results and Index ###
 tables/
 spider_result.txt
+pr-scores.ser
