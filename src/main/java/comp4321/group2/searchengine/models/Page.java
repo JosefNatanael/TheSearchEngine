@@ -20,7 +20,6 @@ public class Page implements Serializable {
     private int size;
     private ZonedDateTime lastModified = null;
     private int tfmax;
-    private int length;
     private String url;
 
     public Page() {}

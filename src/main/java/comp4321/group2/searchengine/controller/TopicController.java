@@ -2,16 +2,20 @@ package comp4321.group2.searchengine.controller;
 
 import comp4321.group2.searchengine.apimodels.Topic;
 import comp4321.group2.searchengine.service.TopicsService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.inject.Inject;
 import java.util.List;
 
 @RestController
 public class TopicController {
 
-    @Autowired
-    private TopicsService topicsService;
+    private final TopicsService topicsService;
+
+    @Inject
+    public TopicController(TopicsService topicsService) {
+        this.topicsService = topicsService;
+    }
 
     @RequestMapping("/topics")
     public List<Topic> all_topics() {
