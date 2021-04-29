@@ -6,7 +6,6 @@ import comp4321.group2.searchengine.exceptions.InvalidWordIdConversionException;
 import comp4321.group2.searchengine.precompute.FastCompute;
 import comp4321.group2.searchengine.query.QueryHandler;
 import comp4321.group2.searchengine.repositories.Metadata;
-import comp4321.group2.searchengine.repositories.PageIdToParentIds;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.rocksdb.RocksDBException;
 
@@ -63,9 +62,6 @@ public class FastCrawler {
         // Notifies all running threads to stop scraping
         spawnedThreads.forEach((pair) -> pair.getValue().setStopScraping(true));
 
-//        // Force to stop all threads, running or not
-//        spawnedThreads.forEach((pair) -> pair.getKey().cancel(true));
-
         try {
             latch.await();
             spawnedThreads.forEach((pair) -> pair.getKey().cancel(true));
@@ -84,25 +80,34 @@ public class FastCrawler {
     public static void main(String[] args) throws RocksDBException, InvalidWordIdConversionException, IOException, ClassNotFoundException {
         RocksDBApi.closeAllDBConnections();
         RocksDBApi.connect();
-//        RocksDBApi.reset();
-//        String rootUrl = "https://www.cse.ust.hk/";
-//        FastCrawler crawler = new FastCrawler(rootUrl);
-//        crawler.indexToDB(false);
-//        Metadata.printAll();
-//
-//        FastCompute compute = new FastCompute();
-//        compute.processWordIdToIdfEntries();
-//        compute.processWeightsAndPageLength();
-//        compute.computePageParents();
-//
+        RocksDBApi.reset();
+
+        String rootUrl = "https://www.cse.ust.hk/";
+        FastCrawler crawler = new FastCrawler(rootUrl);
+        crawler.indexToDB(false);
+        Metadata.printAll();
+
+        FastCompute compute = new FastCompute();
+        compute.processWordIdToIdfEntries();
+        compute.processWeightsAndPageLength();
+        compute.computePageParents();
+
 //        PageIdToParentIds.printAll();
 //        URLToPageId.printAll();
 //        WeightIndex.printAll();
 //        WordIdToIdf.printAll();
 //        PageIdToLength.printAll();
 
-        QueryHandler qh = new QueryHandler("The Robo-lawyer system has many applications in different domains.");
-        qh.handle();
+        while (true) {
+            Scanner scanner = new Scanner (System.in);
+            System.out.println("Enter your query (enter :q to quit) :");
+
+            String query = scanner.nextLine();
+            if (query.equals(":q")) break;
+
+            QueryHandler qh = new QueryHandler(query);
+            qh.handle();
+        }
 
         RocksDBApi.closeAllDBConnections();
     }
