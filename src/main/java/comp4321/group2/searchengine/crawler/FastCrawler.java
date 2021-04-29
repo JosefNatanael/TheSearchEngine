@@ -123,6 +123,8 @@ public class FastCrawler {
             compute.processWeightsAndPageLength();
             System.out.println(".........");
             compute.computePageParents();
+            System.out.println("............");
+            compute.computePageRank();
             System.out.println("Completed\n");
         }
 

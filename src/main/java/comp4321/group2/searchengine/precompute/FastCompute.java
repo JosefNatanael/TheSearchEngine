@@ -152,4 +152,9 @@ public class FastCompute {
             }
         }
     }
+
+    public void computePageRank() {
+        PageRankCompute pr = new PageRankCompute(0.85);
+        pr.compute();
+    }
 }
