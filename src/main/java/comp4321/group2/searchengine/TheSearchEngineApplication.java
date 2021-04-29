@@ -26,7 +26,7 @@ public class TheSearchEngineApplication extends SpringBootServletInitializer {
 
 
 //        RocksDBApi.closeAllDBConnections();
-//        RocksDBApi.connect();
+        RocksDBApi.connect(true);
 //        RocksDBApi.reset();
 //        String rootUrl = "https://www.cse.ust.hk/";
 //        FastCrawler crawler = new FastCrawler(rootUrl);

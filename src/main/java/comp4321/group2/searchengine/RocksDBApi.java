@@ -31,6 +31,7 @@ public final class RocksDBApi {
         WeightIndex.connect(isProduction);
         TitleInvertedIndex.connect(isProduction);
         PageIdToParentIds.connect(isProduction);
+        WordIdToWord.connect(isProduction);
     }
 
     public static void reset() throws RocksDBException {
@@ -45,6 +46,7 @@ public final class RocksDBApi {
         WeightIndex.deleteAll();
         TitleInvertedIndex.deleteAll();
         PageIdToParentIds.deleteAll();
+        WordIdToWord.deleteAll();
     }
 
     /**
@@ -101,6 +103,7 @@ public final class RocksDBApi {
             if (wordId == -1) {
                 wordId = Metadata.getLatestIndex(Metadata.Key.WORD);
                 WordToWordId.addEntry(keyword, wordId);
+                WordIdToWord.addEntry(wordId, keyword);
             }
 
             key = WordUtilities.wordIdAndPageIdToDBKey(wordId, pageId);
@@ -186,5 +189,6 @@ public final class RocksDBApi {
         WeightIndex.closeConnection();
         TitleInvertedIndex.closeConnection();
         PageIdToParentIds.closeConnection();
+        WordIdToWord.closeConnection();
     }
 }

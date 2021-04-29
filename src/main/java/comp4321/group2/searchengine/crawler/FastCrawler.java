@@ -167,6 +167,9 @@ public class FastCrawler {
             qh.handle();
         }
         System.out.println("\n\n\t\t\t  Thank You!\n\tWe hope you enjoy our services!\n\n");
+
+
+
         RocksDBApi.closeAllDBConnections();
     }
 }

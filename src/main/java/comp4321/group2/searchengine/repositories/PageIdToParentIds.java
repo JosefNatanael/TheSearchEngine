@@ -55,7 +55,7 @@ public class PageIdToParentIds {
     public static ArrayList<Integer> getValue(int pageId) throws RocksDBException {
         byte[] value = db.get(ByteIntUtilities.convertIntToByteArray(pageId));
 
-        return WordUtilities.stringToIntegerArrayList(new String(value));
+        return value != null ? WordUtilities.stringToIntegerArrayList(new String(value)) : new ArrayList<>();
     }
 
     /**
