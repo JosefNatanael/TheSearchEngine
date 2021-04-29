@@ -4,11 +4,8 @@ import comp4321.group2.searchengine.RocksDBApi;
 import comp4321.group2.searchengine.common.Constants;
 import comp4321.group2.searchengine.exceptions.InvalidWordIdConversionException;
 import comp4321.group2.searchengine.repositories.PageIdToLength;
-import comp4321.group2.searchengine.repositories.WeightIndex;
-import comp4321.group2.searchengine.utils.WordUtilities;
 import org.rocksdb.RocksDBException;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;

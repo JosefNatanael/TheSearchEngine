@@ -3,7 +3,9 @@ package comp4321.group2.searchengine.controller;
 import comp4321.group2.searchengine.apimodels.Query;
 import comp4321.group2.searchengine.apimodels.QueryResults;
 import comp4321.group2.searchengine.apimodels.RelevantQuery;
+import comp4321.group2.searchengine.exceptions.InvalidWordIdConversionException;
 import comp4321.group2.searchengine.service.QueryService;
+import org.rocksdb.RocksDBException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,7 +32,7 @@ public class IndexController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/search")
-    public List<QueryResults> retrieveResults(@RequestBody Query query) {
+    public List<QueryResults> retrieveResults(@RequestBody Query query) throws RocksDBException, InvalidWordIdConversionException {
         return queryService.retrieveResults(query);
     }
 
@@ -40,7 +42,7 @@ public class IndexController {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/relevance")
-    public void postRelevance(@RequestBody RelevantQuery relevantQuery) {
+    public void postRelevance(@RequestBody RelevantQuery relevantQuery) throws RocksDBException {
         queryService.postRelevance(relevantQuery);
     }
 

@@ -7,11 +7,12 @@ import comp4321.group2.searchengine.models.Page;
 import comp4321.group2.searchengine.precompute.PageRankCompute;
 import comp4321.group2.searchengine.repositories.WordToWordId;
 import comp4321.group2.searchengine.utils.MapUtilities;
+import comp4321.group2.searchengine.utils.QueryUtilities;
 import comp4321.group2.searchengine.utils.StopStem;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.MutablePair;
 import org.rocksdb.RocksDBException;
 
-import java.io.File;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -23,44 +24,40 @@ public class QueryHandler {
     }
 
     final String rawQuery;
-    final ArrayList<String> stemmedQuery = new ArrayList<>();
-    final ArrayList<String> unstemmedQuery = new ArrayList<>();
+    private HashSet<String> stemmedQuery = new HashSet<>();
+    private HashSet<String> unstemmedQuery = new HashSet<>();
 
     final Map<Integer, Double> extBoolSimMap = new ConcurrentHashMap<>();
     final Map<Integer, Double> cosSimMap = new ConcurrentHashMap<>();
 
-    final Map<Integer, Double> adjPointsMap = new HashMap<Integer, Double>();
-    final Map<Integer, Double> titleAdjPointsMap = new HashMap<Integer, Double>();
+    final Map<Integer, Double> adjPointsMap = new HashMap<>();
+    final Map<Integer, Double> titleAdjPointsMap = new HashMap<>();
 
     HashMap<Integer, Double> prScoresMap = new HashMap<>();
     Map<Integer, HashMap<Integer, Double>> pageWordWeights = new HashMap<>();
 
-    private static final File stopwordsPath = new File("./src/main/resources/stopwords.txt");
-    private static final StopStem stopStem = new StopStem(stopwordsPath.getAbsolutePath());
-
     public QueryHandler(String query) {
         this.rawQuery = query;
 
-        String[] words = query.split(" ");
-        for (String word : words) {
-            unstemmedQuery.add(word);
-            word = word.replaceAll("\\d", "");
-            String stemmedWord = stopStem.stem(word);
-            if (stopStem.isStopWord(word) || stemmedWord.equals("")) {
-                continue;
-            }
-            stemmedQuery.add(stemmedWord);
-        }
+        MutablePair<ArrayList<String>, ArrayList<String>> pair = StopStem.getStopUnstemStemPair(query);
+        unstemmedQuery = new LinkedHashSet<>(pair.getLeft());
+        stemmedQuery = new LinkedHashSet<>(pair.getRight());
+
+        stemmedQuery = QueryUtilities.extractRandomQuery(stemmedQuery, 20);
+        unstemmedQuery = QueryUtilities.extractRandomQuery(unstemmedQuery, 20);
     }
 
     /**
      *
      */
-    public void handle() throws RocksDBException, InvalidWordIdConversionException {
+    public Map<Integer, Double> handle() throws RocksDBException, InvalidWordIdConversionException {
         ArrayList<Integer> queryWordIds = new ArrayList<>();
         HashSet<Integer> pageIdsSet = new HashSet<>();
+        Map<Integer, Double> totalScores = new HashMap<>();
 
         printQueries();
+
+        if (stemmedQuery.isEmpty()) return totalScores;
 
         // Find Query Word IDs and unique Page IDs
         for (String word : stemmedQuery) {
@@ -72,6 +69,8 @@ public class QueryHandler {
             queryWordIds.add(wordId);
             pageIdsSet.addAll(pageIds);
         }
+
+        if (pageIdsSet.isEmpty()) return totalScores;
 
         // Init maps
         for (int pageId : pageIdsSet) {
@@ -86,24 +85,20 @@ public class QueryHandler {
         calculateAdjPoints(adjPointsMap, stemmedQuery, pageIds, Key.CONTENT);
         calculateAdjPoints(titleAdjPointsMap, unstemmedQuery, pageIds, Key.TITLE);
 
-        PageRankCompute pr = new PageRankCompute(0.85);
-        pr.compute();
-        prScoresMap = pr.getRankMap();
+        prScoresMap = PageRankCompute.readRankFile("pr-scores.ser");
 
         double maxPrScore = MapUtilities.maxUsingStreamAndMethodReference(prScoresMap);
         prScoresMap.replaceAll((k, v) -> v / maxPrScore);
 
-
-        Map<Integer, Double> totalScores = new HashMap<>();
         // Calculate total
         for (int pageId : pageIds) {
             totalScores.put(pageId, 0.2 * extBoolSimMap.get(pageId) + 0.2 * cosSimMap.get(pageId) + 0.2 * adjPointsMap.get(pageId) + 0.5 * titleAdjPointsMap.get(pageId) + 0.2 * prScoresMap.get(pageId));
         }
 
-        totalScores = MapUtilities.sortByValue(totalScores, false);
-
+        totalScores = MapUtilities.sortByValue(totalScores, false, 50);
         printTotalScores(totalScores);
-//        printRanks();
+
+        return totalScores;
     }
 
     private ArrayList<ImmutablePair<Integer, Integer>> initWordStreakLocsArray(ArrayList<Integer> wordLocs) {
@@ -135,11 +130,7 @@ public class QueryHandler {
         }
     }
 
-    private void calculateAdjPoints(Map<Integer, Double> map, ArrayList<String> query, List<Integer> pageIds, Key key) throws InvalidWordIdConversionException, RocksDBException {
-        // Init adjacency points map
-        for (int pageId : pageIds) {
-            map.put(pageId, 0.0);
-        }
+    private void calculateAdjPoints(Map<Integer, Double> map, HashSet<String> query, List<Integer> pageIds, Key key) throws InvalidWordIdConversionException, RocksDBException {
 
         // Implement AdjPoints
         HashMap<Integer, ArrayList<ImmutablePair<Integer, Integer>>> currWordLocsMap = new HashMap<>();
@@ -204,25 +195,15 @@ public class QueryHandler {
     }
 
     private void printRanks() {
-        prScoresMap.forEach((k, v) -> {
-            System.out.println("PR " + k + " -> " + v);
-        });
+        prScoresMap.forEach((k, v) -> System.out.println("PR " + k + " -> " + v));
 
-        extBoolSimMap.forEach((k, v) -> {
-            System.out.println("EXTBOOL " + k + " -> " + v);
-        });
+        extBoolSimMap.forEach((k, v) -> System.out.println("EXTBOOL " + k + " -> " + v));
 
-        cosSimMap.forEach((k, v) -> {
-            System.out.println("COSSIM " + k + " -> " + v);
-        });
+        cosSimMap.forEach((k, v) -> System.out.println("COSSIM " + k + " -> " + v));
 
-        adjPointsMap.forEach((k, v) -> {
-            System.out.println("ADJ " + k + " -> " + v);
-        });
+        adjPointsMap.forEach((k, v) -> System.out.println("ADJ " + k + " -> " + v));
 
-        titleAdjPointsMap.forEach((k, v) -> {
-            System.out.println("ADJ TITLE " + k + " -> " + v);
-        });
+        titleAdjPointsMap.forEach((k, v) -> System.out.println("ADJ TITLE " + k + " -> " + v));
     }
 
     private void printTotalScores(Map<Integer, Double> map) {

@@ -37,8 +37,8 @@ public class WeightIndex {
         }
     }
 
-    public static void addEntry(byte[] key, byte[] values) throws RocksDBException {
-        db.put(key, values);
+    public static void addEntry(byte[] key, byte[] value) throws RocksDBException {
+        db.put(key, value);
     }
 
     //prefix match

@@ -139,7 +139,6 @@ public class FastCompute {
                     }
                 } catch (Exception e) {
                     System.out.println("Exception caught when getting page id");
-                    continue;
                 }
             }
         }
@@ -151,5 +150,10 @@ public class FastCompute {
                 System.out.println("Exception caught when inserting parent ids");
             }
         }
+    }
+
+    public void computePageRank() {
+        PageRankCompute pr = new PageRankCompute(0.85);
+        pr.compute();
     }
 }
