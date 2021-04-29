@@ -96,7 +96,7 @@ public class PageRankCompute {
             out.writeObject(scores);
             out.close();
             fileOut.close();
-            System.out.printf("Serialized data is saved in /pr-scores.ser");
+            System.out.println("Serialized data is saved in /pr-scores.ser");
         } catch (IOException e) {
             e.printStackTrace();
         }

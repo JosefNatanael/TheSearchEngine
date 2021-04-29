@@ -48,18 +48,22 @@ public class QueryRunnable implements Runnable {
 
                 double extBoolSim = 0.0;
                 double cosSim = 0.0;
+                double weight;
 
                 for (int queryWordId : queryWordIds) {
-                    double weight = wordWeights.get(queryWordId);
+                    weight = 0.0;
+                    if(wordWeights.containsKey(queryWordId)){
+                        weight = wordWeights.get(queryWordId);
+                    }
 
                     extBoolSim += Math.pow(weight, 2);
                     cosSim += weight;
                 }
-
-                extBoolSim /= queryWordIds.size();
-                extBoolSim = Math.sqrt(extBoolSim);
-
-                cosSim /= (Math.sqrt(queryWordIds.size()) * pageLen);
+//
+//                extBoolSim /= queryWordIds.size();
+//                extBoolSim = Math.sqrt(extBoolSim);
+//
+//                cosSim /= (Math.sqrt(queryWordIds.size()) * pageLen);
 
                 extBoolSimMap.put(pageId, extBoolSim);
                 cosSimMap.put(pageId, cosSim);
@@ -68,7 +72,10 @@ public class QueryRunnable implements Runnable {
                 System.out.println("RocksDBException caught");
             } catch (InvalidWordIdConversionException e) {
                 System.out.println("InvalidWordIdConversionException caught");
-            } catch (Exception e) {
+            } catch (NullPointerException e) {
+                System.out.println("\n\nNULL POINTER ANJEEENG" + e +"\n\n");
+            }
+            catch (Exception e) {
                 System.out.println(e + " caught");
             }
         }

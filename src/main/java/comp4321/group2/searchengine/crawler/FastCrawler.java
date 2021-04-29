@@ -7,6 +7,7 @@ import comp4321.group2.searchengine.precompute.FastCompute;
 import comp4321.group2.searchengine.query.QueryHandler;
 import comp4321.group2.searchengine.repositories.Metadata;
 import comp4321.group2.searchengine.repositories.PageIdToParentIds;
+import comp4321.group2.searchengine.repositories.URLToPageId;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.rocksdb.RocksDBException;
 
@@ -95,13 +96,13 @@ public class FastCrawler {
         compute.processWeightsAndPageLength();
         compute.computePageParents();
 
-        PageIdToParentIds.printAll();
+//        PageIdToParentIds.printAll();
 //        URLToPageId.printAll();
 //        WeightIndex.printAll();
 //        WordIdToIdf.printAll();
 //        PageIdToLength.printAll();
 
-        QueryHandler qh = new QueryHandler("a contract generator chatbot");
+        QueryHandler qh = new QueryHandler("lee dik lun");
         qh.handle();
 
         RocksDBApi.closeAllDBConnections();

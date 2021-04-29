@@ -193,7 +193,6 @@ co.
 com
 come
 comes
-computer
 con
 concerning
 consequently
