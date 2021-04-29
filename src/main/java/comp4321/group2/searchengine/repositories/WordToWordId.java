@@ -14,14 +14,14 @@ public final class WordToWordId {
 
     private static RocksDB db;
 
-    public static void connect() throws RocksDBException {
+    public static void connect(boolean isProduction) throws RocksDBException {
         // the Options class contains a set of configurable DB options
         // that determines the behaviour of the database.
         Options options = new Options();
         options.setCreateIfMissing(true);
 
         // create the DB if directory does not exist, then open the DB
-        File directory = new File("./src/main/java/tables/WordToWordId");
+        File directory = isProduction ? new File("./src/main/java/tables/WordToWordId") : new File("./src/test/java/tables/WordToWordId");
         String dbPath = directory.getAbsolutePath();
         if (!directory.exists()) {
             directory.mkdir();

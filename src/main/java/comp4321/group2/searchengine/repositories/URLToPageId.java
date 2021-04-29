@@ -14,14 +14,14 @@ public final class URLToPageId {
 
     private static RocksDB db;
 
-    public static void connect() throws RocksDBException {
+    public static void connect(boolean isProduction) throws RocksDBException {
         // the Options class contains a set of configurable DB options
         // that determines the behaviour of the database.
         Options options = new Options();
         options.setCreateIfMissing(true);
 
         // create the DB if directory does not exist, then open the DB
-        File directory = new File("./src/main/java/tables/URLToPageId");
+        File directory = isProduction ? new File("./src/main/java/tables/URLToPageId") : new File("./src/test/java/tables/URLToPageId");
         String dbPath = directory.getAbsolutePath();
         if (!directory.exists()) {
             directory.mkdir();

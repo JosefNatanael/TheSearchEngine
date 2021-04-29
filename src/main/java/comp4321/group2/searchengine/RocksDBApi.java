@@ -15,22 +15,22 @@ import java.util.Map.Entry;
 
 public final class RocksDBApi {
 
-    public static void connect() throws RocksDBException {
-        File directory = new File("./src/main/java/tables/");
+    public static void connect(boolean isProduction) throws RocksDBException {
+        File directory = isProduction ? new File("./src/main/java/tables/") : new File("./src/test/java/tables/");
         if (!directory.exists()) {
             directory.mkdir();
         }
-        InvertedIndex.connect();
-        Metadata.connect();
-        PageIdToData.connect();
-        URLToPageId.connect();
-        WordToWordId.connect();
-        WordIdToIdf.connect();
-        ForwardIndex.connect();
-        PageIdToLength.connect();
-        WeightIndex.connect();
-        TitleInvertedIndex.connect();
-        PageIdToParentIds.connect();
+        InvertedIndex.connect(isProduction);
+        Metadata.connect(isProduction);
+        PageIdToData.connect(isProduction);
+        URLToPageId.connect(isProduction);
+        WordToWordId.connect(isProduction);
+        WordIdToIdf.connect(isProduction);
+        ForwardIndex.connect(isProduction);
+        PageIdToLength.connect(isProduction);
+        WeightIndex.connect(isProduction);
+        TitleInvertedIndex.connect(isProduction);
+        PageIdToParentIds.connect(isProduction);
     }
 
     public static void reset() throws RocksDBException {

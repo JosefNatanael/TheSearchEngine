@@ -98,7 +98,7 @@ public class FastCrawler {
 
     public static void main(String[] args) throws RocksDBException, InvalidWordIdConversionException, IOException, ClassNotFoundException {
         RocksDBApi.closeAllDBConnections();
-        RocksDBApi.connect();
+        RocksDBApi.connect(true);
 
         Scanner scanner = new Scanner(System.in);
 
