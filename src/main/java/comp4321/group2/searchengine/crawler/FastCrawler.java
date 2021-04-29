@@ -9,7 +9,9 @@ import comp4321.group2.searchengine.repositories.Metadata;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.rocksdb.RocksDBException;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.Set;
@@ -44,33 +46,43 @@ public class FastCrawler {
         }
         executor.shutdown();
 
-        Thread threadKiller = new Thread() {
-            public void run(){
-                Scanner sc = new Scanner(System.in);
-//                System.out.println("Return to stop indexing");
-                sc.nextLine();
-//                System.out.println("Notifying all crawler threads to stop now...");
-//
-//                Set<Thread> threads = Thread.getAllStackTraces().keySet();
-//
-//                for (Thread t : threads) {
-//                    String name = t.getName();
-//                    Thread.State state = t.getState();
-//                    int priority = t.getPriority();
-//                    String type = t.isDaemon() ? "Daemon" : "Normal";
-//                    System.out.printf("%-20s \t %s \t %d \t %s\n", name, state, priority, type);
-//                }
+        Thread threadKiller = new Thread(() -> {
 
-                // Notifies all running threads to stop scraping
-                spawnedThreads.forEach((pair) -> pair.getValue().setStopScraping(true));
+            BufferedReader br = new BufferedReader(
+                new InputStreamReader(System.in));
+            System.out.println("Return to stop indexing");
+            String input="";
+            do {
+                try {
+                    // wait until we have data to complete a readLine()
+                    while (!br.ready()) {
+                        Thread.sleep(200);
+                    }
+                    input = br.readLine();
+                } catch (InterruptedException | IOException e) {
+                    System.out.println("Cancelled");
+                }
+            } while ("".equals(input));
+
+            Set<Thread> threads = Thread.getAllStackTraces().keySet();
+
+            for (Thread t : threads) {
+                String name = t.getName();
+                Thread.State state = t.getState();
+                int priority = t.getPriority();
+                String type = t.isDaemon() ? "Daemon" : "Normal";
+                System.out.printf("%-20s \t %s \t %d \t %s\n", name, state, priority, type);
             }
-        };
+
+            // Notifies all running threads to stop scraping
+            spawnedThreads.forEach((pair) -> pair.getValue().setStopScraping(true));
+        });
 
         threadKiller.start();
 
         try {
             latch.await();
-            threadKiller.interrupt();
+            threadKiller.stop();
             spawnedThreads.forEach((pair) -> pair.getKey().cancel(true));
         } catch (InterruptedException ex) {
             System.out.println(ex.getMessage());
@@ -91,10 +103,10 @@ public class FastCrawler {
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("\n\n\t\tWelcome to The Search Engine!\n\n");
-        System.out.println("Do you want to crawl and index a new database? (y/n)");
+        System.out.println("To crawl or not to crawl? (c/n)");
         String isIndex_string = scanner.nextLine();
-        if(isIndex_string.trim().toLowerCase().equals("y")){
-            System.out.println("Do you want to start from scratch? (y/n)");
+        if(isIndex_string.trim().toLowerCase().equals("c")){
+            System.out.println("From scratch or not from scratch? (s/n)");
             String fromScratch_string = scanner.nextLine();
             boolean checkLastModified =  true;
             int minNumCrawled;
@@ -112,7 +124,7 @@ public class FastCrawler {
                 }
             }
 
-            if(fromScratch_string.trim().toLowerCase().equals("y")){
+            if(fromScratch_string.trim().toLowerCase().equals("s")){
                 System.out.println("Resetting database...");
                 RocksDBApi.reset();
                 checkLastModified = false;
@@ -144,11 +156,6 @@ public class FastCrawler {
 //        WordIdToIdf.printAll();
 //        PageIdToLength.printAll();
 
-        System.out.println("Press Return to start the backend service...");
-        //baru function start spring applications
-        // SpringApplication.run(TheSearchEngineApplication.class, args);
-
-        //debugging purposes
         while (true) {
             System.out.println("\nEnter your query (enter :q to quit) :");
 //            scanner.nextLine();
