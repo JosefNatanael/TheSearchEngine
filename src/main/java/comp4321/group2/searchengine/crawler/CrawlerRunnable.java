@@ -25,12 +25,14 @@ public class CrawlerRunnable implements Runnable {
     private final CountDownLatch latch;
     private final boolean checkLastModified;
     private volatile boolean stopScraping = false;
+    private int maxNumIndex;
 
-    public CrawlerRunnable(BlockingQueue<Link> urlQueue, Set<String> urls, CountDownLatch latch, boolean checkLastModified) {
+    public CrawlerRunnable(BlockingQueue<Link> urlQueue, Set<String> urls, CountDownLatch latch, boolean checkLastModified, int maxNumIndex) {
         this.urlQueue = urlQueue;
         this.urls = urls;
         this.latch = latch;
         this.checkLastModified = checkLastModified;
+        this.maxNumIndex = maxNumIndex;
     }
 
     public boolean getStopScraping() {
@@ -91,6 +93,8 @@ public class CrawlerRunnable implements Runnable {
                 ForwardIndex.addEntry(pageId, wordIds);
 
                 System.out.println("Indexed: " + currentLink.url);
+
+//                if(pageId >= maxNumIndex-1) break;
 
             } catch (Exception e) {
                 System.out.println(e + " caught");
