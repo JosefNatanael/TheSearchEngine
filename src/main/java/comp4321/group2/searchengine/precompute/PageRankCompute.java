@@ -59,7 +59,6 @@ public class PageRankCompute {
                     linkGraph.addEdge(pageId, childPageId);
                 } catch (Exception e) {
                     System.out.println("Exception caught when getting page id");
-                    continue;
                 }
             }
         }
@@ -97,7 +96,7 @@ public class PageRankCompute {
             out.close();
             fileOut.close();
 
-            System.out.printf("Serialized data is saved in /pr-scores.ser\n");
+            System.out.print("Serialized data is saved in /pr-scores.ser\n");
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -12,14 +12,11 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.regex.Pattern;
 
 abstract class CrawlerHelper {
-    private static final File stopwordsPath = new File("./src/main/resources/stopwords.txt");
-    private static final StopStem stopStem = new StopStem(stopwordsPath.getAbsolutePath());
     private static final String[] blackListLinkStartsWith = {"https://www.cse.ust.hk/Restricted"};
     private static final String[] blackListLinkRegex = {"\\/#$", "\\/#\\/$", "[\\/]+$"};
 
@@ -89,6 +86,7 @@ abstract class CrawlerHelper {
             return result;
         }
         String contents = doc.title();
+        contents.replaceAll("[^a-zA-Z ]", "").toLowerCase().split("\\s+");
         StringTokenizer st = new StringTokenizer(contents);
         while (st.hasMoreTokens()) {
             result.add(st.nextToken());
@@ -183,8 +181,8 @@ abstract class CrawlerHelper {
         for (int i = 0; i < words.size(); ++i) {
             String currWord = words.get(i);
             currWord = currWord.replaceAll("\\d", "");
-            String stemmedWord = stopStem.stem(currWord);
-            if (stopStem.isStopWord(currWord) || stemmedWord.equals("")) {
+            String stemmedWord = StopStem.stem(currWord);
+            if (StopStem.isStopWord(currWord) || stemmedWord.equals("")) {
                 continue;
             }
             if (wordToWordLocationMap.containsKey(stemmedWord)) {

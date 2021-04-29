@@ -10,7 +10,7 @@ import java.util.List;
 @Service
 public class TopicsService {
 
-    private List<Topic> topicList = new ArrayList<>(Arrays.asList(
+    private final List<Topic> topicList = new ArrayList<>(Arrays.asList(
 
         new Topic("_spring", "_Spring FrameWork", "_Spring Description"),
         new Topic("spring", "Spring FrameWork", "Spring Description"),

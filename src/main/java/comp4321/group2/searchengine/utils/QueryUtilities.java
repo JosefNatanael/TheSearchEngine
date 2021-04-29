@@ -1,9 +1,6 @@
 package comp4321.group2.searchengine.utils;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class QueryUtilities {
     public static HashSet<String> extractRandomQuery(HashSet<String> query, int limit) {
@@ -20,6 +17,6 @@ public class QueryUtilities {
             list.remove(indexToRemove);
         }
 
-        return new HashSet<>(list);
+        return new LinkedHashSet<>(list);
     }
 }
