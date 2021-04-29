@@ -45,14 +45,14 @@ public class TheSearchEngineApplication extends SpringBootServletInitializer {
     public static void startIndexer() {
         String rootUrl = "https://www.cse.ust.hk/";
         FastCrawler crawler = new FastCrawler(rootUrl);
-        crawler.indexToDB(false);
+        crawler.indexToDB(false, 100);
     }
 
     public void completed()
         throws RocksDBException, InvalidWordIdConversionException {
         String rootUrl = "https://www.cse.ust.hk/";
         FastCrawler crawler = new FastCrawler(rootUrl);
-        crawler.indexToDB(false);
+        crawler.indexToDB(false, 100);
 
         //iterate each word ID, compute idf, length
         HashMap<String, Integer> wordToWordID = WordToWordId.getAll();

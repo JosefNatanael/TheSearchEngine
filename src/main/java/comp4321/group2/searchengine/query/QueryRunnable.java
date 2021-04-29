@@ -69,10 +69,7 @@ public class QueryRunnable implements Runnable {
                 System.out.println("RocksDBException caught");
             } catch (InvalidWordIdConversionException e) {
                 System.out.println("InvalidWordIdConversionException caught");
-            } catch (NullPointerException e) {
-                System.out.println("\n\nNULL POINTER ANJEEENG" + e +"\n\n");
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 System.out.println(e + " caught");
             }
         }
