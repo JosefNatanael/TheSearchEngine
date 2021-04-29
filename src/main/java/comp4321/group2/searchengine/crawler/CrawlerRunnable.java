@@ -58,17 +58,24 @@ public class CrawlerRunnable implements Runnable {
                 String lastModified = res.header("last-modified");
                 Document currentDoc = res.parse();
                 Vector<String> links = CrawlerHelper.extractLinks(currentDoc);
+                CrawlerHelper.extractAndPushChildLinksFromParentToUrlQueue(currentLink, links, urlQueue, urls);
 
                 if (checkLastModified) {
-                    int pageId = URLToPageId.getValue(currentLink.url);
-                    ZonedDateTime converted_lastModified = ZonedDateTime.parse(lastModified, DateTimeFormatter.RFC_1123_DATE_TIME);
+                    int urlPageId = URLToPageId.getValue(currentLink.url);
+                    ZonedDateTime converted_lastModified = null;
+                    if(lastModified != null){
+                        converted_lastModified = ZonedDateTime.parse(lastModified, DateTimeFormatter.RFC_1123_DATE_TIME);
+                    }
 
-                    if (pageId >= 0 && converted_lastModified == PageIdToData.getValue(pageId).getLastModified()) {
+                    if (urlPageId >= 0 && converted_lastModified == PageIdToData.getValue(urlPageId).getLastModified()) {
+
+                        if(urlPageId >= minNumCrawled-1) {
+                            break;
+                        }
                         continue;
                     }
                 }
 
-                CrawlerHelper.extractAndPushChildLinksFromParentToUrlQueue(currentLink, links, urlQueue, urls);
                 HashMap<String, ArrayList<Integer>> wordToWordLocations = CrawlerHelper.extractCleanedWordLocationsMap(
                     currentDoc
                 );

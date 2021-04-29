@@ -44,26 +44,33 @@ public class FastCrawler {
         }
         executor.shutdown();
 
-//        Scanner sc = new Scanner(System.in);
-//        System.out.println("Return to stop indexing");
-//        sc.nextLine();
-//        System.out.println("Notifying all crawler threads to stop now...");
+        Thread threadKiller = new Thread() {
+            public void run(){
+                Scanner sc = new Scanner(System.in);
+//                System.out.println("Return to stop indexing");
+                sc.nextLine();
+//                System.out.println("Notifying all crawler threads to stop now...");
 //
-//        Set<Thread> threads = Thread.getAllStackTraces().keySet();
+//                Set<Thread> threads = Thread.getAllStackTraces().keySet();
 //
-//        for (Thread t : threads) {
-//            String name = t.getName();
-//            Thread.State state = t.getState();
-//            int priority = t.getPriority();
-//            String type = t.isDaemon() ? "Daemon" : "Normal";
-//            System.out.printf("%-20s \t %s \t %d \t %s\n", name, state, priority, type);
-//        }
-//
-//        // Notifies all running threads to stop scraping
-//        spawnedThreads.forEach((pair) -> pair.getValue().setStopScraping(true));
+//                for (Thread t : threads) {
+//                    String name = t.getName();
+//                    Thread.State state = t.getState();
+//                    int priority = t.getPriority();
+//                    String type = t.isDaemon() ? "Daemon" : "Normal";
+//                    System.out.printf("%-20s \t %s \t %d \t %s\n", name, state, priority, type);
+//                }
+
+                // Notifies all running threads to stop scraping
+                spawnedThreads.forEach((pair) -> pair.getValue().setStopScraping(true));
+            }
+        };
+
+        threadKiller.start();
 
         try {
             latch.await();
+            threadKiller.interrupt();
             spawnedThreads.forEach((pair) -> pair.getKey().cancel(true));
         } catch (InterruptedException ex) {
             System.out.println(ex.getMessage());
@@ -135,6 +142,11 @@ public class FastCrawler {
 //        WordIdToIdf.printAll();
 //        PageIdToLength.printAll();
 
+        System.out.println("Press Return to start the backend service...");
+        //baru function start spring applications
+        // SpringApplication.run(TheSearchEngineApplication.class, args);
+
+        //debugging purposes
         while (true) {
             System.out.println("\nEnter your query (enter :q to quit) :");
 //            scanner.nextLine();
