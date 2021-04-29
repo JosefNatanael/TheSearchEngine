@@ -62,9 +62,6 @@ public class FastCrawler {
         // Notifies all running threads to stop scraping
         spawnedThreads.forEach((pair) -> pair.getValue().setStopScraping(true));
 
-//        // Force to stop all threads, running or not
-//        spawnedThreads.forEach((pair) -> pair.getKey().cancel(true));
-
         try {
             latch.await();
             spawnedThreads.forEach((pair) -> pair.getKey().cancel(true));
