@@ -44,23 +44,23 @@ public class FastCrawler {
         }
         executor.shutdown();
 
-        Scanner sc = new Scanner(System.in);
-        System.out.println("Return to stop indexing");
-        sc.nextLine();
-        System.out.println("Notifying all crawler threads to stop now...");
-
-        Set<Thread> threads = Thread.getAllStackTraces().keySet();
-
-        for (Thread t : threads) {
-            String name = t.getName();
-            Thread.State state = t.getState();
-            int priority = t.getPriority();
-            String type = t.isDaemon() ? "Daemon" : "Normal";
-            System.out.printf("%-20s \t %s \t %d \t %s\n", name, state, priority, type);
-        }
-
-        // Notifies all running threads to stop scraping
-        spawnedThreads.forEach((pair) -> pair.getValue().setStopScraping(true));
+//        Scanner sc = new Scanner(System.in);
+//        System.out.println("Return to stop indexing");
+//        sc.nextLine();
+//        System.out.println("Notifying all crawler threads to stop now...");
+//
+//        Set<Thread> threads = Thread.getAllStackTraces().keySet();
+//
+//        for (Thread t : threads) {
+//            String name = t.getName();
+//            Thread.State state = t.getState();
+//            int priority = t.getPriority();
+//            String type = t.isDaemon() ? "Daemon" : "Normal";
+//            System.out.printf("%-20s \t %s \t %d \t %s\n", name, state, priority, type);
+//        }
+//
+//        // Notifies all running threads to stop scraping
+//        spawnedThreads.forEach((pair) -> pair.getValue().setStopScraping(true));
 
         try {
             latch.await();
@@ -90,15 +90,15 @@ public class FastCrawler {
             System.out.println("Do you want to start from scratch? (y/n)");
             String fromScratch_string = scanner.nextLine();
             boolean checkLastModified =  true;
-            int maxNumIndex;
+            int minNumCrawled;
 
             while(true){
-                System.out.println("Enter max number of page you wish to index: (-1 for default)");
-                String maxNum_string = scanner.nextLine();
+                System.out.println("Enter minimum number of page you wish to index: (-1 for default)");
+                String minNumCrawled_string = scanner.nextLine();
 
                 try{
-                    int n = Integer.parseInt(maxNum_string);
-                    maxNumIndex = n == -1 ? 4000 : n;
+                    int n = Integer.parseInt(minNumCrawled_string);
+                    minNumCrawled = n == -1 ? 4000 : n;
                     break;
                 } catch (NumberFormatException e){
                     System.out.println("Please enter an integer");
@@ -114,7 +114,7 @@ public class FastCrawler {
             String rootUrl = "https://www.cse.ust.hk/";
 
             FastCrawler crawler = new FastCrawler(rootUrl);
-            crawler.indexToDB(checkLastModified, maxNumIndex);
+            crawler.indexToDB(checkLastModified, minNumCrawled);
 
             System.out.println("Precomputing\n...");
             FastCompute compute = new FastCompute();
@@ -126,8 +126,8 @@ public class FastCrawler {
             System.out.println("Completed\n");
         }
 
-//        System.out.println("Indexed data:");
-//        Metadata.printAll();
+        System.out.println("Indexed data:");
+        Metadata.printAll();
 
 //        PageIdToParentIds.printAll();
 //        URLToPageId.printAll();
