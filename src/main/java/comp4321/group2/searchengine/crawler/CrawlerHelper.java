@@ -21,7 +21,6 @@ abstract class CrawlerHelper {
     private static final File stopwordsPath = new File("./src/main/resources/stopwords.txt");
     private static final StopStem stopStem = new StopStem(stopwordsPath.getAbsolutePath());
     private static final String[] blackListLinkStartsWith = {"https://www.cse.ust.hk/Restricted"};
-    private static final String[] blackListLinkEndsWith = {".jpg", ".pdf", ".JPG", ".png"};
     private static final String[] blackListLinkRegex = {"\\/#$", "\\/#\\/$", "[\\/]+$"};
 
     /**
@@ -41,6 +40,7 @@ abstract class CrawlerHelper {
         try {
             /* establish the connection and retrieve the response */
             res = conn.execute();
+            if (!res.contentType().contains("text/html")) throw new NonHTMLException();
             /* if the link redirects to other place... */
             if (res.hasHeader("location")) {
                 String actual_url = res.header("location");
@@ -52,7 +52,7 @@ abstract class CrawlerHelper {
             } else {
                 visitedUrls.add(url);
             }
-        } catch (HttpStatusException e) {
+        } catch (HttpStatusException | NonHTMLException e) {
             visitedUrls.add(url);
             throw e;
         } finally {
@@ -148,15 +148,10 @@ abstract class CrawlerHelper {
                         break;
                     }
                 }
-                for (String blacklist : blackListLinkEndsWith) {
-                    if (link.endsWith(blacklist)) {
-                        skipFlag = true;
-                        break;
-                    }
-                }
-                for (String blacklist: blackListLinkRegex){
-                    if (Pattern.matches("[\\w\\W]+\\w"+blacklist, link)) {
-                        link = link.replaceAll("([\\w\\W]+\\w)"+blacklist, "$1/");
+
+                for (String blacklist : blackListLinkRegex) {
+                    if (Pattern.matches("[\\w\\W]+\\w" + blacklist, link)) {
+                        link = link.replaceAll("([\\w\\W]+\\w)" + blacklist, "$1/");
                     }
                 }
 

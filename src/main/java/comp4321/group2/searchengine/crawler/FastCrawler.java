@@ -84,24 +84,24 @@ public class FastCrawler {
     public static void main(String[] args) throws RocksDBException, InvalidWordIdConversionException, IOException, ClassNotFoundException {
         RocksDBApi.closeAllDBConnections();
         RocksDBApi.connect();
-        RocksDBApi.reset();
-        String rootUrl = "https://www.cse.ust.hk/";
-        FastCrawler crawler = new FastCrawler(rootUrl);
-        crawler.indexToDB(false);
-        Metadata.printAll();
-
-        FastCompute compute = new FastCompute();
-        compute.processWordIdToIdfEntries();
-        compute.processWeightsAndPageLength();
-        compute.computePageParents();
-
-        PageIdToParentIds.printAll();
+//        RocksDBApi.reset();
+//        String rootUrl = "https://www.cse.ust.hk/";
+//        FastCrawler crawler = new FastCrawler(rootUrl);
+//        crawler.indexToDB(false);
+//        Metadata.printAll();
+//
+//        FastCompute compute = new FastCompute();
+//        compute.processWordIdToIdfEntries();
+//        compute.processWeightsAndPageLength();
+//        compute.computePageParents();
+//
+//        PageIdToParentIds.printAll();
 //        URLToPageId.printAll();
 //        WeightIndex.printAll();
 //        WordIdToIdf.printAll();
 //        PageIdToLength.printAll();
 
-        QueryHandler qh = new QueryHandler("a contract generator chatbot");
+        QueryHandler qh = new QueryHandler("The Robo-lawyer system has many applications in different domains.");
         qh.handle();
 
         RocksDBApi.closeAllDBConnections();
