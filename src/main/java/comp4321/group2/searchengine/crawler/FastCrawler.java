@@ -51,7 +51,7 @@ public class FastCrawler {
             BufferedReader br = new BufferedReader(
                 new InputStreamReader(System.in));
             System.out.println("Return to stop indexing");
-            String input="";
+            String input = "a";
             do {
                 try {
                     // wait until we have data to complete a readLine()
@@ -62,7 +62,7 @@ public class FastCrawler {
                 } catch (InterruptedException | IOException e) {
                     System.out.println("Cancelled");
                 }
-            } while ("".equals(input));
+            } while ("a".equals(input));
 
             Set<Thread> threads = Thread.getAllStackTraces().keySet();
 
