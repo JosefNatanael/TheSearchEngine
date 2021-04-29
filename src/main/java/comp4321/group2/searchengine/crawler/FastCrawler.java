@@ -6,7 +6,6 @@ import comp4321.group2.searchengine.exceptions.InvalidWordIdConversionException;
 import comp4321.group2.searchengine.precompute.FastCompute;
 import comp4321.group2.searchengine.query.QueryHandler;
 import comp4321.group2.searchengine.repositories.Metadata;
-import comp4321.group2.searchengine.repositories.PageIdToParentIds;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.rocksdb.RocksDBException;
 
@@ -95,14 +94,23 @@ public class FastCrawler {
         compute.processWeightsAndPageLength();
         compute.computePageParents();
 
-        PageIdToParentIds.printAll();
+//        PageIdToParentIds.printAll();
 //        URLToPageId.printAll();
 //        WeightIndex.printAll();
 //        WordIdToIdf.printAll();
 //        PageIdToLength.printAll();
 
-        QueryHandler qh = new QueryHandler("a contract generator chatbot");
-        qh.handle();
+        while (true) {
+            Scanner scanner = new Scanner (System.in);
+            System.out.println("Enter your query (enter :q to quit) :");
+            scanner.nextLine();
+
+            String query = scanner.nextLine();
+            if (query.equals(":q")) break;
+
+            QueryHandler qh = new QueryHandler(query);
+            qh.handle();
+        }
 
         RocksDBApi.closeAllDBConnections();
     }
