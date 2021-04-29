@@ -60,6 +60,8 @@ public class QueryHandler {
         ArrayList<Integer> queryWordIds = new ArrayList<>();
         HashSet<Integer> pageIdsSet = new HashSet<>();
 
+        printQueries();
+
         // Find Query Word IDs and unique Page IDs
         for (String word : stemmedQuery) {
             int wordId = WordToWordId.getValue(word);
@@ -95,12 +97,13 @@ public class QueryHandler {
         Map<Integer, Double> totalScores = new HashMap<>();
         // Calculate total
         for (int pageId : pageIds) {
-            totalScores.put(pageId, 0.2 * extBoolSimMap.get(pageId) + 0.2 * cosSimMap.get(pageId) + 0.2 * adjPointsMap.get(pageId) + 0.2 * titleAdjPointsMap.get(pageId) + 0.2 * prScoresMap.get(pageId));
+            totalScores.put(pageId, 0.2 * extBoolSimMap.get(pageId) + 0.2 * cosSimMap.get(pageId) + 0.2 * adjPointsMap.get(pageId) + 0.5 * titleAdjPointsMap.get(pageId) + 0.2 * prScoresMap.get(pageId));
         }
 
         totalScores = MapUtilities.sortByValue(totalScores, false);
 
         printTotalScores(totalScores);
+//        printRanks();
     }
 
     private ArrayList<ImmutablePair<Integer, Integer>> initWordStreakLocsArray(ArrayList<Integer> wordLocs) {
@@ -195,7 +198,9 @@ public class QueryHandler {
         }
 
         double maxAdjPoints = MapUtilities.maxUsingStreamAndMethodReference(map);
-        map.replaceAll((k, v) -> v / maxAdjPoints);
+        if (maxAdjPoints != 0.0) {
+            map.replaceAll((k, v) -> v / maxAdjPoints);
+        }
     }
 
     private void printRanks() {
@@ -229,5 +234,18 @@ public class QueryHandler {
                 e.printStackTrace();
             }
         });
+    }
+
+    private void printQueries() {
+        System.out.println("\nStemmed query :");
+        for (String query : stemmedQuery) {
+            System.out.println(query);
+        }
+
+        System.out.println("\nUnstemmed query :");
+        for (String query : unstemmedQuery) {
+            System.out.println(query);
+        }
+        System.out.println();
     }
 }

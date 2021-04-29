@@ -6,8 +6,11 @@ import comp4321.group2.searchengine.exceptions.InvalidWordIdConversionException;
 import comp4321.group2.searchengine.precompute.FastCompute;
 import comp4321.group2.searchengine.query.QueryHandler;
 import comp4321.group2.searchengine.repositories.Metadata;
+<<<<<<< HEAD
+=======
 import comp4321.group2.searchengine.repositories.PageIdToParentIds;
 import comp4321.group2.searchengine.repositories.URLToPageId;
+>>>>>>> bdd41f27b6b6ea7aef5a9815ca4100d84d30c6bb
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.rocksdb.RocksDBException;
 
@@ -102,8 +105,17 @@ public class FastCrawler {
 //        WordIdToIdf.printAll();
 //        PageIdToLength.printAll();
 
-        QueryHandler qh = new QueryHandler("lee dik lun");
-        qh.handle();
+        while (true) {
+            Scanner scanner = new Scanner (System.in);
+            System.out.println("Enter your query (enter :q to quit) :");
+            scanner.nextLine();
+
+            String query = scanner.nextLine();
+            if (query.equals(":q")) break;
+
+            QueryHandler qh = new QueryHandler(query);
+            qh.handle();
+        }
 
         RocksDBApi.closeAllDBConnections();
     }
