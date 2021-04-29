@@ -14,6 +14,9 @@ public final class Constants {
     public static final int numCrawlerThreads = 256;
     public static final int millisTimeout = 3000;
 
+    // Relevance feedback
+    public static final double relevanceMultiplier = 1.1;
+
     // Database names
     public static final String pageIdToDataName = "pageIdToDataDB";
     public static final String invertedIndexName = "invertedIndexDB";

@@ -9,9 +9,9 @@ import comp4321.group2.searchengine.repositories.WordToWordId;
 import comp4321.group2.searchengine.utils.MapUtilities;
 import comp4321.group2.searchengine.utils.StopStem;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.MutablePair;
 import org.rocksdb.RocksDBException;
 
-import java.io.File;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -23,34 +23,23 @@ public class QueryHandler {
     }
 
     final String rawQuery;
-    final ArrayList<String> stemmedQuery = new ArrayList<>();
-    final ArrayList<String> unstemmedQuery = new ArrayList<>();
+    private ArrayList<String> stemmedQuery = new ArrayList<>();
+    private ArrayList<String> unstemmedQuery = new ArrayList<>();
 
     final Map<Integer, Double> extBoolSimMap = new ConcurrentHashMap<>();
     final Map<Integer, Double> cosSimMap = new ConcurrentHashMap<>();
 
-    final Map<Integer, Double> adjPointsMap = new HashMap<Integer, Double>();
-    final Map<Integer, Double> titleAdjPointsMap = new HashMap<Integer, Double>();
+    final Map<Integer, Double> adjPointsMap = new HashMap<>();
+    final Map<Integer, Double> titleAdjPointsMap = new HashMap<>();
 
     HashMap<Integer, Double> prScoresMap = new HashMap<>();
     Map<Integer, HashMap<Integer, Double>> pageWordWeights = new HashMap<>();
 
-    private static final File stopwordsPath = new File("./src/main/resources/stopwords.txt");
-    private static final StopStem stopStem = new StopStem(stopwordsPath.getAbsolutePath());
-
     public QueryHandler(String query) {
         this.rawQuery = query;
-
-        String[] words = query.split(" ");
-        for (String word : words) {
-            unstemmedQuery.add(word);
-            word = word.replaceAll("\\d", "");
-            String stemmedWord = stopStem.stem(word);
-            if (stopStem.isStopWord(word) || stemmedWord.equals("")) {
-                continue;
-            }
-            stemmedQuery.add(stemmedWord);
-        }
+        MutablePair<ArrayList<String>, ArrayList<String>> pair = StopStem.getStopUnstemStemPair(query);
+        unstemmedQuery = pair.getLeft();
+        stemmedQuery = pair.getRight();
     }
 
     /**
@@ -204,25 +193,15 @@ public class QueryHandler {
     }
 
     private void printRanks() {
-        prScoresMap.forEach((k, v) -> {
-            System.out.println("PR " + k + " -> " + v);
-        });
+        prScoresMap.forEach((k, v) -> System.out.println("PR " + k + " -> " + v));
 
-        extBoolSimMap.forEach((k, v) -> {
-            System.out.println("EXTBOOL " + k + " -> " + v);
-        });
+        extBoolSimMap.forEach((k, v) -> System.out.println("EXTBOOL " + k + " -> " + v));
 
-        cosSimMap.forEach((k, v) -> {
-            System.out.println("COSSIM " + k + " -> " + v);
-        });
+        cosSimMap.forEach((k, v) -> System.out.println("COSSIM " + k + " -> " + v));
 
-        adjPointsMap.forEach((k, v) -> {
-            System.out.println("ADJ " + k + " -> " + v);
-        });
+        adjPointsMap.forEach((k, v) -> System.out.println("ADJ " + k + " -> " + v));
 
-        titleAdjPointsMap.forEach((k, v) -> {
-            System.out.println("ADJ TITLE " + k + " -> " + v);
-        });
+        titleAdjPointsMap.forEach((k, v) -> System.out.println("ADJ TITLE " + k + " -> " + v));
     }
 
     private void printTotalScores(Map<Integer, Double> map) {

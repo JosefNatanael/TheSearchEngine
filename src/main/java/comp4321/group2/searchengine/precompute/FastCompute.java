@@ -139,7 +139,6 @@ public class FastCompute {
                     }
                 } catch (Exception e) {
                     System.out.println("Exception caught when getting page id");
-                    continue;
                 }
             }
         }
