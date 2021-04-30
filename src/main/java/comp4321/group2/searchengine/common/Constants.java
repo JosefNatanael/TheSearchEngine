@@ -16,6 +16,7 @@ public final class Constants {
 
     // Relevance feedback
     public static final double relevanceMultiplier = 1.1;
+    public static final double irrelevanceMultiplier = 0.9;
 
     // Database names
     public static final String pageIdToDataName = "pageIdToDataDB";
