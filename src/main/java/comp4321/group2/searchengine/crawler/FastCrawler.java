@@ -105,26 +105,26 @@ public class FastCrawler {
         System.out.println("\n\n\t\tWelcome to The Search Engine!\n\n");
         System.out.println("To crawl or not to crawl? (c/n)");
         String isIndex_string = scanner.nextLine();
-        if(isIndex_string.trim().toLowerCase().equals("c")){
+        if (isIndex_string.trim().equalsIgnoreCase("c")) {
             System.out.println("From scratch or not from scratch? (s/n)");
             String fromScratch_string = scanner.nextLine();
-            boolean checkLastModified =  true;
+            boolean checkLastModified = true;
             int minNumCrawled;
 
-            while(true){
+            while (true) {
                 System.out.println("Enter minimum number of page you wish to index: (-1 for default)");
                 String minNumCrawled_string = scanner.nextLine();
 
-                try{
+                try {
                     int n = Integer.parseInt(minNumCrawled_string);
                     minNumCrawled = n == -1 ? 4000 : n;
                     break;
-                } catch (NumberFormatException e){
+                } catch (NumberFormatException e) {
                     System.out.println("Please enter an integer");
                 }
             }
 
-            if(fromScratch_string.trim().toLowerCase().equals("s")){
+            if (fromScratch_string.trim().toLowerCase().equals("s")) {
                 System.out.println("Resetting database...");
                 RocksDBApi.reset();
                 checkLastModified = false;
@@ -150,15 +150,8 @@ public class FastCrawler {
         System.out.println("Indexed data:");
         Metadata.printAll();
 
-//        PageIdToParentIds.printAll();
-//        URLToPageId.printAll();
-//        WeightIndex.printAll();
-//        WordIdToIdf.printAll();
-//        PageIdToLength.printAll();
-
         while (true) {
             System.out.println("\nEnter your query (enter :q to quit) :");
-//            scanner.nextLine();
 
             String query = scanner.nextLine();
             if (query.equals(":q")) break;
@@ -167,8 +160,6 @@ public class FastCrawler {
             qh.handle();
         }
         System.out.println("\n\n\t\t\t  Thank You!\n\tWe hope you enjoy our services!\n\n");
-
-
 
         RocksDBApi.closeAllDBConnections();
     }

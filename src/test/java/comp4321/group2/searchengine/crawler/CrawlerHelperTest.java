@@ -1,11 +1,13 @@
 package comp4321.group2.searchengine.crawler;
 
-import comp4321.group2.searchengine.utils.StopStem;
+import org.jsoup.Connection;
+import org.jsoup.nodes.Document;
+import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.Vector;
+import java.io.IOException;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -13,6 +15,16 @@ import java.util.concurrent.LinkedBlockingQueue;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CrawlerHelperTest {
+
+    private Document sampleDocument;
+
+    @BeforeEach
+    public void starter() throws IOException {
+        Set<String> visitedUrls = new HashSet<>();
+        String url = "https://www.cse.ust.hk/";
+        Connection.Response res = CrawlerHelper.getResponse(url, visitedUrls);
+        sampleDocument = res.parse();
+    }
 
     @Test
     void extractAndPushChildLinksFromParentToUrlQueue() {
@@ -40,15 +52,52 @@ class CrawlerHelperTest {
     }
 
     @Test
+    void getResponseTester() throws IOException {
+        Set<String> visitedUrls = new HashSet<>();
+        String url = "https://www.cse.ust.hk/";
+        Connection.Response res = CrawlerHelper.getResponse(url, visitedUrls);
+        int size = res.bodyAsBytes().length;
+        Document currentDoc = res.parse();
+        assertTrue(size > 0);
+        assertNotNull(currentDoc);
+    }
+
+    @Test
     void extractWordsTest() {
         Vector<String> result = new Vector<>();
+        String[] expectedArray = {"The", "department", "offers", "two", "major", "programs.", "COMP", "is", "our", "general."};
+        Vector<String> expected = new Vector<String>(Arrays.asList(expectedArray));
 
-        String contents = "The department offers two major programs. COMP is our general undergraduate degree program. It provides a broad education in all core areas of Computer Science, while allowing students the flexibility to pursue individual interests in higher-level areas. COSC is a special program catered only to students wishing to double-major with other degrees. Thus, it offers more flexibility in fulfilling the requirements. Additionally, we offer interdisciplinary joint programs with other departments. For details on all of these programs, please refer to the links below.";
+        String contents = "The department offers two major programs. COMP is our general.";
         StringTokenizer st = new StringTokenizer(contents);
         while (st.hasMoreTokens()) {
             result.add(st.nextToken());
         }
 
-        result.forEach(word -> System.out.println(StopStem.stem(word)));
+        for (int i = 0; i < result.size(); ++i) {
+            assertEquals(expected.get(i), result.get(i));
+        }
+    }
+
+    @Test
+    void extractTitle() {
+        Vector<String> vec = CrawlerHelper.extractTitle(sampleDocument);
+        String[] exp = {"Department", "of", "Computer", "Science", "and", "Engineering", "-", "HKUST"};
+        assertArrayEquals(exp, vec.toArray());
+    }
+
+    @Test
+    void extractCleanedTitleWordLocationsMap() {
+        HashMap<String, ArrayList<Integer>> result = CrawlerHelper.extractCleanedTitleWordLocationsMap(sampleDocument);
+        HashMap<String, ArrayList<Integer>> exp = new HashMap<>();
+        exp.put("computer", new ArrayList<Integer>(){{add(2);}});
+        exp.put("and", new ArrayList<Integer>(){{add(4);}});
+        exp.put("of", new ArrayList<Integer>(){{add(1);}});
+        exp.put("science", new ArrayList<Integer>(){{add(3);}});
+        exp.put("hkust", new ArrayList<Integer>(){{add(7);}});
+        exp.put("engineering", new ArrayList<Integer>(){{add(5);}});
+        exp.put("department", new ArrayList<Integer>(){{add(0);}});
+        exp.put("-", new ArrayList<Integer>(){{add(6);}});
+        assertEquals(result, exp);
     }
 }

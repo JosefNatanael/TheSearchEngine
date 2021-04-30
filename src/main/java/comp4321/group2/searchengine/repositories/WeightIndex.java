@@ -125,8 +125,6 @@ public class WeightIndex {
      */
     public static void createEntriesInBatch(Map<byte[], Double> table)
         throws RocksDBException {
-//        WriteBatch writeBatch = new WriteBatch();
-//        WriteOptions writeOptions = new WriteOptions();
         byte[] keyword;
         double weight;
 
@@ -135,8 +133,6 @@ public class WeightIndex {
             weight = it.getValue();
             db.put(keyword, ByteIntUtilities.doubleToByteArray(weight));
         }
-
-//        db.write(writeOptions, writeBatch);
     }
 }
 

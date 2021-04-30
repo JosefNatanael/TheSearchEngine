@@ -63,13 +63,13 @@ public class CrawlerRunnable implements Runnable {
                 if (checkLastModified) {
                     int urlPageId = URLToPageId.getValue(currentLink.url);
                     ZonedDateTime converted_lastModified = null;
-                    if(lastModified != null){
+                    if (lastModified != null) {
                         converted_lastModified = ZonedDateTime.parse(lastModified, DateTimeFormatter.RFC_1123_DATE_TIME);
                     }
 
                     if (urlPageId >= 0 && converted_lastModified == PageIdToData.getValue(urlPageId).getLastModified()) {
 
-                        if(urlPageId >= minNumCrawled-1) {
+                        if (urlPageId >= minNumCrawled - 1) {
                             break;
                         }
                         continue;
@@ -101,7 +101,7 @@ public class CrawlerRunnable implements Runnable {
 
                 System.out.println("Indexed: " + currentLink.url);
 
-                if(pageId >= minNumCrawled-1) break;
+                if (pageId >= minNumCrawled - 1) break;
 
             } catch (Exception e) {
                 System.out.println(e + " caught");
