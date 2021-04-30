@@ -73,6 +73,7 @@ public class WeightIndex {
 
     public static double getValueByKey(byte[] key) throws RocksDBException {
         byte[] value = db.get(key);
+        if (value == null) return 0.0;
         return ByteIntUtilities.convertByteArrayToDouble(value);
     }
 

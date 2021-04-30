@@ -46,10 +46,6 @@ public class IndexController {
 
     @RequestMapping(method = RequestMethod.POST, value = "/irrelevance")
     public void postRelevance(@RequestBody IrrelevantQuery irrelevantQuery) throws RocksDBException {
-        List<String> urls = irrelevantQuery.getUrls();
-        for (String url : urls) {
-            System.out.println(url);
-        }
         queryService.postIrrelevance(irrelevantQuery);
     }
 }

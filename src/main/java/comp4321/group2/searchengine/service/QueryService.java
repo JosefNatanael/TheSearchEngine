@@ -97,15 +97,15 @@ public class QueryService {
         for (String url : urls) {
             int pageId = URLToPageId.getValue(url);
 
-            System.out.println("PAGE ID " + pageId);
-
             words.forEach(word -> {
                 int wordId = 0;
                 try {
                     wordId = WordToWordId.getValue(word);
                     byte[] weightIndexKey = WordUtilities.pageIdAndWordIdToDBKey(pageId, wordId);
                     double currentWeight = WeightIndex.getValueByKey(weightIndexKey);
-                    WeightIndex.addEntry(weightIndexKey, ByteIntUtilities.doubleToByteArray(currentWeight * Constants.irrelevanceMultiplier));
+                    if (currentWeight != 0.0)  {
+                        WeightIndex.addEntry(weightIndexKey, ByteIntUtilities.doubleToByteArray(currentWeight * Constants.irrelevanceMultiplier));
+                    }
                 } catch (RocksDBException | InvalidWordIdConversionException e) {
                     e.printStackTrace();
                 }
