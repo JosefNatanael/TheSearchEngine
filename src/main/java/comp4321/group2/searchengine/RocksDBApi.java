@@ -42,7 +42,9 @@ public final class RocksDBApi {
 
     public static void reset(boolean isProduction) throws RocksDBException, IOException {
         File directory = isProduction ? new File("./src/main/java/tables") : new File("./src/test/java/tables");
-        FileUtils.forceDelete(directory);
+        if(directory.exists()){
+            FileUtils.forceDelete(directory);
+        }
 //        InvertedIndex.deleteAll();
 //        Metadata.deleteAll();
 //        PageIdToData.deleteAll();

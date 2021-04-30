@@ -12,7 +12,7 @@ public final class Constants {
     public static final boolean limitNumberOfPagesToScrape = true;
     public static final int numberOfPagesToScrape = 30;
     public static final int numCrawlerThreads = 256;
-    public static final int millisTimeout = 10000;
+    public static final int millisTimeout = 2000;
 
     // Relevance feedback
     public static final double relevanceMultiplier = 1.1;
