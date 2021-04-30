@@ -1,8 +1,6 @@
 package comp4321.group2.searchengine.service;
 
-import comp4321.group2.searchengine.apimodels.Query;
-import comp4321.group2.searchengine.apimodels.QueryResults;
-import comp4321.group2.searchengine.apimodels.RelevantQuery;
+import comp4321.group2.searchengine.apimodels.*;
 import comp4321.group2.searchengine.common.Constants;
 import comp4321.group2.searchengine.exceptions.InvalidWordIdConversionException;
 import comp4321.group2.searchengine.query.QueryHandler;
@@ -89,5 +87,29 @@ public class QueryService {
                 e.printStackTrace();
             }
         });
+    }
+
+    public void postIrrelevance(IrrelevantQuery irrelevantQuery) throws RocksDBException {
+        String queryString = irrelevantQuery.getQuery();
+        ArrayList<String> words = StopStem.getStopUnstemStemPair(queryString).getRight();
+
+        List<String> urls = irrelevantQuery.getUrls();
+        for (String url : urls) {
+            int pageId = URLToPageId.getValue(url);
+
+            System.out.println("PAGE ID " + pageId);
+
+            words.forEach(word -> {
+                int wordId = 0;
+                try {
+                    wordId = WordToWordId.getValue(word);
+                    byte[] weightIndexKey = WordUtilities.pageIdAndWordIdToDBKey(pageId, wordId);
+                    double currentWeight = WeightIndex.getValueByKey(weightIndexKey);
+                    WeightIndex.addEntry(weightIndexKey, ByteIntUtilities.doubleToByteArray(currentWeight * Constants.irrelevanceMultiplier));
+                } catch (RocksDBException | InvalidWordIdConversionException e) {
+                    e.printStackTrace();
+                }
+            });
+        }
     }
 }

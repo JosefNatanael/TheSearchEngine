@@ -1,5 +1,6 @@
 package comp4321.group2.searchengine.controller;
 
+import comp4321.group2.searchengine.apimodels.IrrelevantQuery;
 import comp4321.group2.searchengine.apimodels.Query;
 import comp4321.group2.searchengine.apimodels.QueryResults;
 import comp4321.group2.searchengine.apimodels.RelevantQuery;
@@ -43,5 +44,12 @@ public class IndexController {
         queryService.postRelevance(relevantQuery);
     }
 
+    @RequestMapping(method = RequestMethod.POST, value = "/irrelevance")
+    public void postRelevance(@RequestBody IrrelevantQuery irrelevantQuery) throws RocksDBException {
+        List<String> urls = irrelevantQuery.getUrls();
+        for (String url : urls) {
+            System.out.println(url);
+        }
+        queryService.postIrrelevance(irrelevantQuery);
+    }
 }
-

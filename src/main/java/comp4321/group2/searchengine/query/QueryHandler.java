@@ -39,7 +39,7 @@ public class QueryHandler {
     public QueryHandler(String query) {
         this.rawQuery = query;
 
-        MutablePair<ArrayList<String>, ArrayList<String>> pair = StopStem.getStopUnstemStemPair(query);
+        MutablePair<ArrayList<String>, ArrayList<String>> pair = StopStem.getStopUnstemStemPair(query.replaceAll("[^a-zA-Z ]", "").toLowerCase());
         unstemmedQuery = new LinkedHashSet<>(pair.getLeft());
         stemmedQuery = new LinkedHashSet<>(pair.getRight());
 

@@ -124,18 +124,18 @@ public class WeightIndex {
      */
     public static void createEntriesInBatch(Map<byte[], Double> table)
         throws RocksDBException {
-        WriteBatch writeBatch = new WriteBatch();
-        WriteOptions writeOptions = new WriteOptions();
+//        WriteBatch writeBatch = new WriteBatch();
+//        WriteOptions writeOptions = new WriteOptions();
         byte[] keyword;
         double weight;
 
         for (Entry<byte[], Double> it : table.entrySet()) {
             keyword = it.getKey();
             weight = it.getValue();
-            writeBatch.put(keyword, ByteIntUtilities.doubleToByteArray(weight));
+            db.put(keyword, ByteIntUtilities.doubleToByteArray(weight));
         }
 
-        db.write(writeOptions, writeBatch);
+//        db.write(writeOptions, writeBatch);
     }
 }
 
