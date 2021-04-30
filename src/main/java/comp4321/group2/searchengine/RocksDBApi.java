@@ -4,6 +4,7 @@ import comp4321.group2.searchengine.exceptions.InvalidWordIdConversionException;
 import comp4321.group2.searchengine.models.Page;
 import comp4321.group2.searchengine.repositories.*;
 import comp4321.group2.searchengine.utils.WordUtilities;
+import org.apache.commons.io.FileUtils;
 import org.rocksdb.RocksDBException;
 
 import java.io.File;
@@ -39,19 +40,21 @@ public final class RocksDBApi {
         WordIdToWord.connect(isProduction);
     }
 
-    public static void reset() throws RocksDBException {
-        InvertedIndex.deleteAll();
-        Metadata.deleteAll();
-        PageIdToData.deleteAll();
-        URLToPageId.deleteAll();
-        WordToWordId.deleteAll();
-        WordIdToIdf.deleteAll();
-        ForwardIndex.deleteAll();
-        PageIdToLength.deleteAll();
-        WeightIndex.deleteAll();
-        TitleInvertedIndex.deleteAll();
-        PageIdToParentIds.deleteAll();
-        WordIdToWord.deleteAll();
+    public static void reset(boolean isProduction) throws RocksDBException, IOException {
+        File directory = isProduction ? new File("./src/main/java/tables") : new File("./src/test/java/tables");
+        FileUtils.forceDelete(directory);
+//        InvertedIndex.deleteAll();
+//        Metadata.deleteAll();
+//        PageIdToData.deleteAll();
+//        URLToPageId.deleteAll();
+//        WordToWordId.deleteAll();
+//        WordIdToIdf.deleteAll();
+//        ForwardIndex.deleteAll();
+//        PageIdToLength.deleteAll();
+//        WeightIndex.deleteAll();
+//        TitleInvertedIndex.deleteAll();
+//        PageIdToParentIds.deleteAll();
+//        WordIdToWord.deleteAll();
     }
 
     /**

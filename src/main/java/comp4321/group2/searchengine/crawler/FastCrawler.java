@@ -126,7 +126,7 @@ public class FastCrawler {
 
             if (fromScratch_string.trim().equalsIgnoreCase("s")) {
                 System.out.println("Resetting database...");
-                RocksDBApi.reset();
+                RocksDBApi.reset(true);
                 checkLastModified = false;
             }
 

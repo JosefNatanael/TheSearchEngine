@@ -5,6 +5,7 @@ import comp4321.group2.searchengine.repositories.Metadata;
 import org.junit.jupiter.api.Test;
 import org.rocksdb.RocksDBException;
 
+import java.io.IOException;
 import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -12,10 +13,10 @@ import static org.junit.jupiter.api.Assertions.*;
 class FastCrawlerTest {
 
     @Test
-    void testWholeClass() throws RocksDBException {
+    void testWholeClass() throws RocksDBException, IOException {
         RocksDBApi.closeAllDBConnections();
         RocksDBApi.connect(false);
-        RocksDBApi.reset();
+        RocksDBApi.reset(false);
 
         String rootUrl = "https://www.cse.ust.hk/";
 

@@ -49,7 +49,7 @@ public class TheSearchEngineApplication extends SpringBootServletInitializer {
 
             if (fromScratch_string.trim().equalsIgnoreCase("s")) {
                 System.out.println("Resetting database...");
-                RocksDBApi.reset();
+                RocksDBApi.reset(true);
                 checkLastModified = false;
             }
 
