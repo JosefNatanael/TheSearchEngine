@@ -2,7 +2,6 @@ package comp4321.group2.searchengine.crawler;
 
 import org.jsoup.Connection;
 import org.jsoup.nodes.Document;
-import org.junit.BeforeClass;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -66,7 +65,7 @@ class CrawlerHelperTest {
     void extractWordsTest() {
         Vector<String> result = new Vector<>();
         String[] expectedArray = {"The", "department", "offers", "two", "major", "programs.", "COMP", "is", "our", "general."};
-        Vector<String> expected = new Vector<String>(Arrays.asList(expectedArray));
+        Vector<String> expected = new Vector<>(Arrays.asList(expectedArray));
 
         String contents = "The department offers two major programs. COMP is our general.";
         StringTokenizer st = new StringTokenizer(contents);

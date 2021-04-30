@@ -14,7 +14,7 @@ import java.util.Map;
 
 public class PageRankCompute {
 
-    DefaultDirectedWeightedGraph<Integer, DefaultEdge> linkGraph = new DefaultDirectedWeightedGraph<>(DefaultEdge.class);
+    final DefaultDirectedWeightedGraph<Integer, DefaultEdge> linkGraph = new DefaultDirectedWeightedGraph<>(DefaultEdge.class);
     VertexScoringAlgorithm<Integer, Double> pr;
     double dampingFactor = 1.0;
 

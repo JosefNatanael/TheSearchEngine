@@ -12,7 +12,6 @@ import comp4321.group2.searchengine.models.Page;
 import org.rocksdb.RocksDBException;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.*;
 

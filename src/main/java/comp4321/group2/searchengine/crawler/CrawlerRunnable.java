@@ -25,7 +25,7 @@ public class CrawlerRunnable implements Runnable {
     private final CountDownLatch latch;
     private final boolean checkLastModified;
     private volatile boolean stopScraping = false;
-    private int minNumCrawled;
+    private final int minNumCrawled;
 
     public CrawlerRunnable(BlockingQueue<Link> urlQueue, Set<String> urls, CountDownLatch latch, boolean checkLastModified, int minNumCrawled) {
         this.urlQueue = urlQueue;

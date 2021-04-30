@@ -141,8 +141,7 @@ public class TitleInvertedIndex {
      */
     public static void createEntriesInBatch(Map<byte[], ArrayList<Integer>> table)
         throws RocksDBException {
-//        WriteBatch writeBatch = new WriteBatch();
-//        WriteOptions writeOptions = new WriteOptions();
+
         byte[] keyword;
         ArrayList<Integer> locations;
 
@@ -153,8 +152,6 @@ public class TitleInvertedIndex {
             // Step 2: Put into write batch
             db.put(keyword, WordUtilities.arrayListToString(locations).getBytes());
         }
-
-//        db.write(writeOptions, writeBatch);
     }
 }
 

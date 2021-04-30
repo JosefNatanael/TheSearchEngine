@@ -28,7 +28,7 @@ public class Porter {
         String temp = "";
 
         for (int i = 0; i < last; i++) {
-            if (ch.isLetterOrDigit(str.charAt(i))) temp += str.charAt(i);
+            if (Character.isLetterOrDigit(str.charAt(i))) temp += str.charAt(i);
         }
 
         return temp;
@@ -47,7 +47,7 @@ public class Porter {
 
         for (int i = 0; i < suffix.length(); i++) tmp += suffix.charAt(i);
 
-        if (tmp.compareTo(word) == 0) return true; else return false;
+        return tmp.compareTo(word) == 0;
     }
 
     private boolean vowel(char ch, char prev) {
@@ -128,9 +128,9 @@ public class Porter {
             (vowel(str.charAt(length - 2), str.charAt(length - 3)))
         ) {
             if (length == 3) {
-                if (!vowel(str.charAt(0), '?')) return true; else return false;
+                return !vowel(str.charAt(0), '?');
             } else {
-                if (!vowel(str.charAt(length - 3), str.charAt(length - 4))) return true; else return false;
+                return !vowel(str.charAt(length - 3), str.charAt(length - 4));
             }
         }
 

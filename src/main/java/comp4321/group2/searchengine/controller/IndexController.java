@@ -7,7 +7,6 @@ import comp4321.group2.searchengine.apimodels.RelevantQuery;
 import comp4321.group2.searchengine.exceptions.InvalidWordIdConversionException;
 import comp4321.group2.searchengine.service.QueryService;
 import org.rocksdb.RocksDBException;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;

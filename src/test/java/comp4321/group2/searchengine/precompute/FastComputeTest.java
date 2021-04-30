@@ -6,9 +6,6 @@ import comp4321.group2.searchengine.repositories.PageIdToLength;
 import comp4321.group2.searchengine.repositories.PageIdToParentIds;
 import comp4321.group2.searchengine.repositories.WeightIndex;
 import comp4321.group2.searchengine.repositories.WordIdToIdf;
-import org.junit.Before;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.rocksdb.RocksDBException;
 
