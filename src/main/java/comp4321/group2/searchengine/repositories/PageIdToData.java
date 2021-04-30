@@ -25,7 +25,11 @@ public final class PageIdToData {
         File directory = isProduction ? new File("./src/main/java/tables/PageIdToData") : new File("./src/test/java/tables/PageIdToData");
         String dbPath = directory.getAbsolutePath();
         if (!directory.exists()) {
-            directory.mkdir();
+            if (directory.mkdirs()) {
+                System.out.println("Directory created");
+            } else {
+                System.out.println("Failed to create directory");
+            }
         }
         db = RocksDB.open(options, dbPath);
     }

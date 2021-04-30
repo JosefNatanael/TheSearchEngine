@@ -4,6 +4,7 @@ import org.apache.commons.lang3.tuple.MutablePair;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Scanner;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -11,22 +12,19 @@ public final class StopStem {
 
     private static final Porter porter;
     private static final java.util.HashSet<String> stopWords;
-    private static final File stopwordsPath = new File("./src/main/resources/stopwords.txt");
 
     static {
         porter = new Porter();
         stopWords = new java.util.HashSet<>();
 
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(stopwordsPath.getAbsolutePath()));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                stopWords.add(line);
-            }
-            reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        InputStream in = StopStem.class.getResourceAsStream("/stopwords.txt");
+        Scanner pathScanner = new Scanner(in);
+
+        while (pathScanner.hasNext()) {
+            stopWords.add(pathScanner.next());
         }
+        pathScanner.close();
+
     }
 
     public static boolean isStopWord(String str) {

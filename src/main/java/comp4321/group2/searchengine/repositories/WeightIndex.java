@@ -26,7 +26,11 @@ public class WeightIndex {
         File directory = isProduction ? new File("./src/main/java/tables/WeightIndex") : new File("./src/test/java/tables/WeightIndex");
         String dbPath = directory.getAbsolutePath();
         if (!directory.exists()) {
-            directory.mkdir();
+            if (directory.mkdirs()) {
+                System.out.println("Directory created");
+            } else {
+                System.out.println("Failed to create directory");
+            }
         }
         db = RocksDB.open(options, dbPath);
     }

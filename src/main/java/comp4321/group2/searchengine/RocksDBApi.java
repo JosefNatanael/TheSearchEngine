@@ -18,8 +18,13 @@ public final class RocksDBApi {
     public static void connect(boolean isProduction) throws RocksDBException {
         File directory = isProduction ? new File("./src/main/java/tables/") : new File("./src/test/java/tables/");
         if (!directory.exists()) {
-            directory.mkdir();
+            if (directory.mkdirs()) {
+                System.out.println("Directory created");
+            } else {
+                System.out.println("Failed to create directory");
+            }
         }
+
         InvertedIndex.connect(isProduction);
         Metadata.connect(isProduction);
         PageIdToData.connect(isProduction);

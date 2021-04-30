@@ -28,7 +28,11 @@ public class PageIdToParentIds {
         File directory = isProduction ? new File("./src/main/java/tables/PageIdToParentIds") : new File("./src/test/java/tables/PageIdToParentIds");
         String dbPath = directory.getAbsolutePath();
         if (!directory.exists()) {
-            directory.mkdir();
+            if (directory.mkdirs()) {
+                System.out.println("Directory created");
+            } else {
+                System.out.println("Failed to create directory");
+            }
         }
         db = RocksDB.open(options, dbPath);
     }

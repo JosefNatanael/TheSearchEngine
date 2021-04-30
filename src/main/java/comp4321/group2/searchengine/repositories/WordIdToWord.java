@@ -24,7 +24,11 @@ public final class WordIdToWord {
         File directory = isProduction ? new File("./src/main/java/tables/WordIdToWord") : new File("./src/test/java/tables/WordIdToWord");
         String dbPath = directory.getAbsolutePath();
         if (!directory.exists()) {
-            directory.mkdir();
+            if (directory.mkdirs()) {
+                System.out.println("Directory created");
+            } else {
+                System.out.println("Failed to create directory");
+            }
         }
         db = RocksDB.open(options, dbPath);
     }

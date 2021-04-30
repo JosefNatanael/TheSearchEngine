@@ -23,7 +23,11 @@ public class PageIdToLength {
         File directory = isProduction ? new File("./src/main/java/tables/PageIdToLength") : new File("./src/test/java/tables/PageIdToLength");
         String dbPath = directory.getAbsolutePath();
         if (!directory.exists()) {
-            directory.mkdir();
+            if (directory.mkdirs()) {
+                System.out.println("Directory created");
+            } else {
+                System.out.println("Failed to create directory");
+            }
         }
         db = RocksDB.open(options, dbPath);
     }

@@ -11,7 +11,7 @@
 	<groupId>comp4321.group2</groupId>
 	<artifactId>searchengine</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<name>The Search Engine</name>
 	<description>Search Engine from Scratch</description>
 	<properties>

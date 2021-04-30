@@ -28,7 +28,11 @@ public class ForwardIndex {
         File directory = isProduction ? new File("./src/main/java/tables/ForwardFile") : new File("./src/test/java/tables/ForwardFile");
         String dbPath = directory.getAbsolutePath();
         if (!directory.exists()) {
-            directory.mkdir();
+            if (directory.mkdirs()) {
+                System.out.println("Directory created");
+            } else {
+                System.out.println("Failed to create directory");
+            }
         }
         db = RocksDB.open(options, dbPath);
     }
