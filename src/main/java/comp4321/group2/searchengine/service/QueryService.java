@@ -69,6 +69,10 @@ public class QueryService {
         return new ArrayList<>(setOfKeywords);
     }
 
+    public HashMap<String, Integer> getMetadata() {
+        return Metadata.getAll();
+    }
+
     public void postRelevance(RelevantQuery relevantQuery) throws RocksDBException {
         String queryString = relevantQuery.getQuery();
         String queryUrl = relevantQuery.getUrl();

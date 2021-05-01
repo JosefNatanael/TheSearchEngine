@@ -7,9 +7,11 @@ import comp4321.group2.searchengine.apimodels.RelevantQuery;
 import comp4321.group2.searchengine.exceptions.InvalidWordIdConversionException;
 import comp4321.group2.searchengine.service.QueryService;
 import org.rocksdb.RocksDBException;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -29,13 +31,19 @@ public class IndexController {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/search")
-    public List<QueryResults> retrieveResults(@RequestBody Query query) throws RocksDBException, InvalidWordIdConversionException {
+    public List<QueryResults> retrieveResults(@RequestParam String id, @RequestParam String queryString) throws RocksDBException, InvalidWordIdConversionException {
+        Query query = new Query(id, queryString);
         return queryService.retrieveResults(query);
     }
 
-    @RequestMapping("/indexed")
+    @RequestMapping(method = RequestMethod.GET, value = "/indexed")
     public List<String> getStemmedKeywords() {
         return queryService.getStemmedKeywords();
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/metadata")
+    public HashMap<String, Integer> getMetadata() {
+        return queryService.getMetadata();
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/relevance")

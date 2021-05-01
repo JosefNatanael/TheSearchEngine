@@ -72,11 +72,11 @@ public class TheSearchEngineApplication extends SpringBootServletInitializer {
 //            compute.computePageRank();
 //            System.out.println("Completed\n");
 //        }
-        if(args.length == 3){
-            if(args[0].trim().equalsIgnoreCase("c")){
+        if (args.length == 3) {
+            if (args[0].trim().equalsIgnoreCase("c")) {
                 boolean checkLastModified = true;
 
-                if(args[1].trim().equalsIgnoreCase("s")){
+                if (args[1].trim().equalsIgnoreCase("s")) {
                     System.out.println("Resetting database...");
                     RocksDBApi.closeAllDBConnections();
                     RocksDBApi.reset(true);
@@ -145,7 +145,7 @@ public class TheSearchEngineApplication extends SpringBootServletInitializer {
             int wordId = pair.getValue();
             ArrayList<Integer> result = RocksDBApi.getPageIdsOfWord(word);
             df = result.size();
-            idf = (Math.log(numDocs/(double)df) / Math.log(2));
+            idf = (Math.log(numDocs / (double) df) / Math.log(2));
 
             WordIdToIdf.addEntry(wordId, idf);
 

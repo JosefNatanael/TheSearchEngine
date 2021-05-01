@@ -15,8 +15,8 @@ class FastCrawlerTest {
     @Test
     void testWholeClass() throws RocksDBException, IOException {
         RocksDBApi.closeAllDBConnections();
-        RocksDBApi.connect(false);
         RocksDBApi.reset(false);
+        RocksDBApi.connect(false);
 
         String rootUrl = "https://www.cse.ust.hk/";
 
