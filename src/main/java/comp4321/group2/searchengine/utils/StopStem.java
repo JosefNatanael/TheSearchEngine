@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class StopStem {
 
@@ -35,8 +37,18 @@ public final class StopStem {
         return str.isEmpty() ? "" : porter.stripAffixes(str);
     }
 
-    public static MutablePair<ArrayList<String>, ArrayList<String>> getStopUnstemStemPair(String dirtyString) {
+    public static ArrayList<String> getPhrasesFromString(String dirtyString) {
+        // Phrase search
+        ArrayList<String> phrases = new ArrayList<>();
+        Pattern p = Pattern.compile("\"([^\"]*)\"");
+        Matcher m = p.matcher(dirtyString);
+        while (m.find()) {
+            phrases.add(m.group(1));
+        }
+        return phrases;
+    }
 
+    public static MutablePair<ArrayList<String>, ArrayList<String>> getStopUnstemStemPair(String dirtyString) {
         Vector<String> words = new Vector<>();
         ArrayList<String> unstemmedQuery = new ArrayList<>();
         ArrayList<String> stemmedQuery = new ArrayList<>();

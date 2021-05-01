@@ -39,7 +39,13 @@ public class QueryHandler {
     public QueryHandler(String query) {
         this.rawQuery = query;
 
-        MutablePair<ArrayList<String>, ArrayList<String>> pair = StopStem.getStopUnstemStemPair(query.replaceAll("[^a-zA-Z ]", "").toLowerCase());
+        String aBitCleaner = query.replaceAll("[^a-zA-Z\" ]", "").toLowerCase();    // Lower case, only text and double quotes
+
+        ArrayList<String> phrases = StopStem.getPhrasesFromString(aBitCleaner);
+
+        aBitCleaner = aBitCleaner.replaceAll("\"([^\"]*)\"", "");   // Good bye to words between quotes
+
+        MutablePair<ArrayList<String>, ArrayList<String>> pair = StopStem.getStopUnstemStemPair(aBitCleaner);
         unstemmedQuery = new LinkedHashSet<>(pair.getLeft());
         stemmedQuery = new LinkedHashSet<>(pair.getRight());
 
