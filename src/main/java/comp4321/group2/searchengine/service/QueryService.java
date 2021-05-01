@@ -6,6 +6,7 @@ import comp4321.group2.searchengine.exceptions.InvalidWordIdConversionException;
 import comp4321.group2.searchengine.query.QueryHandler;
 import comp4321.group2.searchengine.repositories.*;
 import comp4321.group2.searchengine.utils.ByteIntUtilities;
+import comp4321.group2.searchengine.utils.MapUtilities;
 import comp4321.group2.searchengine.utils.StopStem;
 import comp4321.group2.searchengine.utils.WordUtilities;
 import comp4321.group2.searchengine.models.Page;
@@ -33,7 +34,7 @@ public class QueryService {
                 ZonedDateTime lastModified_zoned = page.getLastModified();
                 String lastModified = lastModified_zoned != null ? lastModified_zoned.toString() : "n/a";
                 int pageSize = page.getSize();
-                HashMap<String, Integer> keywordToFreq = new HashMap<>();
+                Map<String, Integer> keywordToFreq = new HashMap<>();
 
                 ArrayList<Integer> wordIds = ForwardIndex.getValue(pageId);
 
@@ -42,6 +43,8 @@ public class QueryService {
                     int frequency = InvertedIndex.getValueByKey(WordUtilities.wordIdAndPageIdToDBKey(wordId, pageId)).size();
                     keywordToFreq.put(word, frequency);
                 }
+
+                keywordToFreq = MapUtilities.sortByValue(keywordToFreq, false, 5);
 
                 ArrayList<String> parentUrls = new ArrayList<>();
 
