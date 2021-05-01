@@ -25,7 +25,7 @@ public class FastCrawler {
         this.startingUrl = startingUrl;
     }
 
-    public void indexToDB(boolean checkLastModified, int maxNumIndex) {
+    public void indexToDB(boolean checkLastModified, int minNumIndexed) {
 
         BlockingQueue<Link> urlQueue = new LinkedBlockingQueue<>(); // the queue of URLs to be crawled
         Set<String> urls = ConcurrentHashMap.newKeySet(); // the set of urls that have been visited before
@@ -39,7 +39,7 @@ public class FastCrawler {
 
         ArrayList<ImmutablePair<Future, CrawlerRunnable>> spawnedThreads = new ArrayList<>();
         for (int i = 0; i < Constants.numCrawlerThreads; ++i) {
-            CrawlerRunnable r = new CrawlerRunnable(urlQueue, urls, latch, checkLastModified, maxNumIndex);
+            CrawlerRunnable r = new CrawlerRunnable(urlQueue, urls, latch, checkLastModified, minNumIndexed);
             Future<?> f = executor.submit(r);
             ImmutablePair<Future, CrawlerRunnable> pair = new ImmutablePair<>(f, r);
             spawnedThreads.add(pair);
