@@ -5,14 +5,17 @@ import comp4321.group2.searchengine.common.Constants;
 import comp4321.group2.searchengine.exceptions.InvalidWordIdConversionException;
 import comp4321.group2.searchengine.models.Page;
 import comp4321.group2.searchengine.precompute.PageRankCompute;
+import comp4321.group2.searchengine.repositories.InvertedIndex;
 import comp4321.group2.searchengine.repositories.WordToWordId;
 import comp4321.group2.searchengine.utils.MapUtilities;
 import comp4321.group2.searchengine.utils.QueryUtilities;
 import comp4321.group2.searchengine.utils.StopStem;
+import comp4321.group2.searchengine.utils.WordUtilities;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.rocksdb.RocksDBException;
 
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -24,8 +27,10 @@ public class QueryHandler {
     }
 
     final String rawQuery;
-    private HashSet<String> stemmedQuery = new HashSet<>();
-    private HashSet<String> unstemmedQuery = new HashSet<>();
+    private HashSet<String> stemmedQueryForAdj;
+    private HashSet<String> unstemmedQueryForAdj;
+    private HashSet<String> stemmedQueryForGetPages;
+    private final HashSet<ArrayList<String>> stemmedPhrasesForGetPages = new HashSet<>();
 
     final Map<Integer, Double> extBoolSimMap = new ConcurrentHashMap<>();
     final Map<Integer, Double> cosSimMap = new ConcurrentHashMap<>();
@@ -43,14 +48,24 @@ public class QueryHandler {
 
         ArrayList<String> phrases = StopStem.getPhrasesFromString(aBitCleaner);
 
+        phrases.forEach(phrase -> {
+            stemmedPhrasesForGetPages.add(StopStem.getStopUnstemStemPair(phrase).getRight());
+        });
+
+        MutablePair<ArrayList<String>, ArrayList<String>> originalPair = StopStem.getStopUnstemStemPair(aBitCleaner.replaceAll("\"", ""));
+
+        stemmedQueryForAdj = new LinkedHashSet<>(originalPair.getRight());
+        unstemmedQueryForAdj = new LinkedHashSet<>(originalPair.getLeft());
+        stemmedQueryForAdj = QueryUtilities.extractRandomQuery(stemmedQueryForAdj, 20);
+        unstemmedQueryForAdj = QueryUtilities.extractRandomQuery(unstemmedQueryForAdj, 20);
+
+        // Now we only want to consider non phrases to get page ids later
         aBitCleaner = aBitCleaner.replaceAll("\"([^\"]*)\"", "");   // Good bye to words between quotes
+        MutablePair<ArrayList<String>, ArrayList<String>> removedPair = StopStem.getStopUnstemStemPair(aBitCleaner);
 
-        MutablePair<ArrayList<String>, ArrayList<String>> pair = StopStem.getStopUnstemStemPair(aBitCleaner);
-        unstemmedQuery = new LinkedHashSet<>(pair.getLeft());
-        stemmedQuery = new LinkedHashSet<>(pair.getRight());
+        stemmedQueryForGetPages = new LinkedHashSet<>(removedPair.getRight());
+        stemmedQueryForGetPages = QueryUtilities.extractRandomQuery(stemmedQueryForGetPages, 20);
 
-        stemmedQuery = QueryUtilities.extractRandomQuery(stemmedQuery, 20);
-        unstemmedQuery = QueryUtilities.extractRandomQuery(unstemmedQuery, 20);
     }
 
     /**
@@ -63,10 +78,10 @@ public class QueryHandler {
 
         printQueries();
 
-        if (stemmedQuery.isEmpty()) return totalScores;
+        if (stemmedQueryForAdj.isEmpty()) return totalScores;
 
         // Find Query Word IDs and unique Page IDs
-        for (String word : stemmedQuery) {
+        for (String word : stemmedQueryForGetPages) {
             int wordId = WordToWordId.getValue(word);
             if (wordId == -1) {
                 continue;
@@ -74,6 +89,53 @@ public class QueryHandler {
             ArrayList<Integer> pageIds = RocksDBApi.getPageIdsOfWord(word);
             queryWordIds.add(wordId);
             pageIdsSet.addAll(pageIds);
+        }
+
+        // Find Phrase Word IDs and unique Page IDs
+        for (ArrayList<String> arrListOfPhrases : stemmedPhrasesForGetPages) {
+            HashMap<Integer, ArrayList<Integer>> firstWordPageIdToLocs = RocksDBApi.getWordValues(arrListOfPhrases.get(0));
+            if (firstWordPageIdToLocs == null) continue;
+
+            // Loop over 1st word's pages
+            for (Map.Entry<Integer, ArrayList<Integer>> pageIdLocs : firstWordPageIdToLocs.entrySet()) {
+                int firstPageId = pageIdLocs.getKey();
+                ArrayList<Integer> wordLocsToConsider = pageIdLocs.getValue();
+
+                // Loop over 2nd word to last word in phrase
+                for (int wordIter = 1; wordIter < arrListOfPhrases.size(); ++wordIter) {
+                    int wordId = WordToWordId.getValue(arrListOfPhrases.get(wordIter));
+                    if (wordId == -1) {
+                        continue;
+                    }
+                    byte[] invertedDbKey = WordUtilities.wordIdAndPageIdToDBKey(wordId, firstPageId);
+
+                    // Get locations for current word (2nd to last word)
+                    ArrayList<Integer> nextLocs = InvertedIndex.getValueByKey(invertedDbKey);
+
+                    int firstPtr = 0;
+                    int nextPtr = 0;
+
+                    ArrayList<Integer> newWordLocsToConsider = new ArrayList<>();
+
+                    while (firstPtr < wordLocsToConsider.size() && nextPtr < nextLocs.size()) {
+                        if (nextLocs.get(nextPtr) == wordLocsToConsider.get(firstPtr) + 1) {
+                            newWordLocsToConsider.add(nextLocs.get(nextPtr));
+                            ++nextPtr;
+                            ++firstPtr;
+                        } else {
+                            if (nextLocs.get(nextPtr) > wordLocsToConsider.get(firstPtr) + 1) {
+                                ++firstPtr;
+                            } else {
+                                ++nextPtr;
+                            }
+                        }
+                    }
+                    wordLocsToConsider = newWordLocsToConsider;
+                }
+                if (wordLocsToConsider.size() > 0) {
+                    pageIdsSet.add(firstPageId);
+                }
+            }
         }
 
         if (pageIdsSet.isEmpty()) return totalScores;
@@ -90,9 +152,9 @@ public class QueryHandler {
         long start = System.currentTimeMillis();
         calculateVSM(queryWordIds, pageIds);
         long vsmTime = System.currentTimeMillis();
-        calculateAdjPoints(adjPointsMap, stemmedQuery, pageIds, Key.CONTENT);
+        calculateAdjPoints(adjPointsMap, stemmedQueryForAdj, pageIds, Key.CONTENT);
         long adjTime = System.currentTimeMillis();
-        calculateAdjPoints(titleAdjPointsMap, unstemmedQuery, pageIds, Key.TITLE);
+        calculateAdjPoints(titleAdjPointsMap, unstemmedQueryForAdj, pageIds, Key.TITLE);
         long adjTimeTitle = System.currentTimeMillis();
 
         System.out.println("VSM: " + (vsmTime - start));
@@ -233,12 +295,12 @@ public class QueryHandler {
 
     private void printQueries() {
         System.out.println("\nStemmed query :");
-        for (String query : stemmedQuery) {
+        for (String query : stemmedQueryForAdj) {
             System.out.println(query);
         }
 
         System.out.println("\nUnstemmed query :");
-        for (String query : unstemmedQuery) {
+        for (String query : unstemmedQueryForAdj) {
             System.out.println(query);
         }
         System.out.println();
