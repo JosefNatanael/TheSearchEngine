@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 
 abstract class CrawlerHelper {
     private static final String[] blackListLinkStartsWith = {"https://www.cse.ust.hk/Restricted"};
-    private static final String[] blackListLinkRegex = {"\\/#$", "\\/#\\/$", "[\\/]+$"};
+    private static final String[] blackListLinkRegex = {"#*$", "\\/#[\\/]*$"};
 
     /**
      * Send an HTTP request and analyze the response.
@@ -149,13 +149,10 @@ abstract class CrawlerHelper {
 
                 for (String blacklist : blackListLinkRegex) {
                     if (Pattern.matches("[\\w\\W]+\\w" + blacklist, link)) {
-                        link = link.replaceAll("([\\w\\W]+\\w)" + blacklist, "$1/");
+                        link = link.replaceAll("([\\w\\W]+\\w)" + blacklist, "$1");
                     }
                 }
 
-                if (!link.endsWith("/")) {
-                    link += "/";
-                }
                 if (skipFlag || visitedUrls.contains(link)) continue;
                 urlQueue.add(new Link(link, parentLink.level + 1)); // add links to urlQueue vector
             }
