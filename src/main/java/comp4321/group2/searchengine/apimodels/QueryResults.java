@@ -2,6 +2,7 @@ package comp4321.group2.searchengine.apimodels;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class QueryResults {
 
@@ -15,7 +16,7 @@ public class QueryResults {
     private String url;
     private String lastModifiedDate;
     private int pageSize;
-    private HashMap<String, Integer> keywordToFreq;
+    private Map<String, Integer> keywordToFreq;
     private ArrayList<String> parentUrls;
     private ArrayList<String> childUrls;
 
@@ -26,7 +27,7 @@ public class QueryResults {
         , String url
         , String lastModifiedDate
         , int pageSize
-        , HashMap<String
+        , Map<String
         , Integer> keywordToFreq
         , ArrayList<String> parentUrls
         , ArrayList<String> childUrls
@@ -90,11 +91,11 @@ public class QueryResults {
         this.pageSize = pageSize;
     }
 
-    public HashMap<String, Integer> getKeywordToFreq() {
+    public Map<String, Integer> getKeywordToFreq() {
         return keywordToFreq;
     }
 
-    public void setKeywordToFreq(HashMap<String, Integer> keywordToFreq) {
+    public void setKeywordToFreq(Map<String, Integer> keywordToFreq) {
         this.keywordToFreq = keywordToFreq;
     }
 
