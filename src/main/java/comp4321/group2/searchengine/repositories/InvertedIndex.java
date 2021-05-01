@@ -76,6 +76,7 @@ public class InvertedIndex {
 
     public static ArrayList<Integer> getValueByKey(byte[] key) throws RocksDBException {
         byte[] value = db.get(key);
+        if (value == null) return new ArrayList<>();
         return WordUtilities.stringToIntegerArrayList(new String(value));
     }
 

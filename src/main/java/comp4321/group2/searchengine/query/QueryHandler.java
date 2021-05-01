@@ -5,7 +5,9 @@ import comp4321.group2.searchengine.common.Constants;
 import comp4321.group2.searchengine.exceptions.InvalidWordIdConversionException;
 import comp4321.group2.searchengine.models.Page;
 import comp4321.group2.searchengine.precompute.PageRankCompute;
+import comp4321.group2.searchengine.repositories.ForwardIndex;
 import comp4321.group2.searchengine.repositories.InvertedIndex;
+import comp4321.group2.searchengine.repositories.WordIdToWord;
 import comp4321.group2.searchengine.repositories.WordToWordId;
 import comp4321.group2.searchengine.utils.MapUtilities;
 import comp4321.group2.searchengine.utils.QueryUtilities;
@@ -164,11 +166,17 @@ public class QueryHandler {
         prScoresMap = PageRankCompute.readRankFile("pr-scores.ser");
 
         double maxPrScore = MapUtilities.maxUsingStreamAndMethodReference(prScoresMap);
-        prScoresMap.replaceAll((k, v) -> v / maxPrScore);
+        if (maxPrScore > 0) prScoresMap.replaceAll((k, v) -> v / maxPrScore);
 
         // Calculate total
         for (int pageId : pageIds) {
-            totalScores.put(pageId, 0.2 * extBoolSimMap.get(pageId) + 0.2 * cosSimMap.get(pageId) + 0.2 * adjPointsMap.get(pageId) + 0.5 * titleAdjPointsMap.get(pageId) + 0.2 * prScoresMap.get(pageId));
+            double extBoolScore = extBoolSimMap.get(pageId) == null ? extBoolSimMap.get(pageId) : 0;
+            double cosSimScore = cosSimMap.get(pageId) == null ? cosSimMap.get(pageId) : 0;
+            double adjPointsScore = adjPointsMap.get(pageId) == null ? adjPointsMap.get(pageId) : 0;
+            double titleAdjPointsScore = titleAdjPointsMap.get(pageId) == null ? titleAdjPointsMap.get(pageId) : 0;
+            double prScore = prScoresMap.get(pageId) == null ? 0 : prScoresMap.get(pageId);
+
+            totalScores.put(pageId, 0.2 * extBoolScore + 0.2 * cosSimScore + 0.2 * adjPointsScore + 0.5 * titleAdjPointsScore + 0.2 * prScore);
         }
 
         totalScores = MapUtilities.sortByValue(totalScores, false, 50);

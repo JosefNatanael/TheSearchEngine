@@ -175,20 +175,22 @@ abstract class CrawlerHelper {
     public static HashMap<String, ArrayList<Integer>> extractCleanedWordLocationsMap(Document document) {
         Vector<String> words = extractWords(document);
         HashMap<String, ArrayList<Integer>> wordToWordLocationMap = new HashMap<>();
-        for (int i = 0; i < words.size(); ++i) {
-            String currWord = words.get(i);
+
+        int currentLoc = 0;
+        for (String currWord : words) {
             currWord = currWord.replaceAll("\\d", "");
             String stemmedWord = StopStem.stem(currWord);
             if (StopStem.isStopWord(currWord) || stemmedWord.equals("")) {
                 continue;
             }
             if (wordToWordLocationMap.containsKey(stemmedWord)) {
-                wordToWordLocationMap.get(stemmedWord).add(i);
+                wordToWordLocationMap.get(stemmedWord).add(currentLoc);
             } else {
                 ArrayList<Integer> arrList = new ArrayList<>();
-                arrList.add(i);
+                arrList.add(currentLoc);
                 wordToWordLocationMap.put(stemmedWord, arrList);
             }
+            ++currentLoc;
         }
         return sortWordLocationsHashMap(wordToWordLocationMap);
     }

@@ -82,7 +82,7 @@ public class PageRankCompute {
             System.out.println("PR Scores file not found");
             c.printStackTrace();
         }
-
+        if (scores == null) return new HashMap<>();
         return new HashMap<>(scores);
     }
 
