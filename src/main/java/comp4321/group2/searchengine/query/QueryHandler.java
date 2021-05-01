@@ -81,9 +81,17 @@ public class QueryHandler {
         }
 
         ArrayList<Integer> pageIds = new ArrayList<>(pageIdsSet);
+        long start = System.currentTimeMillis();
         calculateVSM(queryWordIds, pageIds);
+        long vsmTime = System.currentTimeMillis();
         calculateAdjPoints(adjPointsMap, stemmedQuery, pageIds, Key.CONTENT);
+        long adjTime = System.currentTimeMillis();
         calculateAdjPoints(titleAdjPointsMap, unstemmedQuery, pageIds, Key.TITLE);
+        long adjTimeTitle = System.currentTimeMillis();
+
+        System.out.println("VSM: " + (vsmTime - start));
+        System.out.println("Body: " + (adjTime - start));
+        System.out.println("Title: " + (adjTimeTitle - start));
 
         prScoresMap = PageRankCompute.readRankFile("pr-scores.ser");
 

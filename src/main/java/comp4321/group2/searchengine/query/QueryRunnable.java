@@ -56,19 +56,15 @@ public class QueryRunnable implements Runnable {
                     extBoolSim += Math.pow(weight, 2);
                     cosSim += weight;
                 }
-//
-//                extBoolSim /= queryWordIds.size();
-//                extBoolSim = Math.sqrt(extBoolSim);
-//
-//                cosSim /= (Math.sqrt(queryWordIds.size()) * pageLen);
+
+                extBoolSim /= queryWordIds.size();
+                extBoolSim = Math.sqrt(extBoolSim);
+
+                cosSim /= (Math.sqrt(queryWordIds.size()) * pageLen);
 
                 extBoolSimMap.put(pageId, extBoolSim);
                 cosSimMap.put(pageId, cosSim);
 
-            } catch (RocksDBException e) {
-                System.out.println("RocksDBException caught");
-            } catch (InvalidWordIdConversionException e) {
-                System.out.println("InvalidWordIdConversionException caught");
             } catch (Exception e) {
                 System.out.println(e + " caught");
             }
