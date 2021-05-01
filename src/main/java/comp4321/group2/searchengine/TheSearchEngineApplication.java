@@ -22,7 +22,7 @@ public class TheSearchEngineApplication extends SpringBootServletInitializer {
 
     public static void main(String[] args) throws RocksDBException, IOException, ClassNotFoundException {
         RocksDBApi.closeAllDBConnections();
-//        RocksDBApi.connect(true);
+        RocksDBApi.connect(true);
 
 //        Scanner scanner = new Scanner(System.in);
 //
@@ -72,30 +72,45 @@ public class TheSearchEngineApplication extends SpringBootServletInitializer {
 //            compute.computePageRank();
 //            System.out.println("Completed\n");
 //        }
+        if(args.length == 3){
+            if(args[0].trim().equalsIgnoreCase("c")){
+                boolean checkLastModified = true;
 
-        RocksDBApi.reset(true);
-        RocksDBApi.connect(true);
+                if(args[1].trim().equalsIgnoreCase("s")){
+                    System.out.println("Resetting database...");
+                    RocksDBApi.closeAllDBConnections();
+                    RocksDBApi.reset(true);
+                    RocksDBApi.connect(true);
+                    checkLastModified = false;
+                }
 
-        String rootUrl = "https://www.cse.ust.hk/";
+                String rootUrl = "https://www.cse.ust.hk/";
 
-        FastCrawler crawler = new FastCrawler(rootUrl);
-        crawler.indexToDB(false, 8000);
+                FastCrawler crawler = new FastCrawler(rootUrl);
 
-        System.out.println("Precomputing\n...");
-        FastCompute compute = new FastCompute();
-        compute.processWordIdToIdfEntries();
-        System.out.println("......");
-        compute.processWeightsAndPageLength();
-        System.out.println(".........");
-        compute.computePageParents();
-        System.out.println("............");
-        compute.computePageRank();
-        System.out.println("Completed\n");
+                int minNumIndexed = Integer.parseInt(args[2]);
+
+                minNumIndexed = minNumIndexed == -1 ? 8000 : minNumIndexed;
+
+                crawler.indexToDB(checkLastModified, minNumIndexed);
+
+                System.out.println("Precomputing\n...");
+                FastCompute compute = new FastCompute();
+                compute.processWordIdToIdfEntries();
+                System.out.println("......");
+                compute.processWeightsAndPageLength();
+                System.out.println(".........");
+                compute.computePageParents();
+                System.out.println("............");
+                compute.computePageRank();
+                System.out.println("Completed\n");
+            }
+        }
 
         System.out.println("Indexed data:");
         Metadata.printAll();
 
-        System.out.println("\n\nStarting backend service...");
+        System.out.println("\nStarting backend service...");
 
         SpringApplication.run(TheSearchEngineApplication.class, args);
     }
