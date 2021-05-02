@@ -78,7 +78,7 @@ public class QueryHandler {
         HashSet<Integer> pageIdsSet = new HashSet<>();
         Map<Integer, Double> totalScores = new HashMap<>();
 
-        printQueries();
+//        printQueries();
 
         if (stemmedQueryForAdj.isEmpty()) return totalScores;
 
@@ -165,9 +165,9 @@ public class QueryHandler {
         calculateAdjPoints(titleAdjPointsMap, unstemmedQueryForAdj, pageIds, Key.TITLE);
         long adjTimeTitle = System.currentTimeMillis();
 
-        System.out.println("VSM: " + (vsmTime - start));
-        System.out.println("Body: " + (adjTime - start));
-        System.out.println("Title: " + (adjTimeTitle - start));
+//        System.out.println("VSM: " + (vsmTime - start));
+//        System.out.println("Body: " + (adjTime - start));
+//        System.out.println("Title: " + (adjTimeTitle - start));
 
         prScoresMap = PageRankCompute.readRankFile("pr-scores.ser");
 
@@ -300,7 +300,7 @@ public class QueryHandler {
         map.forEach((k, v) -> {
             try {
                 Page pageData = RocksDBApi.getPageData(k);
-                System.out.println(pageData.getUrl() + "\t" + v);
+//                System.out.println(pageData.getUrl() + "\t" + v);
             } catch (Exception e) {
                 e.printStackTrace();
             }

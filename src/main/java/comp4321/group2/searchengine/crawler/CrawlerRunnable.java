@@ -99,12 +99,12 @@ public class CrawlerRunnable implements Runnable {
                 // forward index
                 ForwardIndex.addEntry(pageId, wordIds);
 
-                System.out.println("Indexed: " + currentLink.url);
+//                System.out.println("Indexed: " + currentLink.url);
 
                 if (pageId >= minNumCrawled - 1) break;
 
             } catch (Exception e) {
-                System.out.println(e + " caught");
+//                System.out.println(e + " caught");
             }
         }
         System.out.println("Counting down the latch");
