@@ -170,11 +170,11 @@ public class QueryHandler {
 
         // Calculate total
         for (int pageId : pageIds) {
-            double extBoolScore = extBoolSimMap.get(pageId) == null ? extBoolSimMap.get(pageId) : 0;
-            double cosSimScore = cosSimMap.get(pageId) == null ? cosSimMap.get(pageId) : 0;
-            double adjPointsScore = adjPointsMap.get(pageId) == null ? adjPointsMap.get(pageId) : 0;
-            double titleAdjPointsScore = titleAdjPointsMap.get(pageId) == null ? titleAdjPointsMap.get(pageId) : 0;
-            double prScore = prScoresMap.get(pageId) == null ? 0 : prScoresMap.get(pageId);
+            double extBoolScore = extBoolSimMap.get(pageId) != null ? extBoolSimMap.get(pageId) : 0;
+            double cosSimScore = cosSimMap.get(pageId) != null ? cosSimMap.get(pageId) : 0;
+            double adjPointsScore = adjPointsMap.get(pageId) != null ? adjPointsMap.get(pageId) : 0;
+            double titleAdjPointsScore = titleAdjPointsMap.get(pageId) != null ? titleAdjPointsMap.get(pageId) : 0;
+            double prScore = prScoresMap.get(pageId) != null ? prScoresMap.get(pageId) : 0;
 
             totalScores.put(pageId, 0.2 * extBoolScore + 0.2 * cosSimScore + 0.2 * adjPointsScore + 0.5 * titleAdjPointsScore + 0.2 * prScore);
         }
