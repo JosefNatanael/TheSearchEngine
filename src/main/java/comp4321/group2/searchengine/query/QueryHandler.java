@@ -97,6 +97,11 @@ public class QueryHandler {
         for (ArrayList<String> arrListOfPhrases : stemmedPhrasesForGetPages) {
             HashMap<Integer, ArrayList<Integer>> firstWordPageIdToLocs = RocksDBApi.getWordValues(arrListOfPhrases.get(0));
             if (firstWordPageIdToLocs == null) continue;
+            int wordId = WordToWordId.getValue(arrListOfPhrases.get(0));
+            if (wordId == -1) {
+                continue;
+            }
+            queryWordIds.add(wordId);
 
             // Loop over 1st word's pages
             for (Map.Entry<Integer, ArrayList<Integer>> pageIdLocs : firstWordPageIdToLocs.entrySet()) {
@@ -105,10 +110,11 @@ public class QueryHandler {
 
                 // Loop over 2nd word to last word in phrase
                 for (int wordIter = 1; wordIter < arrListOfPhrases.size(); ++wordIter) {
-                    int wordId = WordToWordId.getValue(arrListOfPhrases.get(wordIter));
+                    wordId = WordToWordId.getValue(arrListOfPhrases.get(wordIter));
                     if (wordId == -1) {
                         continue;
                     }
+                    queryWordIds.add(wordId);
                     byte[] invertedDbKey = WordUtilities.wordIdAndPageIdToDBKey(wordId, firstPageId);
 
                     // Get locations for current word (2nd to last word)

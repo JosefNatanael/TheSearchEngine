@@ -97,75 +97,75 @@ public class FastCrawler {
     }
 
 
-    public static void main(String[] args) throws RocksDBException, InvalidWordIdConversionException, IOException, ClassNotFoundException {
-        RocksDBApi.closeAllDBConnections();
-        RocksDBApi.connect(true);
-
-        Scanner scanner = new Scanner(System.in);
-
-        System.out.println("\n\n\t\tWelcome to The Search Engine!\n\n");
-        System.out.println("To crawl or not to crawl? (c/n)");
-        String isIndex_string = scanner.nextLine();
-        if (isIndex_string.trim().equalsIgnoreCase("c")) {
-            System.out.println("From scratch or not from scratch? (s/n)");
-            String fromScratch_string = scanner.nextLine();
-            boolean checkLastModified = true;
-            int minNumCrawled;
-
-            while (true) {
-                System.out.println("Enter minimum number of page you wish to index: (-1 for default)");
-                String minNumCrawled_string = scanner.nextLine();
-
-                try {
-                    int n = Integer.parseInt(minNumCrawled_string);
-                    minNumCrawled = n == -1 ? 4000 : n;
-                    break;
-                } catch (NumberFormatException e) {
-                    System.out.println("Please enter an integer");
-                }
-            }
-
-            if (fromScratch_string.trim().equalsIgnoreCase("s")) {
-                System.out.println("Resetting database...");
-                RocksDBApi.closeAllDBConnections();
-                RocksDBApi.reset(true);
-                RocksDBApi.connect(true);
-                checkLastModified = false;
-            }
-
-            String rootUrl = "https://www.cse.ust.hk/";
-
-            FastCrawler crawler = new FastCrawler(rootUrl);
-            crawler.indexToDB(checkLastModified, minNumCrawled);
-
-            System.out.println("Precomputing\n...");
-            FastCompute compute = new FastCompute();
-            compute.processWordIdToIdfEntries();
-            System.out.println("......");
-            compute.processWeightsAndPageLength();
-            System.out.println(".........");
-            compute.computePageParents();
-            System.out.println("............");
-            compute.computePageRank();
-            System.out.println("Completed\n");
-        }
-
-        System.out.println("Indexed data:");
-        Metadata.printAll();
-
-        URLToPageId.printAll();
-
-        while (true) {
-            System.out.println("\nEnter your query (enter :q to quit) :");
-
-            String query = scanner.nextLine();
-            if (query.equals(":q")) break;
-
-            QueryHandler qh = new QueryHandler(query);
-            qh.handle();
-        }
-        System.out.println("\n\n\t\t\t  Thank You!\n\tWe hope you enjoy our services!\n\n");
-
-        RocksDBApi.closeAllDBConnections();
-    }
+//    public static void main(String[] args) throws RocksDBException, InvalidWordIdConversionException, IOException, ClassNotFoundException {
+//        RocksDBApi.closeAllDBConnections();
+//        RocksDBApi.connect(true);
+//
+//        Scanner scanner = new Scanner(System.in);
+//
+//        System.out.println("\n\n\t\tWelcome to The Search Engine!\n\n");
+//        System.out.println("To crawl or not to crawl? (c/n)");
+//        String isIndex_string = scanner.nextLine();
+//        if (isIndex_string.trim().equalsIgnoreCase("c")) {
+//            System.out.println("From scratch or not from scratch? (s/n)");
+//            String fromScratch_string = scanner.nextLine();
+//            boolean checkLastModified = true;
+//            int minNumCrawled;
+//
+//            while (true) {
+//                System.out.println("Enter minimum number of page you wish to index: (-1 for default)");
+//                String minNumCrawled_string = scanner.nextLine();
+//
+//                try {
+//                    int n = Integer.parseInt(minNumCrawled_string);
+//                    minNumCrawled = n == -1 ? 4000 : n;
+//                    break;
+//                } catch (NumberFormatException e) {
+//                    System.out.println("Please enter an integer");
+//                }
+//            }
+//
+//            if (fromScratch_string.trim().equalsIgnoreCase("s")) {
+//                System.out.println("Resetting database...");
+//                RocksDBApi.closeAllDBConnections();
+//                RocksDBApi.reset(true);
+//                RocksDBApi.connect(true);
+//                checkLastModified = false;
+//            }
+//
+//            String rootUrl = "https://www.cse.ust.hk/";
+//
+//            FastCrawler crawler = new FastCrawler(rootUrl);
+//            crawler.indexToDB(checkLastModified, minNumCrawled);
+//
+//            System.out.println("Precomputing\n...");
+//            FastCompute compute = new FastCompute();
+//            compute.processWordIdToIdfEntries();
+//            System.out.println("......");
+//            compute.processWeightsAndPageLength();
+//            System.out.println(".........");
+//            compute.computePageParents();
+//            System.out.println("............");
+//            compute.computePageRank();
+//            System.out.println("Completed\n");
+//        }
+//
+//        System.out.println("Indexed data:");
+//        Metadata.printAll();
+//
+//        URLToPageId.printAll();
+//
+//        while (true) {
+//            System.out.println("\nEnter your query (enter :q to quit) :");
+//
+//            String query = scanner.nextLine();
+//            if (query.equals(":q")) break;
+//
+//            QueryHandler qh = new QueryHandler(query);
+//            qh.handle();
+//        }
+//        System.out.println("\n\n\t\t\t  Thank You!\n\tWe hope you enjoy our services!\n\n");
+//
+//        RocksDBApi.closeAllDBConnections();
+//    }
 }
